@@ -119,3 +119,65 @@ Para que empieces en Supabase hoy mismo, esta es la estructura mínima:
     *   `imagen_url` (text)
 
 ---
+
+
+---
+
+### 1. Arquitectura de VentaFácil (BaaS + Frontend Framework)
+Para este SaaS, manejaremos una **Arquitectura Monorepo Simplificada** basada en **Next.js**. No usaremos un backend tradicional de Node.js/Express para ahorrar costos de servidor. En su lugar, usaremos **Supabase** como nuestro Backend-as-a-Service (BaaS).
+
+*   **Frontend:** Next.js (App Router) para SSR (Server Side Rendering) y SEO.
+*   **Base de Datos y Auth:** Supabase (PostgreSQL).
+*   **Lógica de Negocio:** Manejada a través de **Server Actions** de Next.js (esto reemplaza la necesidad de tener un API aparte).
+
+---
+
+### 2. Estructura de Archivos Sugerida
+Para que el proyecto sea profesional y fácil de mantener, organizaremos las carpetas de la siguiente manera:
+
+```text
+ventafacil-saas/
+├── app/                  # Directorio principal de Next.js (App Router)
+│   ├── (auth)/           # Rutas de login y registro
+│   ├── (dashboard)/      # Panel administrativo del dueño del negocio
+│   ├── (public)/         # Vista del catálogo para los clientes (tienda/[slug])
+│   ├── api/              # Webhooks (ej. para pagos futuros con Wompi)
+│   └── layout.tsx        # Layout global
+├── components/           # Componentes reutilizables (UI)
+│   ├── ui/               # Botones, inputs, tarjetas (estilo Shadcn/ui)
+│   ├── shared/           # Navbar, Footer
+│   └── store/            # Componentes específicos del catálogo
+├── lib/                  # Utilidades y configuraciones
+│   ├── supabase/         # Configuración del cliente de Supabase
+│   └── utils.ts          # Funciones de ayuda (formato de moneda, etc.)
+├── services/             # Lógica de comunicación con la DB (Server Actions)
+│   ├── product.service.ts# CRUD de productos
+│   └── shop.service.ts   # Configuración de la tienda
+├── types/                # Definiciones de TypeScript (Interfaces)
+├── supabase/             # Migraciones y esquema SQL de la base de datos
+├── public/               # Imágenes estáticas y logos
+└── next.config.js        # Configuración de Next.js
+```
+
+---
+
+### 3. Distribución de Responsabilidades
+
+| Parte | Tecnología | Función en VentaFácil |
+| :--- | :--- | :--- |
+| **Frontend** | **Next.js + Tailwind** | Renderiza el catálogo rápido para el cliente y el panel para el dueño. |
+| **Backend (Lógica)** | **Next.js Server Actions** | Procesa la creación de productos y actualización de stock sin servidor externo. |
+| **Persistencia** | **Supabase (PostgreSQL)** | Almacena productos, perfiles de tienda y configuraciones de planes. |
+| **Archivos** | **Supabase Storage** | Guarda las fotos de los productos de forma gratuita. |
+| **Integración WA** | **wa.me Links** | Genera el mensaje de compra automáticamente para evitar la API de Meta. |
+
+---
+
+### 4. ¿Por qué esta separación?
+1.  **Costo $0:** Al no tener un servidor backend `Express` corriendo 24/7, Vercel te mantiene el sitio gratis. Supabase solo te cobra si pasas de miles de usuarios.
+2.  **Velocidad de MVP:** Al tener todo en un solo lenguaje (**TypeScript**) y un solo framework (**Next.js**), puedes sacar la primera versión en una semana.
+3.  **Seguridad:** Supabase maneja **RLS (Row Level Security)**, lo que asegura que el dueño de la "Tienda A" no pueda borrar productos de la "Tienda B" directamente desde la base de datos.
+
+
+
+**¿Qué te parece esta estructura?** Si te gusta, podemos empezar a definir el primer **Service Action** (el de creación de producto) para que veas cómo se conecta con Supabase sin necesidad de Express.
