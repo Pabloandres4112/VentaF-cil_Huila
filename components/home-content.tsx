@@ -47,12 +47,12 @@ export function HomeContent({ dict, locale }: { dict: HomeDict; locale: Locale }
               {dict.nav.login}
             </Link>
           </nav>
-          <div className="flex items-center gap-3">
-            {/* <LanguageSwitcher locale={locale} />
-            <ThemeToggle labels={dict.theme} /> */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <LanguageSwitcher locale={locale} />
+            <ThemeToggle labels={dict.theme} />
             <Link
               href={LOGIN_HREF}
-              className="rounded-md bg-accent px-4 py-2 text-sm font-bold text-accent-ink transition-colors hover:bg-accent/90"
+              className="hidden rounded-md bg-accent px-4 py-2 text-sm font-bold text-accent-ink transition-colors hover:bg-accent/90 sm:inline-flex"
             >
               {dict.nav.cta}
             </Link>
@@ -241,11 +241,11 @@ export function HomeContent({ dict, locale }: { dict: HomeDict; locale: Locale }
               <h2 className="font-display mt-2 mb-2 text-2xl sm:text-3xl">{dict.plans.title}</h2>
               <p className="text-ink-soft">{dict.plans.body}</p>
             </div>
-            <div className="grid gap-5 sm:grid-cols-2">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
               {dict.plans.items.map((plan) => (
                 <div
                   key={plan.name}
-                  className={`relative flex flex-col rounded-xl border bg-surface p-7 ${
+                  className={`relative flex flex-col rounded-xl border bg-surface p-6 ${
                     plan.featured
                       ? "border-accent shadow-[0_0_0_1px_var(--color-accent)]"
                       : "border-line"
@@ -259,11 +259,11 @@ export function HomeContent({ dict, locale }: { dict: HomeDict; locale: Locale }
                   <span className="text-sm font-bold uppercase tracking-wide text-ink-soft">
                     {plan.name}
                   </span>
-                  <div className="mb-5 mt-2 flex items-baseline gap-1.5">
-                    <span className="font-display text-3xl tabular-nums">
-                      {plan.price === 0 ? "$0" : formatCOP(plan.price)}
+                  <div className="mb-5 mt-2">
+                    <span className="font-display block text-2xl tabular-nums">
+                      {plan.priceLabel}
                     </span>
-                    <span className="text-sm text-ink-faint">{dict.plans.perMonth}</span>
+                    <span className="text-sm text-ink-faint">{plan.priceUnit}</span>
                   </div>
                   <ul className="mb-7 flex flex-col gap-2.5 text-sm">
                     {plan.features.map((feature) => (

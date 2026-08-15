@@ -19,7 +19,8 @@ export interface ExampleShopDict {
 
 export interface PlanDict {
   name: string;
-  price: number;
+  priceLabel: string;
+  priceUnit: string;
   featured?: boolean;
   badge?: string;
   features: string[];
@@ -86,7 +87,6 @@ export interface HomeDict {
     eyebrow: string;
     title: string;
     body: string;
-    perMonth: string;
     items: PlanDict[];
   };
   examples: {

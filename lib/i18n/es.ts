@@ -107,13 +107,24 @@ export const es: HomeDict = {
   },
   plans: {
     eyebrow: "Planes",
-    title: "Empieza gratis. Crece cuando tu negocio lo pida.",
-    body: "Sin permanencia. Si un mes no pagas, tu catálogo simplemente se pausa — no se pierde.",
-    perMonth: "COP / mes",
+    title: "Desde una demo gratis hasta tu suscripción mensual.",
+    body: "Empieza como quieras: probando en vivo, solo, o con nuestra ayuda para arrancar. Sin permanencia — si un mes no pagas, tu catálogo se pausa, no se pierde.",
     items: [
       {
+        name: "Auditoría",
+        priceLabel: "$0",
+        priceUnit: "Demo en vivo de 5 min",
+        features: [
+          "Vemos 3–5 productos de muestra",
+          "Te mostramos tu catálogo en vivo",
+          "Sin compromiso, sin tarjeta",
+        ],
+        cta: "Agendar mi demo gratis",
+      },
+      {
         name: "Semilla",
-        price: 0,
+        priceLabel: "$0",
+        priceUnit: "COP / mes",
         features: [
           "Hasta 10 productos",
           "Catálogo público con tu link",
@@ -122,8 +133,20 @@ export const es: HomeDict = {
         cta: "Empezar gratis",
       },
       {
+        name: "Promo Lanzamiento",
+        priceLabel: "Desde $30.000",
+        priceUnit: "COP · pago único",
+        features: [
+          "Hasta 20 productos",
+          "Cargamos tus fotos y precios por ti",
+          "Incluye tu primer mes de servicio",
+        ],
+        cta: "Quiero que me lo armen",
+      },
+      {
         name: "Emprendedor",
-        price: 29900,
+        priceLabel: "Desde $25.000",
+        priceUnit: "COP / mes",
         featured: true,
         badge: "Recomendado",
         features: [

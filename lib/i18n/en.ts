@@ -104,13 +104,24 @@ export const en: HomeDict = {
   },
   plans: {
     eyebrow: "Pricing",
-    title: "Start free. Grow when your business asks for it.",
-    body: "No contracts. If you miss a month, your catalog simply pauses — it isn't lost.",
-    perMonth: "COP / month",
+    title: "From a free walkthrough to your monthly subscription.",
+    body: "Start however you like: try it live, go solo, or let us set it up for you. No contracts — miss a month and your catalog just pauses, it isn't lost.",
     items: [
       {
+        name: "Demo",
+        priceLabel: "$0",
+        priceUnit: "Live 5-minute demo",
+        features: [
+          "We review 3–5 sample products",
+          "See your catalog live, on the spot",
+          "No commitment, no card required",
+        ],
+        cta: "Book my free demo",
+      },
+      {
         name: "Seedling",
-        price: 0,
+        priceLabel: "$0",
+        priceUnit: "COP / month",
         features: [
           "Up to 10 products",
           "Public catalog with your link",
@@ -119,8 +130,20 @@ export const en: HomeDict = {
         cta: "Start for free",
       },
       {
+        name: "Launch Promo",
+        priceLabel: "From $30,000",
+        priceUnit: "COP · one-time",
+        features: [
+          "Up to 20 products",
+          "We upload your photos and prices for you",
+          "Includes your first month of service",
+        ],
+        cta: "Set it up for me",
+      },
+      {
         name: "Entrepreneur",
-        price: 29900,
+        priceLabel: "From $25,000",
+        priceUnit: "COP / month",
         featured: true,
         badge: "Recommended",
         features: [
