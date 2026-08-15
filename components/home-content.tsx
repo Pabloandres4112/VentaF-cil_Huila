@@ -241,11 +241,11 @@ export function HomeContent({ dict, locale }: { dict: HomeDict; locale: Locale }
               <h2 className="font-display mt-2 mb-2 text-2xl sm:text-3xl">{dict.plans.title}</h2>
               <p className="text-ink-soft">{dict.plans.body}</p>
             </div>
-            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
               {dict.plans.items.map((plan) => (
                 <div
                   key={plan.name}
-                  className={`relative flex flex-col rounded-xl border bg-surface p-6 ${
+                  className={`relative flex flex-col rounded-xl border bg-surface p-7 ${
                     plan.featured
                       ? "border-accent shadow-[0_0_0_1px_var(--color-accent)]"
                       : "border-line"
@@ -283,6 +283,15 @@ export function HomeContent({ dict, locale }: { dict: HomeDict; locale: Locale }
                   >
                     {plan.cta}
                   </Link>
+                  {plan.optionalNote && (
+                    <p className="mt-3 text-center text-xs text-ink-faint">
+                      {plan.optionalNote.text}{" "}
+                      {/* TODO: enlazar al contacto real (WhatsApp/calendario) cuando exista */}
+                      <a href="#" className="font-semibold text-ink-soft underline underline-offset-2 hover:text-ink">
+                        {plan.optionalNote.cta}
+                      </a>
+                    </p>
+                  )}
                 </div>
               ))}
             </div>

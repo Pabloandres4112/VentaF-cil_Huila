@@ -87,7 +87,7 @@ export const es: HomeDict = {
       {
         title: "Comparte tu link",
         description:
-          "ventafacil.com/tienda/tu-negocio — pégalo en tu estado de WhatsApp o Instagram.",
+          "ventafacil.com/store/tu-código — pégalo en tu estado de WhatsApp o Instagram.",
       },
     ],
     clientSteps: [
@@ -107,20 +107,9 @@ export const es: HomeDict = {
   },
   plans: {
     eyebrow: "Planes",
-    title: "Desde una demo gratis hasta tu suscripción mensual.",
-    body: "Empieza como quieras: probando en vivo, solo, o con nuestra ayuda para arrancar. Sin permanencia — si un mes no pagas, tu catálogo se pausa, no se pierde.",
+    title: "Empieza gratis, tú mismo.",
+    body: "Regístrate y monta tu catálogo en minutos, sin depender de nadie. Sin permanencia — si un mes no pagas, tu catálogo se pausa, no se pierde.",
     items: [
-      {
-        name: "Auditoría",
-        priceLabel: "$0",
-        priceUnit: "Demo en vivo de 5 min",
-        features: [
-          "Vemos 3–5 productos de muestra",
-          "Te mostramos tu catálogo en vivo",
-          "Sin compromiso, sin tarjeta",
-        ],
-        cta: "Agendar mi demo gratis",
-      },
       {
         name: "Semilla",
         priceLabel: "$0",
@@ -131,6 +120,10 @@ export const es: HomeDict = {
           "Pedidos directos a tu WhatsApp",
         ],
         cta: "Empezar gratis",
+        optionalNote: {
+          text: "¿Prefieres que te ayudemos a montarlo? Es opcional.",
+          cta: "Agendar una demo gratis",
+        },
       },
       {
         name: "Promo Lanzamiento",

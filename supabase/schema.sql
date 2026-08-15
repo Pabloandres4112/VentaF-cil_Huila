@@ -6,7 +6,10 @@ CREATE TABLE public.tiendas (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   nombre TEXT NOT NULL,
-  slug TEXT UNIQUE NOT NULL, -- Ej: 'tienda-pablo' -> /tienda/tienda-pablo
+  -- Código único e inmutable de la tienda (auto-generado, sin importar si la
+  -- crea el cliente en self-service o la crea el equipo de VentaFácil en un
+  -- alta asistida). Es el único identificador público: /store/A3F9C2
+  store_code TEXT UNIQUE NOT NULL DEFAULT upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 6)),
   telefono_whatsapp TEXT NOT NULL, -- Ej: '573001234567' (sin signo +)
   estado_suscripcion TEXT DEFAULT 'Activo' CHECK (estado_suscripcion IN ('Activo', 'Inactivo')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()

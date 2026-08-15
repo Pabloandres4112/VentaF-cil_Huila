@@ -25,6 +25,8 @@ export interface PlanDict {
   badge?: string;
   features: string[];
   cta: string;
+  /** Nota de un servicio opcional relacionado (ej. demo asistida), no un plan aparte. */
+  optionalNote?: { text: string; cta: string };
 }
 
 export interface StepDict {

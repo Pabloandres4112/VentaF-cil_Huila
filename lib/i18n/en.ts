@@ -84,7 +84,7 @@ export const en: HomeDict = {
       },
       {
         title: "Share your link",
-        description: "ventafacil.com/tienda/your-shop — post it in your WhatsApp status or Instagram bio.",
+        description: "ventafacil.com/store/your-code — post it in your WhatsApp status or Instagram bio.",
       },
     ],
     clientSteps: [
@@ -104,20 +104,9 @@ export const en: HomeDict = {
   },
   plans: {
     eyebrow: "Pricing",
-    title: "From a free walkthrough to your monthly subscription.",
-    body: "Start however you like: try it live, go solo, or let us set it up for you. No contracts — miss a month and your catalog just pauses, it isn't lost.",
+    title: "Start free, on your own.",
+    body: "Sign up and set up your catalog yourself in minutes, no one else needed. No contracts — miss a month and your catalog just pauses, it isn't lost.",
     items: [
-      {
-        name: "Demo",
-        priceLabel: "$0",
-        priceUnit: "Live 5-minute demo",
-        features: [
-          "We review 3–5 sample products",
-          "See your catalog live, on the spot",
-          "No commitment, no card required",
-        ],
-        cta: "Book my free demo",
-      },
       {
         name: "Seedling",
         priceLabel: "$0",
@@ -128,6 +117,10 @@ export const en: HomeDict = {
           "Orders sent straight to WhatsApp",
         ],
         cta: "Start for free",
+        optionalNote: {
+          text: "Prefer some help setting it up? It's optional.",
+          cta: "Book a free demo",
+        },
       },
       {
         name: "Launch Promo",
