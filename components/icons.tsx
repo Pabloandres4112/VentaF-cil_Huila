@@ -59,6 +59,33 @@ export function PinIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function SunIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <circle cx="12" cy="12" r="4" stroke="currentColor" strokeWidth={2} />
+      <path
+        d="M12 2v2.5M12 19.5V22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M2 12h2.5M19.5 12H22M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
+
+export function MoonIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <path
+        d="M20.5 14.7A8.5 8.5 0 019.3 3.5a8.5 8.5 0 1011.2 11.2z"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 export function WhatsappIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Svg {...props}>

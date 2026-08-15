@@ -1,28 +1,78 @@
 @import "tailwindcss";
 
-@theme {
-  --color-ink: #1b2430;
-  --color-ink-soft: #58626f;
-  --color-ink-faint: #8991a0;
-  --color-ground: #f6f7f9;
-  --color-surface: #ffffff;
-  --color-surface-2: #eef0f3;
-  --color-line: #1b243020;
-  --color-line-strong: #1b24303d;
-  --color-accent: #24405e;
-  --color-accent-ink: #ffffff;
-  --color-accent-soft: #e5eaf1;
-  --color-wa: #239458;
-  --color-wa-deep: #186b3f;
-  --color-wa-ink: #ffffff;
-  --color-wa-tint: #e4f3ea;
+:root {
+  --ink: #1b2430;
+  --ink-soft: #58626f;
+  --ink-faint: #8991a0;
+  --ground: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #eef0f3;
+  --line: #1b243020;
+  --line-strong: #1b24303d;
+  --accent: #24405e;
+  --accent-ink: #ffffff;
+  --accent-soft: #e5eaf1;
+  --wa: #239458;
+  --wa-deep: #186b3f;
+  --wa-ink: #ffffff;
+  --wa-tint: #e4f3ea;
 }
 
-/*
-  Tema oscuro: pendiente para una segunda pasada (se acordó iterar primero
-  sobre el tema claro). Cuando se retome, añadir aquí los mismos tokens
-  bajo @media (prefers-color-scheme: dark) sobre :root.
-*/
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --ink: #e9ecf1;
+    --ink-soft: #acb5c2;
+    --ink-faint: #78818f;
+    --ground: #10131a;
+    --surface: #171c25;
+    --surface-2: #1e2430;
+    --line: #e9ecf120;
+    --line-strong: #e9ecf13d;
+    --accent: #4a79ac;
+    --accent-ink: #ffffff;
+    --accent-soft: #1d2a3a;
+    --wa: #2fa766;
+    --wa-deep: #7fe0a6;
+    --wa-ink: #ffffff;
+    --wa-tint: #14291d;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ink: #e9ecf1;
+  --ink-soft: #acb5c2;
+  --ink-faint: #78818f;
+  --ground: #10131a;
+  --surface: #171c25;
+  --surface-2: #1e2430;
+  --line: #e9ecf120;
+  --line-strong: #e9ecf13d;
+  --accent: #4a79ac;
+  --accent-ink: #ffffff;
+  --accent-soft: #1d2a3a;
+  --wa: #2fa766;
+  --wa-deep: #7fe0a6;
+  --wa-ink: #ffffff;
+  --wa-tint: #14291d;
+}
+
+@theme inline {
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-ground: var(--ground);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-accent-soft: var(--accent-soft);
+  --color-wa: var(--wa);
+  --color-wa-deep: var(--wa-deep);
+  --color-wa-ink: var(--wa-ink);
+  --color-wa-tint: var(--wa-tint);
+}
 
 body {
   background: var(--color-ground);
