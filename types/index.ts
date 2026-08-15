@@ -4,7 +4,7 @@ export interface Tienda {
   id: string;
   user_id: string;
   nombre: string;
-  slug: string;
+  store_code: string;
   telefono_whatsapp: string;
   estado_suscripcion: EstadoSuscripcion;
   created_at: string;

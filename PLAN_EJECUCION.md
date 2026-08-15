@@ -55,8 +55,8 @@ ventafacil/
 │   │       ├── page.tsx        # CRUD de productos
 │   │       └── perfil/
 │   │           └── page.tsx    # Configuración de tienda y WhatsApp
-│   ├── tienda/
-│   │   └── [slug]/
+│   ├── store/
+│   │   └── [code]/
 │   │       └── page.tsx        # Catálogo público para clientes
 │   ├── layout.tsx
 │   └── page.tsx                # Landing / Home básica
@@ -94,7 +94,10 @@ CREATE TABLE public.tiendas (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   nombre TEXT NOT NULL,
-  slug TEXT UNIQUE NOT NULL, -- Ej: 'tienda-pablo' -> /tienda/tienda-pablo
+  -- Código único e inmutable de la tienda (auto-generado, sin importar si la
+  -- crea el cliente en self-service o la crea el equipo de VentaFácil en un
+  -- alta asistida). Es el único identificador público: /store/A3F9C2
+  store_code TEXT UNIQUE NOT NULL DEFAULT upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 6)),
   telefono_whatsapp TEXT NOT NULL, -- Ej: '573001234567' (sin signo +)
   estado_suscripcion TEXT DEFAULT 'Activo' CHECK (estado_suscripcion IN ('Activo', 'Inactivo')),
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -136,6 +139,8 @@ CREATE POLICY "Solo dueño modifica su tienda" ON public.tiendas
 
 > **Nota:** el README/documento_Completo mencionaban además una tabla `pedidos` y una columna `plan_tipo` (para diferenciar Semilla/Emprendedor/Empresa). Ambas quedan **fuera del MVP**: no hay pasarela de pago automática ni gestión de planes por ahora (regla de oro #3 y #6), así que no se crean todavía. Se documentan en la sección 9 como backlog futuro.
 
+> **Nota (cambio de decisión):** el campo `slug` (elegible por el usuario) de las versiones iniciales del esquema se reemplazó por `store_code` — un código único, corto e **inmutable**, generado automáticamente por la base de datos sin importar si la tienda la crea el cliente (self-service) o el equipo de VentaFácil (alta asistida, plan "Promo Lanzamiento"). Objetivo: un solo identificador confiable por tienda para evitar cualquier cruce de datos entre negocios, y una URL pública predecible: `/store/[code]` (ej. `ventafacil.com/store/A3F9C2`).
+
 ---
 
 ## 6. Alcance del MVP
@@ -144,10 +149,10 @@ CREATE POLICY "Solo dueño modifica su tienda" ON public.tiendas
 
 **Para el Dueño del Negocio:**
 - Registro e inicio de sesión (Supabase Auth).
-- Configuración de tienda: nombre, slug, número de WhatsApp.
+- Configuración de tienda: nombre, store_code, número de WhatsApp.
 - CRUD completo de productos (nombre, descripción, precio, stock, imagen, disponible on/off).
 - Subida de imágenes a Supabase Storage (bucket `productos`).
-- Link único de catálogo para compartir (`/tienda/[slug]`).
+- Link único de catálogo para compartir (`/store/[code]`).
 
 **Para el Cliente Final:**
 - Vista de catálogo público, mobile-first.
@@ -172,7 +177,7 @@ CREATE POLICY "Solo dueño modifica su tienda" ON public.tiendas
 ## 7. Roles del Sistema
 
 1. **Administrador del Comercio (Dueño):** acceso a `/dashboard`, gestiona solo sus propios productos y tienda (protegido por RLS). No ve datos de otros comercios.
-2. **Cliente Final:** solo accede a `/tienda/[slug]`, sin necesidad de cuenta, experiencia de navegación y compra.
+2. **Cliente Final:** solo accede a `/store/[code]`, sin necesidad de cuenta, experiencia de navegación y compra.
 
 ---
 
@@ -198,17 +203,17 @@ El orden respeta dependencias técnicas: primero la infraestructura de datos, lu
 - Middleware/verificación de sesión para proteger rutas `(dashboard)`.
 
 ### Fase 3 — Capa de Lógica de Servidor (Server Actions)
-- `services/store.ts`: crear/leer/actualizar perfil de tienda (nombre, slug, teléfono WhatsApp).
+- `services/store.ts`: crear/leer/actualizar perfil de tienda (nombre, store_code, teléfono WhatsApp).
 - `services/products.ts`: CRUD completo de productos, incluyendo subida de imagen a Storage.
 - `types/index.ts`: interfaces `Tienda` y `Producto`.
 
 ### Fase 4 — Capa de Panel Admin (`/dashboard`)
-- Página de perfil: editar nombre de tienda, slug, número de WhatsApp.
+- Página de perfil: editar nombre de tienda, número de WhatsApp (el `store_code` es inmutable, no se edita).
 - Página de inventario: listar, crear, editar, eliminar productos (`ProductForm.tsx`).
 - Toggle de disponibilidad de producto.
 - Mostrar el link único del catálogo para copiar/compartir.
 
-### Fase 5 — Capa de Catálogo Público (`/tienda/[slug]`)
+### Fase 5 — Capa de Catálogo Público (`/store/[code]`)
 - Renderizar tienda + grid de productos disponibles (SSR con Next.js).
 - Verificar `estado_suscripcion`; si es `Inactivo`, mostrar mensaje de tienda no disponible.
 - `ProductCard.tsx` mobile-first.
@@ -230,19 +235,42 @@ El orden respeta dependencias técnicas: primero la infraestructura de datos, lu
 
 ---
 
-## 9. Modelo de Negocio (referencia, no se construye en el MVP)
+## 9. Modelo de negocio actualizado con la nueva estrategia comercial
 
-| Plan | Costo | Productos | Stock | Estado |
-| :--- | :--- | :--- | :--- | :--- |
-| Semilla (Gratis) | $0 | 10 | No | MVP puede usarse así manualmente |
-| Emprendedor | ~$25.000–$30.000 COP/mes | 100 | Sí | Backlog |
-| Empresa | ~$60.000+ COP/mes | Ilimitados | Sí + alertas | Backlog, sin definir |
+### Modelo de Negocio (Referencia para post-MVP)
 
-- Instalación inicial: $150.000–$300.000 COP (manual, no automatizada).
-- Estrategia de lanzamiento: 5 clientes semilla en Isnos y Pitalito (ferreterías, ropa, depósitos de café).
-- La gestión de planes/límites (`plan_tipo`, conteo de productos vs. límite) queda documentada aquí para cuando el MVP esté validado — no se implementa ahora.
+| Plan / Servicio | Costo | Productos | Stock | Descripción / Estado |
+| --- | --- | --- | --- | --- |
+| **Auditoría / Demo** | **$0 COP** | 3–5 de prueba | No | **El Gancho:** Demostración en vivo en 5 min para mostrarle al comerciante cómo se vería su catálogo. |
+| **Promo Lanzamiento (Carga Asistida)** | **$30.000 – $50.000 COP** *(pago único)* | Hasta 20 productos | Sí | **Configuración Inicial:** El comerciante envía las fotos/precios por WhatsApp y tú se los dejas cargados + incluye el 1.er mes de servicio.
+
+ |
+| **Semilla (Gratis / Self-Service)** | **$0 COP** | Hasta 10 productos | No | **Autogestionado:** El dueño se registra y sube sus productos solo. Sin gestión automática de stock.
+
+ |
+| **Emprendedor (Suscripción)** | **~$25.000 – $30.000 COP/mes** | Hasta 100 productos | Sí | **Suscripción Recurrente:** Acceso completo al panel, autogestión de catálogo y control de stock.
+
+ |
+| **Empresa** | **~$60.000+ COP/mes** | Ilimitados | Sí + alertas | Backlog (para clientes con inventarios grandes o múltiples usuarios).
+
+ |
 
 ---
+
+####  Estrategia Comercial de Lanzamiento
+
+* **Primera toma de contacto:** Auditoría/Demostración técnica de 5 minutos totalmente gratis.
+* **Oferta de Entrada (Hook):** Paquete Promo de **$30.000 – $50.000 COP** donde el comerciante solo te pasa las fotos por chat y tú le entregas el catálogo montado con su primer mes activo.
+
+
+* **Mantenimiento y Recurrencia:** A partir del mes 2, el cliente paga su mensualidad de **$25.000 – $30.000 COP** para mantener la tienda activa. Él mismo puede agregar/editar productos desde su panel. Si requiere cargues masivos asistidos nuevamente, se cobran como servicio adicional.
+
+
+* **Clientes Iniciales:** 5 clientes semilla en municipios locales (Isnos, Pitalito) en nichos como ferreterías, ropa y depósitos de café.
+
+
+
+
 
 ## 10. Próximo Paso Inmediato
 
