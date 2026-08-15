@@ -36,6 +36,7 @@
 | Almacenamiento de imágenes | Supabase Storage (bucket `productos`) |
 | Comunicación con cliente final | Enlaces `wa.me` (sin backend de mensajería) |
 | Despliegue | Vercel (plan gratuito) |
+| Gestor de paquetes | **pnpm** (no usar `npm`/`npm install`, evita descargas y duplicados innecesarios de `node_modules`) |
 
 ---
 
