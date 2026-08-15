@@ -21,6 +21,8 @@
 4. **Mobile-First absoluto**: catálogo público y panel admin deben funcionar perfecto en celular primero.
 5. **Costo de infraestructura = $0**: Next.js Server Actions + Supabase Free Tier + Vercel Free Tier. Nada de servidor Express corriendo 24/7.
 6. No construir funcionalidades de los planes "Emprendedor"/"Empresa" (multiusuario, reportes, dominio propio, alertas de stock) hasta que el MVP esté validado.
+7. **Cero emojis en todo el producto** (UI, mensajes de WhatsApp, textos). Donde se necesite un elemento visual, usar iconos (SVG), no emojis.
+8. **Paleta de colores minimalista y profesional**: tonos neutros (grises/slate), un acento sobrio por marca, nada de paletas cálidas/decorativas. El verde de WhatsApp se reserva exclusivamente para acciones/elementos relacionados con WhatsApp.
 
 ---
 
@@ -217,7 +219,7 @@ El orden respeta dependencias técnicas: primero la infraestructura de datos, lu
 - Modal de checkout: nombre, dirección, método de pago.
 
 ### Fase 7 — Capa de Integración WhatsApp
-- `lib/whatsapp.ts`: formatear mensaje con el detalle del pedido (usar plantilla ya definida en `INSTRUCCIONES_PROYECTO.md`).
+- `lib/whatsapp.ts`: formatear mensaje con el detalle del pedido. **Sin emojis** — se usa `*texto*` (negrita nativa de WhatsApp) para las etiquetas, no la plantilla con emojis de `INSTRUCCIONES_PROYECTO.md`. Preferencia explícita del usuario: nada de emojis en el producto, ni en la UI ni en los mensajes; usar iconos cuando se necesite un elemento visual.
 - Generar link `https://wa.me/{telefono_whatsapp}?text={mensaje_encoded}` y redirigir al confirmar pedido.
 
 ### Fase 8 — QA y Despliegue

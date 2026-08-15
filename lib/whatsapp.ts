@@ -26,16 +26,16 @@ function formatPedidoMensaje(datos: DatosPedido): string {
     .join("\n");
 
   return [
-    `🛒 *¡Nuevo Pedido desde VentaFácil!*`,
+    `*Nuevo pedido — VentaFácil*`,
     ``,
-    `👤 *Cliente:* ${datos.clienteNombre}`,
-    `📍 *Dirección:* ${datos.direccion}`,
-    `💳 *Pago:* ${datos.metodoPago}`,
+    `*Cliente:* ${datos.clienteNombre}`,
+    `*Dirección:* ${datos.direccion}`,
+    `*Pago:* ${datos.metodoPago}`,
     ``,
     `*Detalle del pedido:*`,
     detalle,
     ``,
-    `💰 *Total a pagar:* $${datos.total}`,
+    `*Total a pagar:* $${datos.total}`,
     ``,
     `_Enviado desde el catálogo digital de ${datos.tiendaNombre}._`,
   ].join("\n");
