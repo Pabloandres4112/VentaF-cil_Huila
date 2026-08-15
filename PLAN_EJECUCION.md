@@ -230,19 +230,42 @@ El orden respeta dependencias técnicas: primero la infraestructura de datos, lu
 
 ---
 
-## 9. Modelo de Negocio (referencia, no se construye en el MVP)
+## 9. Modelo de negocio actualizado con la nueva estrategia comercial
 
-| Plan | Costo | Productos | Stock | Estado |
-| :--- | :--- | :--- | :--- | :--- |
-| Semilla (Gratis) | $0 | 10 | No | MVP puede usarse así manualmente |
-| Emprendedor | ~$25.000–$30.000 COP/mes | 100 | Sí | Backlog |
-| Empresa | ~$60.000+ COP/mes | Ilimitados | Sí + alertas | Backlog, sin definir |
+### Modelo de Negocio (Referencia para post-MVP)
 
-- Instalación inicial: $150.000–$300.000 COP (manual, no automatizada).
-- Estrategia de lanzamiento: 5 clientes semilla en Isnos y Pitalito (ferreterías, ropa, depósitos de café).
-- La gestión de planes/límites (`plan_tipo`, conteo de productos vs. límite) queda documentada aquí para cuando el MVP esté validado — no se implementa ahora.
+| Plan / Servicio | Costo | Productos | Stock | Descripción / Estado |
+| --- | --- | --- | --- | --- |
+| **Auditoría / Demo** | **$0 COP** | 3–5 de prueba | No | **El Gancho:** Demostración en vivo en 5 min para mostrarle al comerciante cómo se vería su catálogo. |
+| **Promo Lanzamiento (Carga Asistida)** | **$30.000 – $50.000 COP** *(pago único)* | Hasta 20 productos | Sí | **Configuración Inicial:** El comerciante envía las fotos/precios por WhatsApp y tú se los dejas cargados + incluye el 1.er mes de servicio.
+
+ |
+| **Semilla (Gratis / Self-Service)** | **$0 COP** | Hasta 10 productos | No | **Autogestionado:** El dueño se registra y sube sus productos solo. Sin gestión automática de stock.
+
+ |
+| **Emprendedor (Suscripción)** | **~$25.000 – $30.000 COP/mes** | Hasta 100 productos | Sí | **Suscripción Recurrente:** Acceso completo al panel, autogestión de catálogo y control de stock.
+
+ |
+| **Empresa** | **~$60.000+ COP/mes** | Ilimitados | Sí + alertas | Backlog (para clientes con inventarios grandes o múltiples usuarios).
+
+ |
 
 ---
+
+####  Estrategia Comercial de Lanzamiento
+
+* **Primera toma de contacto:** Auditoría/Demostración técnica de 5 minutos totalmente gratis.
+* **Oferta de Entrada (Hook):** Paquete Promo de **$30.000 – $50.000 COP** donde el comerciante solo te pasa las fotos por chat y tú le entregas el catálogo montado con su primer mes activo.
+
+
+* **Mantenimiento y Recurrencia:** A partir del mes 2, el cliente paga su mensualidad de **$25.000 – $30.000 COP** para mantener la tienda activa. Él mismo puede agregar/editar productos desde su panel. Si requiere cargues masivos asistidos nuevamente, se cobran como servicio adicional.
+
+
+* **Clientes Iniciales:** 5 clientes semilla en municipios locales (Isnos, Pitalito) en nichos como ferreterías, ropa y depósitos de café.
+
+
+
+
 
 ## 10. Próximo Paso Inmediato
 
