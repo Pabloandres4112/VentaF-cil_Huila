@@ -86,6 +86,67 @@ export function MoonIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function CartIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <path
+        d="M3 4h2l2.2 11.4a2 2 0 002 1.6h7.6a2 2 0 002-1.6L20 8H6"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="10" cy="20" r="1.4" fill="currentColor" />
+      <circle cx="17" cy="20" r="1.4" fill="currentColor" />
+    </Svg>
+  );
+}
+
+export function PlusIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+export function MinusIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <path d="M5 12h14" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+export function CloseIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <path
+        d="M6 6l12 12M18 6L6 18"
+        stroke="currentColor"
+        strokeWidth={2.2}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
+
+export function ImagePlaceholderIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <rect x="3" y="4" width="18" height="16" rx="2" stroke="currentColor" strokeWidth={1.6} />
+      <circle cx="9" cy="10" r="1.6" stroke="currentColor" strokeWidth={1.6} />
+      <path
+        d="M4 17l5-5 3.5 3.5L16 12l4 5"
+        stroke="currentColor"
+        strokeWidth={1.6}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 export function WhatsappIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Svg {...props}>

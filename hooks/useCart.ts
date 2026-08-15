@@ -50,8 +50,10 @@ export function useCart(tiendaId: string) {
     );
   }, []);
 
+  const clearCart = useCallback(() => setItems([]), []);
+
   const total = items.reduce((sum, i) => sum + i.producto.precio * i.cantidad, 0);
   const cantidadTotal = items.reduce((sum, i) => sum + i.cantidad, 0);
 
-  return { items, addItem, removeItem, setCantidad, total, cantidadTotal };
+  return { items, addItem, removeItem, setCantidad, clearCart, total, cantidadTotal };
 }
