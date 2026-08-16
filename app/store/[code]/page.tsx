@@ -5,6 +5,7 @@
 
 import { getMockTiendaByCode, MOCK_PRODUCTOS } from "@/lib/mock-data";
 import { StoreCatalog } from "@/components/store-catalog";
+import { WhatsappIcon } from "@/components/icons";
 
 export default async function StorePage({
   params,
@@ -35,11 +36,32 @@ export default async function StorePage({
 
   return (
     <main className="flex-1 bg-ground pb-28">
-      <header className="border-b border-line bg-surface px-5 py-6 sm:px-8">
-        <p className="font-display text-xl">{tienda.nombre}</p>
-        <p className="text-sm text-ink-faint">Catálogo digital</p>
+      <header className="border-b border-line bg-surface">
+        <div className="mx-auto flex max-w-284 items-center justify-between gap-4 px-5 py-5 sm:px-8">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-accent font-display text-base text-accent-ink">
+              {tienda.nombre.charAt(0).toUpperCase()}
+            </div>
+            <div className="min-w-0">
+              <p className="font-display truncate text-lg leading-tight">{tienda.nombre}</p>
+              <p className="truncate text-xs text-ink-faint">
+                Catálogo digital · {productos.length}{" "}
+                {productos.length === 1 ? "producto" : "productos"}
+              </p>
+            </div>
+          </div>
+          <a
+            href={`https://wa.me/${tienda.telefono_whatsapp}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex flex-none items-center gap-1.5 rounded-full border border-line-strong px-3.5 py-2 text-xs font-bold text-ink-soft transition-colors hover:bg-ink/5 sm:text-sm"
+          >
+            <WhatsappIcon className="text-wa-deep" />
+            <span className="hidden sm:inline">Escríbenos</span>
+          </a>
+        </div>
       </header>
-      <div className="px-5 py-6 sm:px-8">
+      <div className="mx-auto max-w-284 px-5 py-6 sm:px-8">
         <StoreCatalog tienda={tienda} productos={productos} />
       </div>
     </main>

@@ -5,6 +5,7 @@
 import { useState, type FormEvent } from "react";
 import { CloseIcon, WhatsappIcon } from "@/components/icons";
 import type { CartItem } from "@/hooks/useCart";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { formatCOP } from "@/lib/utils";
 import { buildWhatsappUrl } from "@/lib/whatsapp";
 
@@ -30,6 +31,7 @@ export function CheckoutModal({
   const [nombre, setNombre] = useState("");
   const [direccion, setDireccion] = useState("");
   const [metodoPago, setMetodoPago] = useState<string>(METODOS_PAGO[0]);
+  useBodyScrollLock(open);
 
   if (!open) return null;
 
