@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# auto-generado por `next dev` en cada arranque — no se sube al repo
+CLAUDE.md
