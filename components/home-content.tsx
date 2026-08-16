@@ -7,7 +7,7 @@ import type { HomeDict, Locale } from "@/lib/i18n";
 import { formatCOP } from "@/lib/utils";
 
 function Wrap({ children, className = "" }: { children: ReactNode; className?: string }) {
-  return <div className={`mx-auto max-w-[71rem] px-5 sm:px-10 ${className}`}>{children}</div>;
+  return <div className={`mx-auto max-w-284 px-5 sm:px-10 ${className}`}>{children}</div>;
 }
 
 function Hairline() {

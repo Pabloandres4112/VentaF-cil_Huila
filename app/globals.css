@@ -74,6 +74,11 @@
   --color-wa-tint: var(--wa-tint);
 }
 
+html {
+  background: var(--color-ground);
+  overscroll-behavior-y: none;
+}
+
 body {
   background: var(--color-ground);
   color: var(--color-ink);
@@ -84,4 +89,15 @@ body {
   font-family: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   font-weight: 800;
   letter-spacing: -0.015em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
