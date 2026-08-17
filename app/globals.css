@@ -16,6 +16,8 @@
   --wa-deep: #186b3f;
   --wa-ink: #ffffff;
   --wa-tint: #e4f3ea;
+  --danger: #c0362c;
+  --danger-ink: #ffffff;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -35,6 +37,8 @@
     --wa-deep: #7fe0a6;
     --wa-ink: #ffffff;
     --wa-tint: #14291d;
+    --danger: #e2695d;
+    --danger-ink: #ffffff;
   }
 }
 
@@ -54,6 +58,8 @@
   --wa-deep: #7fe0a6;
   --wa-ink: #ffffff;
   --wa-tint: #14291d;
+  --danger: #e2695d;
+  --danger-ink: #ffffff;
 }
 
 @theme inline {
@@ -72,6 +78,8 @@
   --color-wa-deep: var(--wa-deep);
   --color-wa-ink: var(--wa-ink);
   --color-wa-tint: var(--wa-tint);
+  --color-danger: var(--danger);
+  --color-danger-ink: var(--danger-ink);
 }
 
 html {

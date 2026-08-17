@@ -48,39 +48,54 @@
 ventafacil/
 ├── app/
 │   ├── (auth)/
-│   │   └── login/
-│   │       └── page.tsx        # Login con Supabase Auth
+│   │   └── login/page.tsx          # Login (UI lista, falta conectar Supabase)
 │   ├── (dashboard)/
 │   │   └── dashboard/
-│   │       ├── page.tsx        # CRUD de productos
-│   │       └── perfil/
-│   │           └── page.tsx    # Configuración de tienda y WhatsApp
+│   │       ├── layout.tsx          # Nav del panel (Productos/Perfil) + tema
+│   │       ├── page.tsx            # Inventario (usa DashboardInventory)
+│   │       └── perfil/page.tsx     # Perfil de tienda (usa DashboardProfile)
 │   ├── store/
-│   │   └── [code]/
-│   │       └── page.tsx        # Catálogo público para clientes
-│   ├── layout.tsx
-│   └── page.tsx                # Landing / Home básica
+│   │   └── [code]/page.tsx         # Catálogo público (header + StoreCatalog)
+│   ├── en/page.tsx                 # Home en inglés
+│   ├── layout.tsx                  # Fuente, script de tema, lang="es"
+│   ├── page.tsx                    # Home en español
+│   └── globals.css                 # Tokens de color (claro/oscuro) + Tailwind
 ├── components/
-│   ├── CartDrawer.tsx          # Carrito de compras flotante
-│   ├── ProductCard.tsx         # Tarjeta de producto
-│   └── ProductForm.tsx         # Modal/Formulario para crear/editar producto
+│   ├── home-content.tsx            # Contenido de la Home (parametrizado por idioma)
+│   ├── language-switcher.tsx       # Switch ES/EN (solo Home)
+│   ├── theme-toggle.tsx            # Switch claro/oscuro
+│   ├── icons.tsx                   # Íconos SVG del proyecto (sin emojis)
+│   ├── store-catalog.tsx           # Orquesta grid + carrito + checkout
+│   ├── ProductCard.tsx             # Tarjeta de producto (catálogo público)
+│   ├── CartDrawer.tsx              # Carrito (bottom sheet mobile / panel desktop)
+│   ├── checkout-modal.tsx          # Modal de checkout → genera link de WhatsApp
+│   ├── dashboard-inventory.tsx     # CRUD de productos del panel admin
+│   ├── dashboard-profile.tsx       # Edición de perfil de tienda
+│   ├── ProductForm.tsx             # Modal crear/editar producto
+│   └── toggle-switch.tsx           # Switch on/off reutilizable
 ├── lib/
 │   ├── supabase/
-│   │   ├── client.ts           # Cliente Supabase navegador
-│   │   └── server.ts           # Cliente Supabase para Server Actions
-│   └── whatsapp.ts             # Generador del enlace formateado wa.me
+│   │   ├── client.ts                # Cliente Supabase navegador (scaffold)
+│   │   └── server.ts                # Cliente Supabase servidor (scaffold)
+│   ├── i18n/                        # Diccionarios ES/EN de la Home
+│   ├── whatsapp.ts                  # Generador del mensaje + enlace wa.me
+│   ├── mock-data.ts                 # Tienda/productos de ejemplo (sin Supabase)
+│   └── utils.ts                     # formatCOP()
 ├── services/
-│   ├── products.ts             # Server Actions de Productos
-│   └── store.ts                # Server Actions de Tiendas
+│   ├── products.ts                  # Server Actions de Productos (contra Supabase)
+│   └── store.ts                     # Server Actions de Tiendas (contra Supabase)
 ├── types/
-│   └── index.ts                # Interfaces TypeScript (Tienda, Producto)
+│   └── index.ts                     # Interfaces TypeScript (Tienda, Producto)
 ├── hooks/
-│   └── useCart.ts              # Estado local del carrito (browser)
+│   ├── useCart.ts                   # Carrito del cliente (localStorage)
+│   ├── useMockInventory.ts          # CRUD de productos de ejemplo (localStorage)
+│   ├── useMockTienda.ts             # Perfil de tienda de ejemplo (localStorage)
+│   └── useBodyScrollLock.ts         # Bloquea el scroll de fondo con modales abiertos
 └── supabase/
-    └── schema.sql              # Definición de tablas y políticas RLS
+    └── schema.sql                   # Definición de tablas y políticas RLS
 ```
 
-*(Esta estructura viene de `INSTRUCCIONES_PROYECTO.md`, que es la versión más concreta entre los 3 documentos; se usa como referencia única para evitar ambigüedad con las variantes de carpetas que aparecían en el README.)*
+*(La estructura original venía de `INSTRUCCIONES_PROYECTO.md`; esta versión refleja lo que realmente existe hoy en el proyecto.)*
 
 ---
 
@@ -185,53 +200,44 @@ CREATE POLICY "Solo dueño modifica su tienda" ON public.tiendas
 
 El orden respeta dependencias técnicas: primero la infraestructura de datos, luego auth, luego lógica de servidor, luego UI admin, luego UI pública, y al final integración + despliegue.
 
-### Fase 0 — Setup del Proyecto
-- Crear proyecto Next.js 14+ con TypeScript y App Router.
-- Configurar Tailwind CSS.
-- Crear proyecto en Supabase (obtener `URL` y `ANON_KEY`).
-- Configurar variables de entorno (`.env.local`).
-- Conectar repositorio a Vercel (deploy inicial vacío para validar pipeline).
+### Fase 0 — Setup del Proyecto ✅ Hecho
+- Proyecto Next.js 16 (App Router) + TypeScript + Tailwind CSS + pnpm, ya creado y corriendo.
+- Pendiente solo lo de Supabase (URL/ANON_KEY) y Vercel — ver Fase 1.
 
-### Fase 1 — Capa de Datos (Supabase)
+### Fase 1 — Capa de Datos (Supabase) ⏸️ En pausa (a cargo del usuario)
 - Ejecutar el script SQL de la sección 5 (tablas `tiendas`, `productos` + RLS).
 - Crear bucket `productos` en Supabase Storage con política de acceso pública de lectura.
 - Verificar políticas RLS con pruebas manuales (un usuario no debe poder modificar datos de otra tienda).
 
-### Fase 2 — Capa de Autenticación
-- Implementar `lib/supabase/client.ts` y `lib/supabase/server.ts`.
-- Página `(auth)/login` con Supabase Auth (email/contraseña).
-- Middleware/verificación de sesión para proteger rutas `(dashboard)`.
+### Fase 2 — Capa de Autenticación ⏸️ Solo UI, sin conectar
+- `app/(auth)/login/page.tsx`: formulario completo (correo/contraseña), pero **no está conectado** a Supabase todavía — falta el proyecto real (Fase 1).
+- Pendiente: `lib/supabase/client.ts`/`server.ts` (ya existen como scaffold, listos para las credenciales reales), y middleware de sesión para proteger `(dashboard)`.
 
-### Fase 3 — Capa de Lógica de Servidor (Server Actions)
-- `services/store.ts`: crear/leer/actualizar perfil de tienda (nombre, store_code, teléfono WhatsApp).
-- `services/products.ts`: CRUD completo de productos, incluyendo subida de imagen a Storage.
-- `types/index.ts`: interfaces `Tienda` y `Producto`.
+### Fase 3 — Capa de Lógica de Servidor (Server Actions) ⏸️ Scaffold listo, sin datos reales
+- `services/store.ts` y `services/products.ts` ya tienen las consultas escritas (`getTiendaByCode`, `getProductosByTiendaId`, etc.) apuntando a Supabase — no se pueden probar hasta la Fase 1.
+- Mientras tanto, el dashboard y el catálogo usan datos de ejemplo editables en `localStorage` (`lib/mock-data.ts`, `hooks/useMockInventory.ts`, `hooks/useMockTienda.ts`) para poder construir y probar toda la UI.
 
-### Fase 4 — Capa de Panel Admin (`/dashboard`)
-- Página de perfil: editar nombre de tienda, número de WhatsApp (el `store_code` es inmutable, no se edita).
-- Página de inventario: listar, crear, editar, eliminar productos (`ProductForm.tsx`).
-- Toggle de disponibilidad de producto.
-- Mostrar el link único del catálogo para copiar/compartir.
+### Fase 4 — Capa de Panel Admin (`/dashboard`) ✅ Hecho (con datos de ejemplo)
+- `/dashboard`: listar, crear, editar, eliminar productos (`ProductForm.tsx` como modal), toggle de disponibilidad, link del catálogo con copiar/ver.
+- `/dashboard/perfil`: editar nombre de tienda y WhatsApp; `store_code` visible mostrado como inmutable.
+- Sin guard de sesión todavía (llega con Fase 2). Datos persistidos en `localStorage` vía `useMockInventory`/`useMockTienda` — al conectar Supabase, se reemplazan por Server Actions reales.
 
-### Fase 5 — Capa de Catálogo Público (`/store/[code]`)
-- Renderizar tienda + grid de productos disponibles (SSR con Next.js).
-- Verificar `estado_suscripcion`; si es `Inactivo`, mostrar mensaje de tienda no disponible.
-- `ProductCard.tsx` mobile-first.
+### Fase 5 — Capa de Catálogo Público (`/store/[code]`) ✅ Hecho (con datos de ejemplo)
+- Tienda + grid de productos disponibles, con estado "no encontrada" y "no disponible" (`estado_suscripcion: Inactivo`) ya manejados.
+- `ProductCard.tsx` mobile-first, tamaño de tarjeta fijo sin importar la imagen.
 
-### Fase 6 — Capa de Carrito y Checkout
+### Fase 6 — Capa de Carrito y Checkout ✅ Hecho
 - `hooks/useCart.ts`: estado local (localStorage), sumar/restar cantidades.
-- `CartDrawer.tsx`: carrito flotante con badge contador y total.
-- Modal de checkout: nombre, dirección, método de pago.
+- `CartDrawer.tsx`: modal completo en mobile (`100dvh`), panel flotante en desktop; bloqueo de scroll de fondo mientras está abierto (`useBodyScrollLock`).
+- `checkout-modal.tsx`: nombre, dirección, método de pago.
 
-### Fase 7 — Capa de Integración WhatsApp
-- `lib/whatsapp.ts`: formatear mensaje con el detalle del pedido. **Sin emojis** — se usa `*texto*` (negrita nativa de WhatsApp) para las etiquetas, no la plantilla con emojis de `INSTRUCCIONES_PROYECTO.md`. Preferencia explícita del usuario: nada de emojis en el producto, ni en la UI ni en los mensajes; usar iconos cuando se necesite un elemento visual.
-- Generar link `https://wa.me/{telefono_whatsapp}?text={mensaje_encoded}` y redirigir al confirmar pedido.
+### Fase 7 — Capa de Integración WhatsApp ✅ Hecho
+- `lib/whatsapp.ts`: formatea el mensaje con el detalle del pedido, usando `formatCOP` para los montos. **Sin emojis** — se usa `*texto*` (negrita nativa de WhatsApp).
+- Genera `https://wa.me/{telefono_whatsapp}?text={mensaje_encoded}` y lo abre al confirmar el pedido — probado de punta a punta (agregar al carrito → checkout → mensaje real generado correctamente).
 
-### Fase 8 — QA y Despliegue
-- Pruebas end-to-end del flujo: dueño crea producto → cliente compra → mensaje llega correctamente formateado a WhatsApp.
-- Validar RLS con dos tiendas de prueba distintas.
-- Validar experiencia 100% mobile (dueño y cliente).
-- Deploy final a Vercel con variables de entorno de producción.
+### Fase 8 — QA y Despliegue ⏸️ Pendiente de Supabase
+- El flujo completo (dueño crea producto → cliente compra → mensaje a WhatsApp) ya está probado **con datos de ejemplo**.
+- Falta repetirlo con datos reales de Supabase, validar RLS con dos tiendas reales, y el deploy a Vercel con variables de entorno de producción.
 
 ---
 
@@ -274,6 +280,11 @@ El orden respeta dependencias técnicas: primero la infraestructura de datos, lu
 
 ## 10. Próximo Paso Inmediato
 
-Seguir estrictamente el orden de la sección 8. El siguiente paso a ejecutar es **Fase 0 — Setup del Proyecto**, seguido de **Fase 1** (ejecutar el SQL en Supabase).
+**Estado actual:** todo el frontend del MVP (Home, login UI, catálogo público, carrito, checkout, WhatsApp, dashboard) está construido y probado con datos de ejemplo (`localStorage`/`lib/mock-data.ts`). Lo único que falta para que sea 100% funcional es conectar Supabase de verdad:
 
-No se debe avanzar a una fase sin completar la anterior, ni tocar nada de la sección "fuera del MVP" (sección 6) sin decisión explícita.
+1. **Fase 1:** crear el proyecto en Supabase, ejecutar `supabase/schema.sql`, crear el bucket `productos` en Storage.
+2. **Fase 2/3:** cargar las credenciales reales en `.env.local` (usando `.env.local.example` como base) y verificar que `services/store.ts`/`services/products.ts` funcionen contra la base real; conectar el formulario de `/login`.
+3. Reemplazar los hooks de mock (`useMockInventory`, `useMockTienda`, `getMockTiendaByCode`) por las Server Actions reales en `/dashboard` y `/store/[code]`.
+4. **Fase 8:** QA end-to-end con datos reales y deploy a Vercel.
+
+No se debe tocar nada de la sección "fuera del MVP" (sección 6) sin decisión explícita.
