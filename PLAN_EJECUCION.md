@@ -221,6 +221,7 @@ El orden respeta dependencias técnicas: primero la infraestructura de datos, lu
 - `/dashboard`: listar, crear, editar, eliminar productos (`ProductForm.tsx` como modal), toggle de disponibilidad, link del catálogo con copiar/ver.
 - `/dashboard/perfil`: editar nombre de tienda y WhatsApp; `store_code` visible mostrado como inmutable.
 - Sin guard de sesión todavía (llega con Fase 2). Datos persistidos en `localStorage` vía `useMockInventory`/`useMockTienda` — al conectar Supabase, se reemplazan por Server Actions reales.
+- `components/image-upload.tsx`: subir foto por drag-and-drop o selección de archivo (no una URL). Se comprime en el navegador (máx. 900px, JPEG) y por ahora queda incrustada como imagen local — cuando se conecte Supabase Storage (Fase 1), el mismo componente sube el archivo comprimido al bucket `productos` y usa la URL real; la UI del formulario no cambia.
 
 ### Fase 5 — Capa de Catálogo Público (`/store/[code]`) ✅ Hecho (con datos de ejemplo)
 - Tienda + grid de productos disponibles, con estado "no encontrada" y "no disponible" (`estado_suscripcion: Inactivo`) ya manejados.

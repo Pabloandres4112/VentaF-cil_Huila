@@ -4,6 +4,7 @@
 
 import { useState, type FormEvent, type ReactNode } from "react";
 import { CloseIcon } from "@/components/icons";
+import { ImageUpload } from "@/components/image-upload";
 import { ToggleSwitch } from "@/components/toggle-switch";
 import type { NuevoProducto } from "@/hooks/useMockInventory";
 import type { Producto } from "@/types";
@@ -24,7 +25,7 @@ export function ProductForm({
   const [descripcion, setDescripcion] = useState(producto?.descripcion ?? "");
   const [precio, setPrecio] = useState(producto ? String(producto.precio) : "");
   const [stock, setStock] = useState(producto ? String(producto.stock) : "");
-  const [imagenUrl, setImagenUrl] = useState(producto?.imagen_url ?? "");
+  const [imagenUrl, setImagenUrl] = useState<string | null>(producto?.imagen_url ?? null);
   const [disponible, setDisponible] = useState(producto?.disponible ?? true);
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -34,7 +35,7 @@ export function ProductForm({
       descripcion: descripcion.trim() || null,
       precio: Number(precio) || 0,
       stock: Number(stock) || 0,
-      imagen_url: imagenUrl.trim() || null,
+      imagen_url: imagenUrl,
       disponible,
     });
   }
@@ -114,15 +115,7 @@ export function ProductForm({
             </Field>
           </div>
 
-          <Field label="URL de la foto" hint="Pega el link de la imagen — la subida directa llega con Supabase Storage.">
-            <input
-              type="url"
-              value={imagenUrl}
-              onChange={(e) => setImagenUrl(e.target.value)}
-              placeholder="https://..."
-              className={INPUT_CLASS}
-            />
-          </Field>
+          <ImageUpload value={imagenUrl} onChange={setImagenUrl} />
 
           <label className="flex items-center justify-between rounded-md border border-line-strong px-3.5 py-2.5">
             <span className="text-sm font-semibold text-ink-soft">Visible en el catálogo</span>
