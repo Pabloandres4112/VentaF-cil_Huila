@@ -6,14 +6,21 @@
 import { useState, type FormEvent } from "react";
 import { CheckIcon, CopyIcon } from "@/components/icons";
 import { useMockTienda } from "@/hooks/useMockTienda";
+import { isValidWhatsappNumber } from "@/lib/validation";
 
 const INPUT_CLASS =
-  "rounded-md border border-line-strong bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent";
+  "rounded-md border bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent";
+
+interface PerfilErrors {
+  nombre?: string;
+  telefono?: string;
+}
 
 export function DashboardProfile() {
   const { tienda, updateTienda } = useMockTienda();
   const [nombre, setNombre] = useState(tienda.nombre);
   const [telefono, setTelefono] = useState(tienda.telefono_whatsapp);
+  const [errors, setErrors] = useState<PerfilErrors>({});
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -21,6 +28,15 @@ export function DashboardProfile() {
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    const nextErrors: PerfilErrors = {};
+    if (nombre.trim().length < 2) nextErrors.nombre = "Ingresa un nombre (mínimo 2 caracteres).";
+    if (!isValidWhatsappNumber(telefono)) {
+      nextErrors.telefono = "Solo números, con indicativo de país (10 a 15 dígitos). Ej: 573001234567.";
+    }
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
+
     updateTienda({ nombre: nombre.trim(), telefono_whatsapp: telefono.trim() });
     setSaved(true);
     window.setTimeout(() => setSaved(false), 1600);
@@ -79,11 +95,12 @@ export function DashboardProfile() {
           </label>
           <input
             id="perfil-nombre"
-            required
             value={nombre}
             onChange={(e) => setNombre(e.target.value)}
-            className={INPUT_CLASS}
+            aria-invalid={Boolean(errors.nombre)}
+            className={`${INPUT_CLASS} ${errors.nombre ? "border-danger" : "border-line-strong"}`}
           />
+          {errors.nombre && <p className="text-xs text-danger">{errors.nombre}</p>}
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -92,16 +109,20 @@ export function DashboardProfile() {
           </label>
           <input
             id="perfil-whatsapp"
-            required
             inputMode="numeric"
             value={telefono}
             onChange={(e) => setTelefono(e.target.value)}
             placeholder="573001234567"
-            className={INPUT_CLASS}
+            aria-invalid={Boolean(errors.telefono)}
+            className={`${INPUT_CLASS} ${errors.telefono ? "border-danger" : "border-line-strong"}`}
           />
-          <p className="text-xs text-ink-faint">
-            Con indicativo de país, sin espacios ni signo +. Ej: 573001234567.
-          </p>
+          {errors.telefono ? (
+            <p className="text-xs text-danger">{errors.telefono}</p>
+          ) : (
+            <p className="text-xs text-ink-faint">
+              Con indicativo de país, sin espacios ni signo +. Ej: 573001234567.
+            </p>
+          )}
         </div>
 
         <button

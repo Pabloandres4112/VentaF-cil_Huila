@@ -106,6 +106,7 @@ export interface HomeDict {
   footer: {
     madeFor: string;
     disclaimer: string;
+    terms: string;
   };
   theme: {
     toLight: string;

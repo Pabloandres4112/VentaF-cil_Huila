@@ -363,10 +363,13 @@ export function HomeContent({ dict, locale }: { dict: HomeDict; locale: Locale }
 
       <footer>
         <Hairline />
-        <Wrap className="flex flex-col gap-6 py-8 text-sm text-ink-faint sm:flex-row sm:items-center sm:justify-between">
+        <Wrap className="flex flex-col gap-3 py-8 text-sm text-ink-faint sm:flex-row sm:items-center sm:justify-between sm:gap-6">
           <span className="font-display text-base text-ink">VentaFácil</span>
           <span>{dict.footer.madeFor}</span>
           <span>{dict.footer.disclaimer}</span>
+          <Link href="/terminos" className="underline underline-offset-2 hover:text-ink-soft">
+            {dict.footer.terms}
+          </Link>
         </Wrap>
       </footer>
     </>

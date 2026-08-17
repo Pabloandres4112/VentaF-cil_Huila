@@ -191,6 +191,7 @@ export const en: HomeDict = {
   footer: {
     madeFor: "Built for businesses in Isnos, Pitalito, and the Huila region.",
     disclaimer: "VentaFácil is not affiliated with WhatsApp Inc. — we use public wa.me links.",
+    terms: "Terms and Conditions",
   },
   theme: {
     toLight: "Switch to light theme",

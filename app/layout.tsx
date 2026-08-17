@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Archivo } from "next/font/google";
 import Script from "next/script";
+import { QaBanner } from "@/components/qa-banner";
 import "./globals.css";
 
 const archivo = Archivo({
@@ -36,6 +37,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: THEME_INIT_SCRIPT }}
         />
+        <QaBanner />
         {children}
       </body>
     </html>

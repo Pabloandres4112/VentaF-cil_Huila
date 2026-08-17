@@ -10,7 +10,13 @@ import type { NuevoProducto } from "@/hooks/useMockInventory";
 import type { Producto } from "@/types";
 
 const INPUT_CLASS =
-  "rounded-md border border-line-strong bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent";
+  "rounded-md border bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent";
+
+interface ProductFormErrors {
+  nombre?: string;
+  precio?: string;
+  stock?: string;
+}
 
 export function ProductForm({
   producto,
@@ -27,14 +33,38 @@ export function ProductForm({
   const [stock, setStock] = useState(producto ? String(producto.stock) : "");
   const [imagenUrl, setImagenUrl] = useState<string | null>(producto?.imagen_url ?? null);
   const [disponible, setDisponible] = useState(producto?.disponible ?? true);
+  const [errors, setErrors] = useState<ProductFormErrors>({});
+
+  function validate(): boolean {
+    const nextErrors: ProductFormErrors = {};
+
+    if (nombre.trim().length < 2) {
+      nextErrors.nombre = "Ingresa un nombre (mínimo 2 caracteres).";
+    }
+
+    const precioNum = Number(precio);
+    if (precio.trim() === "" || Number.isNaN(precioNum) || precioNum <= 0) {
+      nextErrors.precio = "Ingresa un precio mayor a $0.";
+    }
+
+    const stockNum = Number(stock);
+    if (stock.trim() === "" || Number.isNaN(stockNum) || stockNum < 0) {
+      nextErrors.stock = "Ingresa un stock válido (0 o más).";
+    }
+
+    setErrors(nextErrors);
+    return Object.keys(nextErrors).length === 0;
+  }
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (!validate()) return;
+
     onSubmit({
       nombre: nombre.trim(),
       descripcion: descripcion.trim() || null,
-      precio: Number(precio) || 0,
-      stock: Number(stock) || 0,
+      precio: Number(precio),
+      stock: Number(stock),
       imagen_url: imagenUrl,
       disponible,
     });
@@ -67,13 +97,13 @@ export function ProductForm({
         </div>
 
         <form onSubmit={handleSubmit} className="flex flex-1 flex-col gap-4 overflow-y-auto px-6 py-5">
-          <Field label="Nombre">
+          <Field label="Nombre" error={errors.nombre}>
             <input
-              required
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               placeholder="Ej: Arroz Diana 500g"
-              className={INPUT_CLASS}
+              aria-invalid={Boolean(errors.nombre)}
+              className={`${INPUT_CLASS} ${errors.nombre ? "border-danger" : "border-line-strong"}`}
             />
           </Field>
 
@@ -82,14 +112,13 @@ export function ProductForm({
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
               placeholder="Una línea simple, opcional"
-              className={INPUT_CLASS}
+              className={`${INPUT_CLASS} border-line-strong`}
             />
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Precio (COP)">
+            <Field label="Precio (COP)" error={errors.precio}>
               <input
-                required
                 type="number"
                 min={0}
                 step={1}
@@ -97,12 +126,12 @@ export function ProductForm({
                 value={precio}
                 onChange={(e) => setPrecio(e.target.value)}
                 placeholder="0"
-                className={INPUT_CLASS}
+                aria-invalid={Boolean(errors.precio)}
+                className={`${INPUT_CLASS} ${errors.precio ? "border-danger" : "border-line-strong"}`}
               />
             </Field>
-            <Field label="Stock">
+            <Field label="Stock" error={errors.stock}>
               <input
-                required
                 type="number"
                 min={0}
                 step={1}
@@ -110,7 +139,8 @@ export function ProductForm({
                 value={stock}
                 onChange={(e) => setStock(e.target.value)}
                 placeholder="0"
-                className={INPUT_CLASS}
+                aria-invalid={Boolean(errors.stock)}
+                className={`${INPUT_CLASS} ${errors.stock ? "border-danger" : "border-line-strong"}`}
               />
             </Field>
           </div>
@@ -147,12 +177,26 @@ export function ProductForm({
   );
 }
 
-function Field({ label, hint, children }: { label: string; hint?: string; children: ReactNode }) {
+function Field({
+  label,
+  hint,
+  error,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  error?: string;
+  children: ReactNode;
+}) {
   return (
     <div className="flex flex-col gap-1.5">
       <span className="text-sm font-semibold text-ink-soft">{label}</span>
       {children}
-      {hint && <span className="text-xs text-ink-faint">{hint}</span>}
+      {error ? (
+        <span className="text-xs text-danger">{error}</span>
+      ) : (
+        hint && <span className="text-xs text-ink-faint">{hint}</span>
+      )}
     </div>
   );
 }

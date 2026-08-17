@@ -11,6 +11,11 @@ import { buildWhatsappUrl } from "@/lib/whatsapp";
 
 const METODOS_PAGO = ["Nequi", "Daviplata", "Efectivo"] as const;
 
+interface CheckoutErrors {
+  nombre?: string;
+  direccion?: string;
+}
+
 export function CheckoutModal({
   open,
   onClose,
@@ -31,12 +36,19 @@ export function CheckoutModal({
   const [nombre, setNombre] = useState("");
   const [direccion, setDireccion] = useState("");
   const [metodoPago, setMetodoPago] = useState<string>(METODOS_PAGO[0]);
+  const [errors, setErrors] = useState<CheckoutErrors>({});
   useBodyScrollLock(open);
 
   if (!open) return null;
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
+
+    const nextErrors: CheckoutErrors = {};
+    if (nombre.trim().length < 2) nextErrors.nombre = "Ingresa tu nombre completo.";
+    if (direccion.trim().length < 5) nextErrors.direccion = "Ingresa una dirección válida.";
+    setErrors(nextErrors);
+    if (Object.keys(nextErrors).length > 0) return;
 
     const url = buildWhatsappUrl(telefonoWhatsapp, {
       tiendaNombre,
@@ -88,12 +100,13 @@ export function CheckoutModal({
             </label>
             <input
               id="checkout-nombre"
-              required
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               placeholder="Tu nombre"
-              className="rounded-md border border-line-strong bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent"
+              aria-invalid={Boolean(errors.nombre)}
+              className={`rounded-md border bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent ${errors.nombre ? "border-danger" : "border-line-strong"}`}
             />
+            {errors.nombre && <p className="text-xs text-danger">{errors.nombre}</p>}
           </div>
 
           <div className="flex flex-col gap-1.5">
@@ -102,12 +115,13 @@ export function CheckoutModal({
             </label>
             <input
               id="checkout-direccion"
-              required
               value={direccion}
               onChange={(e) => setDireccion(e.target.value)}
               placeholder="Calle, número, barrio"
-              className="rounded-md border border-line-strong bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent"
+              aria-invalid={Boolean(errors.direccion)}
+              className={`rounded-md border bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent ${errors.direccion ? "border-danger" : "border-line-strong"}`}
             />
+            {errors.direccion && <p className="text-xs text-danger">{errors.direccion}</p>}
           </div>
 
           <div className="flex flex-col gap-1.5">

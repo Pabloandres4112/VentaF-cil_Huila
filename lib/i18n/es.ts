@@ -194,6 +194,7 @@ export const es: HomeDict = {
   footer: {
     madeFor: "Hecho para negocios de Isnos, Pitalito y el Huila.",
     disclaimer: "VentaFácil no está afiliado a WhatsApp Inc. — usamos enlaces públicos wa.me.",
+    terms: "Términos y Condiciones",
   },
   theme: {
     toLight: "Cambiar a tema claro",

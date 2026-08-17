@@ -152,7 +152,7 @@ CREATE POLICY "Solo dueño modifica su tienda" ON public.tiendas
   FOR ALL USING (user_id = auth.uid());
 ```
 
-> **Nota:** el README/documento_Completo mencionaban además una tabla `pedidos` y una columna `plan_tipo` (para diferenciar Semilla/Emprendedor/Empresa). Ambas quedan **fuera del MVP**: no hay pasarela de pago automática ni gestión de planes por ahora (regla de oro #3 y #6), así que no se crean todavía. Se documentan en la sección 9 como backlog futuro.
+> **Nota:** el README/documento_Completo mencionaban además una tabla `pedidos` y una columna `plan_tipo` (para diferenciar Semilla/Emprendedor/Empresa). Ambas quedan **fuera del MVP**: no hay pasarela de pago automática ni gestión de planes por ahora (regla de oro #3 y #6), así que no se crean todavía. Se documentan en la sección 10 como backlog futuro.
 
 > **Nota (cambio de decisión):** el campo `slug` (elegible por el usuario) de las versiones iniciales del esquema se reemplazó por `store_code` — un código único, corto e **inmutable**, generado automáticamente por la base de datos sin importar si la tienda la crea el cliente (self-service) o el equipo de VentaFácil (alta asistida, plan "Promo Lanzamiento"). Objetivo: un solo identificador confiable por tienda para evitar cualquier cruce de datos entre negocios, y una URL pública predecible: `/store/[code]` (ej. `ventafacil.com/store/A3F9C2`).
 
@@ -208,6 +208,7 @@ El orden respeta dependencias técnicas: primero la infraestructura de datos, lu
 - Ejecutar el script SQL de la sección 5 (tablas `tiendas`, `productos` + RLS).
 - Crear bucket `productos` en Supabase Storage con política de acceso pública de lectura.
 - Verificar políticas RLS con pruebas manuales (un usuario no debe poder modificar datos de otra tienda).
+- **Crear dos proyectos de Supabase, no uno**: uno para QA/pruebas y otro para producción (ver "Entornos: QA vs Producción" antes de la Fase 8). Nunca probar cosas nuevas sobre el proyecto que tenga datos reales de clientes.
 
 ### Fase 2 — Capa de Autenticación ⏸️ Solo UI, sin conectar
 - `app/(auth)/login/page.tsx`: formulario completo (correo/contraseña), pero **no está conectado** a Supabase todavía — falta el proyecto real (Fase 1).
@@ -222,6 +223,7 @@ El orden respeta dependencias técnicas: primero la infraestructura de datos, lu
 - `/dashboard/perfil`: editar nombre de tienda y WhatsApp; `store_code` visible mostrado como inmutable.
 - Sin guard de sesión todavía (llega con Fase 2). Datos persistidos en `localStorage` vía `useMockInventory`/`useMockTienda` — al conectar Supabase, se reemplazan por Server Actions reales.
 - `components/image-upload.tsx`: subir foto por drag-and-drop o selección de archivo (no una URL). Se comprime en el navegador (máx. 900px, JPEG) y por ahora queda incrustada como imagen local — cuando se conecte Supabase Storage (Fase 1), el mismo componente sube el archivo comprimido al bucket `productos` y usa la URL real; la UI del formulario no cambia.
+- Validación real en `ProductForm.tsx` y `dashboard-profile.tsx` (nombre, precio > 0, stock ≥ 0, WhatsApp con formato válido) — ver `lib/validation.ts`.
 
 ### Fase 5 — Capa de Catálogo Público (`/store/[code]`) ✅ Hecho (con datos de ejemplo)
 - Tienda + grid de productos disponibles, con estado "no encontrada" y "no disponible" (`estado_suscripcion: Inactivo`) ya manejados.
@@ -230,19 +232,32 @@ El orden respeta dependencias técnicas: primero la infraestructura de datos, lu
 ### Fase 6 — Capa de Carrito y Checkout ✅ Hecho
 - `hooks/useCart.ts`: estado local (localStorage), sumar/restar cantidades.
 - `CartDrawer.tsx`: modal completo en mobile (`100dvh`), panel flotante en desktop; bloqueo de scroll de fondo mientras está abierto (`useBodyScrollLock`).
-- `checkout-modal.tsx`: nombre, dirección, método de pago.
+- `checkout-modal.tsx`: nombre, dirección, método de pago. Validación real (nombre y dirección mínimos) antes de generar el mensaje.
 
 ### Fase 7 — Capa de Integración WhatsApp ✅ Hecho
 - `lib/whatsapp.ts`: formatea el mensaje con el detalle del pedido, usando `formatCOP` para los montos. **Sin emojis** — se usa `*texto*` (negrita nativa de WhatsApp).
 - Genera `https://wa.me/{telefono_whatsapp}?text={mensaje_encoded}` y lo abre al confirmar el pedido — probado de punta a punta (agregar al carrito → checkout → mensaje real generado correctamente).
 
+### Entornos: QA vs Producción ✅ Preparado (falta crear los proyectos reales)
+No se prueba nada nuevo sobre datos reales de clientes. Mientras no exista Supabase, esto queda preparado así:
+- **Dos proyectos de Supabase separados** (ver Fase 1): uno de QA/pruebas, otro de producción — cada uno con su propia `URL`/`ANON_KEY`.
+- **`.env.local.example`** documenta las variables por entorno, incluida `NEXT_PUBLIC_APP_ENV` (`qa` | `production`).
+- **En Vercel**: los *Preview deployments* (ramas, PRs) usan las variables del proyecto de QA; el *Production deployment* (rama `main`) usa las variables del proyecto de producción — Vercel permite configurar variables de entorno distintas por ambiente sin código adicional.
+- **`components/qa-banner.tsx`**: aviso visual fijo arriba de toda la app ("Entorno de pruebas (QA)") que se oculta solo cuando `NEXT_PUBLIC_APP_ENV=production` — si la variable no está definida, se asume QA a propósito (falla del lado seguro, para no exponer un entorno de pruebas como si fuera producción por accidente).
+
 ### Fase 8 — QA y Despliegue ⏸️ Pendiente de Supabase
 - El flujo completo (dueño crea producto → cliente compra → mensaje a WhatsApp) ya está probado **con datos de ejemplo**.
-- Falta repetirlo con datos reales de Supabase, validar RLS con dos tiendas reales, y el deploy a Vercel con variables de entorno de producción.
+- Falta repetirlo con datos reales de Supabase (usando el proyecto de QA primero, nunca el de producción), validar RLS con dos tiendas reales, y el deploy a Vercel con las variables de entorno correctas por ambiente.
 
 ---
 
-## 9. Modelo de negocio actualizado con la nueva estrategia comercial
+## 9. Legal
+
+- **`app/terminos/page.tsx`**: Términos y Condiciones, enlazados desde el login y el footer de la Home (ES/EN). Es un **borrador base** — el aviso dentro de la propia página deja claro que debe revisarlo un abogado antes de considerarse vinculante, especialmente por Ley 1581 de 2012 (datos personales) y Ley 1480 de 2012 (protección al consumidor) en Colombia.
+
+---
+
+## 10. Modelo de negocio actualizado con la nueva estrategia comercial
 
 ### Modelo de Negocio (Referencia para post-MVP)
 
@@ -279,7 +294,7 @@ El orden respeta dependencias técnicas: primero la infraestructura de datos, lu
 
 
 
-## 10. Próximo Paso Inmediato
+## 11. Próximo Paso Inmediato
 
 **Estado actual:** todo el frontend del MVP (Home, login UI, catálogo público, carrito, checkout, WhatsApp, dashboard) está construido y probado con datos de ejemplo (`localStorage`/`lib/mock-data.ts`). Lo único que falta para que sea 100% funcional es conectar Supabase de verdad:
 
