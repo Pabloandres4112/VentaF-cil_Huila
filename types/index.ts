@@ -21,3 +21,20 @@ export interface Producto {
   disponible: boolean;
   created_at: string;
 }
+
+// Sistema de Licencias (multi-producto) — no es parte del catálogo/pedidos
+// de VentaFácil; es el panel para administrar licencias de otros sistemas
+// (ej. una app de inventario local) desde la misma base de datos.
+// Ver PLAN_EJECUCION.md, anexo "Sistema de Licencias".
+export type EstadoLicencia = "Activo" | "Inactivo" | "Suspendido";
+
+export interface Licencia {
+  id: string;
+  codigo: string;
+  producto: string;
+  cliente_nombre: string;
+  tienda_id: string | null;
+  estado: EstadoLicencia;
+  fecha_corte: string | null;
+  created_at: string;
+}

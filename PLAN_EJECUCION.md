@@ -152,7 +152,7 @@ CREATE POLICY "Solo dueño modifica su tienda" ON public.tiendas
   FOR ALL USING (user_id = auth.uid());
 ```
 
-> **Nota:** el README/documento_Completo mencionaban además una tabla `pedidos` y una columna `plan_tipo` (para diferenciar Semilla/Emprendedor/Empresa). Ambas quedan **fuera del MVP**: no hay pasarela de pago automática ni gestión de planes por ahora (regla de oro #3 y #6), así que no se crean todavía. Se documentan en la sección 10 como backlog futuro.
+> **Nota:** el README/documento_Completo mencionaban además una tabla `pedidos` y una columna `plan_tipo` (para diferenciar Semilla/Emprendedor/Empresa). Ambas quedan **fuera del MVP**: no hay pasarela de pago automática ni gestión de planes por ahora (regla de oro #3 y #6), así que no se crean todavía. Se documentan en la sección 11 como backlog futuro.
 
 > **Nota (cambio de decisión):** el campo `slug` (elegible por el usuario) de las versiones iniciales del esquema se reemplazó por `store_code` — un código único, corto e **inmutable**, generado automáticamente por la base de datos sin importar si la tienda la crea el cliente (self-service) o el equipo de VentaFácil (alta asistida, plan "Promo Lanzamiento"). Objetivo: un solo identificador confiable por tienda para evitar cualquier cruce de datos entre negocios, y una URL pública predecible: `/store/[code]` (ej. `ventafacil.com/store/A3F9C2`).
 
@@ -251,13 +251,24 @@ No se prueba nada nuevo sobre datos reales de clientes. Mientras no exista Supab
 
 ---
 
-## 9. Legal
+## 9. Sistema de Licencias (Anexo — multi-producto) ✅ Hecho (con datos de ejemplo)
+
+**No es parte del MVP de VentaFácil Huila** (catálogo/pedidos por WhatsApp). Es un panel aparte, a petición explícita del usuario: VentaFácil va a ser el **sistema superior** que administra licencias de otros sistemas que está desarrollando en paralelo (el primero: una app de escritorio de inventario local) — reutilizando la misma app y la misma base de datos, sin desplegar un proyecto nuevo por cada sistema.
+
+- **`supabase/schema.sql`**: tablas nuevas `superadmins` (lista blanca de `user_id`, sin UI — se administra a mano desde el SQL Editor) y `licencias` (código único, `producto` como texto libre para identificar a qué sistema pertenece — hoy `inventario-local`, mañana otro valor sin tocar la estructura —, cliente, estado Activo/Inactivo/Suspendido, fecha de corte). RLS: solo un superadmin puede leer/escribir la tabla completa.
+- **`validar_licencia(codigo)`**: función Postgres `SECURITY DEFINER` para que la *otra* app (el sistema de inventario, externo a este repo) valide un código sin exponer la tabla completa — se llama vía el RPC que Supabase genera automáticamente (`/rest/v1/rpc/validar_licencia`), sin necesidad de un endpoint propio en Next.js.
+- **`/panel/licencias`**: ruta cargada bajo demanda dentro del mismo router (no un proyecto aparte), sin enlace desde ninguna navegación pública. Generar código, cambiar estado, copiar, eliminar — con datos de ejemplo en `localStorage` (`hooks/useMockLicencias.ts`) mientras no exista Supabase.
+- **`lib/auth/superadmin.ts`**: verificación **en el servidor** (la página es un Server Component que redirige antes de renderizar nada si no eres superadmin) — hoy retorna `true` fijo con un `TODO` claro; cuando exista Supabase, se reemplaza por la consulta real a `superadmins`. La RLS de la base de datos es la barrera real; esta función es una segunda capa para no ni siquiera mostrar el panel.
+
+---
+
+## 10. Legal
 
 - **`app/terminos/page.tsx`**: Términos y Condiciones, enlazados desde el login y el footer de la Home (ES/EN). Es un **borrador base** — el aviso dentro de la propia página deja claro que debe revisarlo un abogado antes de considerarse vinculante, especialmente por Ley 1581 de 2012 (datos personales) y Ley 1480 de 2012 (protección al consumidor) en Colombia.
 
 ---
 
-## 10. Modelo de negocio actualizado con la nueva estrategia comercial
+## 11. Modelo de negocio actualizado con la nueva estrategia comercial
 
 ### Modelo de Negocio (Referencia para post-MVP)
 
@@ -294,7 +305,7 @@ No se prueba nada nuevo sobre datos reales de clientes. Mientras no exista Supab
 
 
 
-## 11. Próximo Paso Inmediato
+## 12. Próximo Paso Inmediato
 
 **Estado actual:** todo el frontend del MVP (Home, login UI, catálogo público, carrito, checkout, WhatsApp, dashboard) está construido y probado con datos de ejemplo (`localStorage`/`lib/mock-data.ts`). Lo único que falta para que sea 100% funcional es conectar Supabase de verdad:
 
