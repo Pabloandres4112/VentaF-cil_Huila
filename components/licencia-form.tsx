@@ -4,7 +4,7 @@
 
 import { useState, type FormEvent } from "react";
 import { CloseIcon } from "@/components/icons";
-import type { NuevaLicencia } from "@/hooks/useMockLicencias";
+import type { NuevaLicencia } from "@/services/licencias";
 
 const INPUT_CLASS =
   "rounded-md border bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent";
@@ -20,9 +20,9 @@ export function LicenciaForm({
   onClose: () => void;
   onSubmit: (values: NuevaLicencia) => void;
 }) {
-  const [producto, setProducto] = useState("inventario-local");
+  const [producto, setProducto] = useState("cajasimple");
   const [clienteNombre, setClienteNombre] = useState("");
-  const [fechaCorte, setFechaCorte] = useState("");
+  const [fechaVencimiento, setFechaVencimiento] = useState("");
   const [errors, setErrors] = useState<LicenciaFormErrors>({});
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
@@ -35,10 +35,15 @@ export function LicenciaForm({
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
+    // El input solo da la fecha (YYYY-MM-DD); la licencia vence al final de ese día.
+    const fechaVencimientoISO = fechaVencimiento
+      ? new Date(`${fechaVencimiento}T23:59:59`).toISOString()
+      : null;
+
     onSubmit({
-      producto: producto.trim() || "inventario-local",
+      producto: producto.trim() || "cajasimple",
       cliente_nombre: clienteNombre.trim(),
-      fecha_corte: fechaCorte || null,
+      fecha_vencimiento: fechaVencimientoISO,
     });
   }
 
@@ -77,7 +82,7 @@ export function LicenciaForm({
               id="lic-producto"
               value={producto}
               onChange={(e) => setProducto(e.target.value)}
-              placeholder="inventario-local"
+              placeholder="cajasimple"
               className={`${INPUT_CLASS} border-line-strong`}
             />
           </div>
@@ -100,14 +105,14 @@ export function LicenciaForm({
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="lic-corte" className="text-sm font-semibold text-ink-soft">
-              Fecha de corte
+            <label htmlFor="lic-vencimiento" className="text-sm font-semibold text-ink-soft">
+              Fecha de vencimiento
             </label>
             <input
-              id="lic-corte"
+              id="lic-vencimiento"
               type="date"
-              value={fechaCorte}
-              onChange={(e) => setFechaCorte(e.target.value)}
+              value={fechaVencimiento}
+              onChange={(e) => setFechaVencimiento(e.target.value)}
               className={`${INPUT_CLASS} border-line-strong`}
             />
             <p className="text-xs text-ink-faint">Opcional — déjalo vacío si no tiene vencimiento.</p>

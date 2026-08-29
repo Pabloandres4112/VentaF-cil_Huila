@@ -3,7 +3,7 @@
 // Cuando se conecte Supabase, esto se reemplaza por `getTiendaByCode` /
 // `getProductosByTiendaId` en services/store.ts y services/products.ts.
 
-import type { Licencia, Producto, Tienda } from "@/types";
+import type { Producto, Tienda } from "@/types";
 
 export const MOCK_TIENDA: Tienda = {
   id: "mock-tienda-1",
@@ -101,27 +101,3 @@ export const MOCK_PRODUCTOS: Producto[] = [
 export function getMockTiendaByCode(code: string): Tienda | null {
   return code.toUpperCase() === MOCK_TIENDA.store_code ? MOCK_TIENDA : null;
 }
-
-// Sistema de Licencias (multi-producto) — ver types/index.ts.
-export const MOCK_LICENCIAS: Licencia[] = [
-  {
-    id: "lic1",
-    codigo: "INV-7F3K9Q",
-    producto: "inventario-local",
-    cliente_nombre: "Ferretería El Tornillo",
-    tienda_id: null,
-    estado: "Activo",
-    fecha_corte: "2026-09-15",
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: "lic2",
-    codigo: "INV-2M8XZP",
-    producto: "inventario-local",
-    cliente_nombre: "Depósito La Cosecha",
-    tienda_id: null,
-    estado: "Suspendido",
-    fecha_corte: "2026-07-01",
-    created_at: new Date().toISOString(),
-  },
-];

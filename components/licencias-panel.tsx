@@ -2,39 +2,87 @@
 
 // Sistema de Licencias (multi-producto): panel de superadministrador.
 // No enlazado desde ninguna navegación pública — solo accesible por URL
-// directa (/panel/licencias) y protegido por lib/auth/superadmin.ts.
+// directa (/admin/licencias) y protegido por lib/auth/superadmin.ts.
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { CheckIcon, CopyIcon, PlusIcon, TrashIcon } from "@/components/icons";
 import { LicenciaForm } from "@/components/licencia-form";
-import { useMockLicencias } from "@/hooks/useMockLicencias";
-import type { EstadoLicencia } from "@/types";
+import {
+  actualizarEstadoLicencia,
+  crearLicencia,
+  eliminarLicencia,
+  type NuevaLicencia,
+} from "@/services/licencias";
+import type { EstadoLicenciaAdmin, Licencia } from "@/types";
 
-const ESTADO_STYLES: Record<EstadoLicencia, string> = {
-  Activo: "bg-wa-tint text-wa-deep",
-  Inactivo: "bg-surface-2 text-ink-faint",
-  Suspendido: "bg-surface-2 text-danger",
+const ESTADO_STYLES: Record<EstadoLicenciaAdmin, string> = {
+  ACTIVA: "bg-wa-tint text-wa-deep",
+  DESHABILITADA: "bg-surface-2 text-danger",
 };
 
 function formatFecha(fecha: string | null): string {
   if (!fecha) return "Sin vencimiento";
-  return new Date(`${fecha}T00:00:00`).toLocaleDateString("es-CO", {
+  return new Date(fecha).toLocaleDateString("es-CO", {
     day: "2-digit",
     month: "short",
     year: "numeric",
   });
 }
 
-export function LicenciasPanel() {
-  const { licencias, crearLicencia, cambiarEstado, eliminarLicencia } = useMockLicencias();
+export function LicenciasPanel({ licenciasIniciales }: { licenciasIniciales: Licencia[] }) {
+  const [licencias, setLicencias] = useState<Licencia[]>(licenciasIniciales);
   const [formOpen, setFormOpen] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isPending, startTransition] = useTransition();
 
-  async function handleCopy(id: string, codigo: string) {
-    await navigator.clipboard.writeText(codigo);
+  async function handleCopy(id: string, licenciaKey: string) {
+    await navigator.clipboard.writeText(licenciaKey);
     setCopiedId(id);
     window.setTimeout(() => setCopiedId(null), 1600);
+  }
+
+  function handleCrear(values: NuevaLicencia) {
+    startTransition(async () => {
+      try {
+        const nueva = await crearLicencia(values);
+        setLicencias((prev) => [nueva, ...prev]);
+        setFormOpen(false);
+        setError(null);
+      } catch {
+        setError("No se pudo generar la licencia. Intenta de nuevo.");
+      }
+    });
+  }
+
+  function handleCambiarEstado(id: string, estado: EstadoLicenciaAdmin) {
+    const anterior = licencias;
+    setLicencias((prev) => prev.map((l) => (l.id === id ? { ...l, estado } : l)));
+    startTransition(async () => {
+      try {
+        await actualizarEstadoLicencia(id, estado);
+        setError(null);
+      } catch {
+        setLicencias(anterior);
+        setError("No se pudo actualizar el estado. Intenta de nuevo.");
+      }
+    });
+  }
+
+  function handleEliminar(id: string) {
+    const anterior = licencias;
+    setLicencias((prev) => prev.filter((l) => l.id !== id));
+    setConfirmDeleteId(null);
+    startTransition(async () => {
+      try {
+        await eliminarLicencia(id);
+        setError(null);
+      } catch {
+        setLicencias(anterior);
+        setError("No se pudo eliminar la licencia. Intenta de nuevo.");
+      }
+    });
   }
 
   return (
@@ -57,6 +105,8 @@ export function LicenciasPanel() {
         </button>
       </div>
 
+      {error && <p className="text-sm text-danger">{error}</p>}
+
       {licencias.length === 0 ? (
         <p className="rounded-xl border border-dashed border-line-strong py-12 text-center text-sm text-ink-soft">
           Todavía no has generado ninguna licencia.
@@ -70,11 +120,11 @@ export function LicenciasPanel() {
             >
               <div className="min-w-0">
                 <div className="mb-1 flex flex-wrap items-center gap-2">
-                  <span className="font-display text-sm tabular-nums">{licencia.codigo}</span>
+                  <span className="font-display text-sm tabular-nums">{licencia.licencia_key}</span>
                   <button
                     type="button"
-                    onClick={() => handleCopy(licencia.id, licencia.codigo)}
-                    aria-label={`Copiar código ${licencia.codigo}`}
+                    onClick={() => handleCopy(licencia.id, licencia.licencia_key)}
+                    aria-label={`Copiar código ${licencia.licencia_key}`}
                     className="flex h-6 w-6 items-center justify-center rounded text-ink-faint transition-colors hover:bg-ink/5 hover:text-ink"
                   >
                     {copiedId === licencia.id ? (
@@ -88,19 +138,24 @@ export function LicenciasPanel() {
                   </span>
                 </div>
                 <p className="text-sm font-medium">{licencia.cliente_nombre}</p>
-                <p className="text-xs text-ink-faint">Corte: {formatFecha(licencia.fecha_corte)}</p>
+                <p className="text-xs text-ink-faint">
+                  Vence: {formatFecha(licencia.fecha_vencimiento)} ·{" "}
+                  {licencia.hardware_id ? "Activada en un equipo" : "Sin activar"}
+                </p>
               </div>
 
               <div className="flex flex-none items-center gap-2">
                 <select
                   value={licencia.estado}
-                  onChange={(e) => cambiarEstado(licencia.id, e.target.value as EstadoLicencia)}
+                  onChange={(e) =>
+                    handleCambiarEstado(licencia.id, e.target.value as EstadoLicenciaAdmin)
+                  }
+                  disabled={isPending}
                   aria-label={`Estado de la licencia de ${licencia.cliente_nombre}`}
                   className={`rounded-md border-0 px-2.5 py-1.5 text-xs font-bold uppercase tracking-wide outline-none ${ESTADO_STYLES[licencia.estado]}`}
                 >
-                  <option value="Activo">Activo</option>
-                  <option value="Inactivo">Inactivo</option>
-                  <option value="Suspendido">Suspendido</option>
+                  <option value="ACTIVA">Activa</option>
+                  <option value="DESHABILITADA">Deshabilitada</option>
                 </select>
 
                 {confirmDeleteId === licencia.id ? (
@@ -114,10 +169,7 @@ export function LicenciasPanel() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => {
-                        eliminarLicencia(licencia.id);
-                        setConfirmDeleteId(null);
-                      }}
+                      onClick={() => handleEliminar(licencia.id)}
                       className="rounded-md bg-danger px-2.5 py-1.5 text-xs font-bold text-danger-ink transition-colors hover:bg-danger/90"
                     >
                       Confirmar
@@ -139,15 +191,7 @@ export function LicenciasPanel() {
         </div>
       )}
 
-      {formOpen && (
-        <LicenciaForm
-          onClose={() => setFormOpen(false)}
-          onSubmit={(values) => {
-            crearLicencia(values);
-            setFormOpen(false);
-          }}
-        />
-      )}
+      {formOpen && <LicenciaForm onClose={() => setFormOpen(false)} onSubmit={handleCrear} />}
     </div>
   );
 }

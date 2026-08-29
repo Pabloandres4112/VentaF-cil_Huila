@@ -251,14 +251,22 @@ No se prueba nada nuevo sobre datos reales de clientes. Mientras no exista Supab
 
 ---
 
-## 9. Sistema de Licencias (Anexo — multi-producto) ✅ Hecho (con datos de ejemplo)
+## 9. Sistema de Licencias (Anexo — multi-producto) ✅ Hecho, contra Supabase real
 
-**No es parte del MVP de VentaFácil Huila** (catálogo/pedidos por WhatsApp). Es un panel aparte, a petición explícita del usuario: VentaFácil va a ser el **sistema superior** que administra licencias de otros sistemas que está desarrollando en paralelo (el primero: una app de escritorio de inventario local) — reutilizando la misma app y la misma base de datos, sin desplegar un proyecto nuevo por cada sistema.
+**No es parte del MVP de VentaFácil Huila** (catálogo/pedidos por WhatsApp). VentaFácil actúa como **servidor central de licencias** para **CajaSimple**, un POS/inventario de escritorio aparte (Tauri + React + SQLite, local-only, offline-first, no vive en este repo) — reutilizando la misma app y la misma base de datos de VentaFácil en vez de desplegar un proyecto nuevo. El único punto de integración es la validación de licencias; no se comparten datos de ventas/inventario/clientes entre los dos sistemas.
 
-- **`supabase/schema.sql`**: tablas nuevas `superadmins` (lista blanca de `user_id`, sin UI — se administra a mano desde el SQL Editor) y `licencias` (código único, `producto` como texto libre para identificar a qué sistema pertenece — hoy `inventario-local`, mañana otro valor sin tocar la estructura —, cliente, estado Activo/Inactivo/Suspendido, fecha de corte). RLS: solo un superadmin puede leer/escribir la tabla completa.
-- **`validar_licencia(codigo)`**: función Postgres `SECURITY DEFINER` para que la *otra* app (el sistema de inventario, externo a este repo) valide un código sin exponer la tabla completa — se llama vía el RPC que Supabase genera automáticamente (`/rest/v1/rpc/validar_licencia`), sin necesidad de un endpoint propio en Next.js.
-- **`/panel/licencias`**: ruta cargada bajo demanda dentro del mismo router (no un proyecto aparte), sin enlace desde ninguna navegación pública. Generar código, cambiar estado, copiar, eliminar — con datos de ejemplo en `localStorage` (`hooks/useMockLicencias.ts`) mientras no exista Supabase.
-- **`lib/auth/superadmin.ts`**: verificación **en el servidor** (la página es un Server Component que redirige antes de renderizar nada si no eres superadmin) — hoy retorna `true` fijo con un `TODO` claro; cuando exista Supabase, se reemplaza por la consulta real a `superadmins`. La RLS de la base de datos es la barrera real; esta función es una segunda capa para no ni siquiera mostrar el panel.
+A diferencia del resto de VentaFácil (que usa Server Actions y datos de ejemplo en `localStorage` mientras Supabase está en pausa), **este subsistema ya habla con Supabase de verdad**, porque un servidor de licencias sin persistencia real no sirve para probar la integración con CajaSimple. Necesita `SUPABASE_SERVICE_ROLE_KEY` configurada en `.env.local` para funcionar (ver `.env.local.example`).
+
+- **`supabase/schema.sql`**: tablas `superadmins` (lista blanca de `user_id`, sin UI) y `licencias` (`licencia_key` único, `hardware_id` nullable hasta la primera activación, `producto` texto libre — hoy `cajasimple` —, cliente, `estado` ACTIVA/DESHABILITADA, `fecha_vencimiento` con hora/zona horaria). RLS bloquea todo acceso directo vía la API pública de Supabase; solo la service role key (usada por el servidor) puede leer/escribir.
+- **`lib/supabase/service.ts`**: cliente de Supabase con la service role key, solo para código de servidor — salta RLS a propósito, porque ni el panel admin ni el endpoint externo tienen sesión de Supabase Auth todavía.
+- **`services/licencias.ts`**: Server Actions de CRUD para el panel (`listarLicencias`, `crearLicencia`, `actualizarEstadoLicencia`, `eliminarLicencia`) + `validarLicencia()`, la lógica compartida que también usa el endpoint público. Vincula `hardware_id` automáticamente en la primera validación exitosa (primera activación); si ya está vinculado a otro equipo, la rechaza con `HARDWARE_NO_COINCIDE`. También calcula `VENCIDA` (por `fecha_vencimiento`) e `INVALIDA` (código inexistente) — estados derivados que no se guardan en la BD.
+- **`POST /api/v1/licencias/validar`** (`app/api/v1/licencias/validar/route.ts`): endpoint público que consume CajaSimple. Contrato exacto acordado:
+  - Request: `{ "licencia_key": "...", "hardware_id": "..." }`.
+  - Response: `{ "valida": bool, "estado": "...", "fecha_vencimiento": "...", "firma_seguridad": "..." }`.
+  - Protegido por un secreto compartido en el header `X-Caja-Api-Key` (env `CAJASIMPLE_API_KEY`), no por sesión — CajaSimple no puede loguearse en VentaFácil.
+  - `firma_seguridad`: HMAC-SHA256 (`LICENSE_SIGNING_SECRET`) sobre `licencia_key|estado|fecha_vencimiento|hardware_id` — ver `lib/licencias/signature.ts` para el detalle exacto que CajaSimple debe replicar para verificar.
+- **`/admin/licencias`**: panel del superadmin (renombrado desde `/panel/licencias`), sin enlace desde ninguna navegación pública. Generar licencia, cambiar estado, copiar código, eliminar — ahora contra Supabase real, no `localStorage`.
+- **`lib/auth/superadmin.ts`**: verificación **en el servidor** (la página es un Server Component que redirige antes de renderizar nada si no eres superadmin) — hoy retorna `true` fijo con un `TODO` claro; cuando exista sesión real de Supabase Auth (Fase 2), se reemplaza por la consulta real a `superadmins`.
 
 ---
 
