@@ -3,10 +3,11 @@
 // Fase 4 (PLAN_EJECUCION.md): editar nombre de tienda y WhatsApp.
 // El store_code es inmutable (no se edita, ver PLAN_EJECUCION.md sección 5).
 
-import { useState, type FormEvent } from "react";
+import { useState, useTransition, type FormEvent } from "react";
 import { CheckIcon, CopyIcon } from "@/components/icons";
-import { useMockTienda } from "@/hooks/useMockTienda";
 import { isValidWhatsappNumber } from "@/lib/validation";
+import { actualizarTienda } from "@/services/store";
+import type { Tienda } from "@/types";
 
 const INPUT_CLASS =
   "rounded-md border bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent";
@@ -14,15 +15,17 @@ const INPUT_CLASS =
 interface PerfilErrors {
   nombre?: string;
   telefono?: string;
+  general?: string;
 }
 
-export function DashboardProfile() {
-  const { tienda, updateTienda } = useMockTienda();
-  const [nombre, setNombre] = useState(tienda.nombre);
-  const [telefono, setTelefono] = useState(tienda.telefono_whatsapp);
+export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) {
+  const [tienda, setTienda] = useState(tiendaInicial);
+  const [nombre, setNombre] = useState(tiendaInicial.nombre);
+  const [telefono, setTelefono] = useState(tiendaInicial.telefono_whatsapp);
   const [errors, setErrors] = useState<PerfilErrors>({});
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isPending, startTransition] = useTransition();
 
   const storeUrl = `/store/${tienda.store_code}`;
 
@@ -37,9 +40,18 @@ export function DashboardProfile() {
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    updateTienda({ nombre: nombre.trim(), telefono_whatsapp: telefono.trim() });
-    setSaved(true);
-    window.setTimeout(() => setSaved(false), 1600);
+    const datos = { nombre: nombre.trim(), telefono_whatsapp: telefono.trim() };
+    startTransition(async () => {
+      try {
+        const actualizada = await actualizarTienda(tienda.id, datos);
+        setTienda(actualizada);
+        setErrors({});
+        setSaved(true);
+        window.setTimeout(() => setSaved(false), 1600);
+      } catch {
+        setErrors({ general: "No se pudo guardar. Intenta de nuevo." });
+      }
+    });
   }
 
   async function handleCopy() {
@@ -125,9 +137,12 @@ export function DashboardProfile() {
           )}
         </div>
 
+        {errors.general && <p className="text-xs text-danger">{errors.general}</p>}
+
         <button
           type="submit"
-          className="self-start rounded-md bg-accent px-5 py-2.5 text-sm font-bold text-accent-ink transition-colors hover:bg-accent/90"
+          disabled={isPending}
+          className="self-start rounded-md bg-accent px-5 py-2.5 text-sm font-bold text-accent-ink transition-colors hover:bg-accent/90 disabled:opacity-60"
         >
           {saved ? "Guardado" : "Guardar cambios"}
         </button>

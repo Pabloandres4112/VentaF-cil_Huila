@@ -1,17 +1,28 @@
 "use client";
 
 // Shell del panel administrativo: nav entre Productos y Perfil.
-// Sin guard de sesión todavía (Fase 1/2 de Supabase en pausa a propósito).
+// El guard de sesión real vive en middleware.ts (redirige a /login si no
+// hay usuario autenticado antes de que esta ruta siquiera renderice).
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
+import { LogoutIcon } from "@/components/icons";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { createClient } from "@/lib/supabase/client";
 
 const THEME_LABELS = { toLight: "Cambiar a tema claro", toDark: "Cambiar a tema oscuro" };
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const router = useRouter();
+
+  async function handleLogout() {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/login");
+    router.refresh();
+  }
 
   return (
     <div className="flex min-h-full flex-1 flex-col bg-ground">
@@ -40,7 +51,17 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               Perfil
             </Link>
           </nav>
-          <ThemeToggle labels={THEME_LABELS} />
+          <div className="flex items-center gap-2">
+            <ThemeToggle labels={THEME_LABELS} />
+            <button
+              type="button"
+              onClick={handleLogout}
+              aria-label="Cerrar sesión"
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-line-strong text-ink-faint transition-colors hover:border-danger hover:text-danger"
+            >
+              <LogoutIcon width={16} height={16} />
+            </button>
+          </div>
         </div>
       </header>
       <main className="mx-auto w-full max-w-284 flex-1 px-5 py-6 sm:px-8">{children}</main>

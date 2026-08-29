@@ -114,3 +114,25 @@ CREATE POLICY "Nadie accede a superadmins desde la app" ON public.superadmins
 -- sesión de usuario de Supabase Auth detrás.
 CREATE POLICY "Bloqueado por RLS — solo service role" ON public.licencias
   FOR ALL USING (false);
+
+-- =============================================================================
+-- PERMISOS DE TABLA (independientes de RLS)
+--
+-- Con "Automatically expose new tables" desactivado al crear el proyecto
+-- (recomendado — control explícito en vez de exponer todo por defecto),
+-- Supabase NO le da automáticamente privilegios sobre tablas nuevas a los
+-- roles anon/authenticated/service_role. RLS solo decide QUÉ FILAS puede
+-- ver un rol que YA tiene permiso — sin este GRANT, ni siquiera llega a
+-- evaluarse la política, falla antes con "permission denied".
+-- =============================================================================
+
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
+
+-- tiendas/productos: los usa el navegador (anon) y el dueño logueado
+-- (authenticated) — RLS de arriba sigue siendo la barrera real.
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.tiendas TO anon, authenticated, service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.productos TO anon, authenticated, service_role;
+
+-- superadmins/licencias: solo los toca el servidor con la service role key.
+GRANT SELECT ON public.superadmins TO service_role;
+GRANT SELECT, INSERT, UPDATE, DELETE ON public.licencias TO service_role;

@@ -204,28 +204,28 @@ El orden respeta dependencias técnicas: primero la infraestructura de datos, lu
 - Proyecto Next.js 16 (App Router) + TypeScript + Tailwind CSS + pnpm, ya creado y corriendo.
 - Pendiente solo lo de Supabase (URL/ANON_KEY) y Vercel — ver Fase 1.
 
-### Fase 1 — Capa de Datos (Supabase) ⏸️ En pausa (a cargo del usuario)
-- Ejecutar el script SQL de la sección 5 (tablas `tiendas`, `productos` + RLS).
-- Crear bucket `productos` en Supabase Storage con política de acceso pública de lectura.
-- Verificar políticas RLS con pruebas manuales (un usuario no debe poder modificar datos de otra tienda).
-- **Crear dos proyectos de Supabase, no uno**: uno para QA/pruebas y otro para producción (ver "Entornos: QA vs Producción" antes de la Fase 8). Nunca probar cosas nuevas sobre el proyecto que tenga datos reales de clientes.
+### Fase 1 — Capa de Datos (Supabase) ✅ Hecho (proyecto de QA real, en producción falta crear el segundo proyecto)
+- Proyecto de QA creado y `supabase/schema.sql` ejecutado completo (tablas `tiendas`, `productos`, `superadmins`, `licencias` + RLS + GRANTs explícitos — ver nota de permisos en el propio archivo).
+- Pendiente: bucket `productos` en Supabase Storage (las fotos siguen quedando embebidas en el navegador, no subidas — ver Fase 4) y el segundo proyecto de Supabase para producción (ver "Entornos: QA vs Producción").
 
-### Fase 2 — Capa de Autenticación ⏸️ Solo UI, sin conectar
-- `app/(auth)/login/page.tsx`: formulario completo (correo/contraseña), pero **no está conectado** a Supabase todavía — falta el proyecto real (Fase 1).
-- Pendiente: `lib/supabase/client.ts`/`server.ts` (ya existen como scaffold, listos para las credenciales reales), y middleware de sesión para proteger `(dashboard)`.
+### Fase 2 — Capa de Autenticación ✅ Hecho, contra Supabase real
+- `app/(auth)/login/page.tsx` conectado a `supabase.auth.signInWithPassword()` (`lib/supabase/client.ts`), con manejo de error genérico ("Correo o contraseña incorrectos").
+- `middleware.ts` + `lib/supabase/middleware.ts`: refresca la sesión en cada request y redirige a `/login` cualquier acceso a `/dashboard` sin sesión — es el guard real, no depende de cada página.
+- `app/(dashboard)/dashboard/layout.tsx`: botón de cerrar sesión (`supabase.auth.signOut()`).
 
-### Fase 3 — Capa de Lógica de Servidor (Server Actions) ⏸️ Scaffold listo, sin datos reales
-- `services/store.ts` y `services/products.ts` ya tienen las consultas escritas (`getTiendaByCode`, `getProductosByTiendaId`, etc.) apuntando a Supabase — no se pueden probar hasta la Fase 1.
-- Mientras tanto, el dashboard y el catálogo usan datos de ejemplo editables en `localStorage` (`lib/mock-data.ts`, `hooks/useMockInventory.ts`, `hooks/useMockTienda.ts`) para poder construir y probar toda la UI.
+### Fase 3 — Capa de Lógica de Servidor (Server Actions) ✅ Hecho, contra Supabase real
+- `services/store.ts`: `getTiendaByUserId`, `getTiendaByCode`, `crearTienda` (alta automática la primera vez que un usuario logueado no tiene tienda todavía), `actualizarTienda`.
+- `services/products.ts`: `getProductosByTiendaId`, `crearProducto`, `actualizarProducto`, `eliminarProducto`, `alternarDisponibleProducto`.
+- Los datos de ejemplo (`lib/mock-data.ts`, `hooks/useMockInventory.ts`, `hooks/useMockTienda.ts`) ya se eliminaron — todo el dashboard y el catálogo público leen/escriben en Supabase real.
 
-### Fase 4 — Capa de Panel Admin (`/dashboard`) ✅ Hecho (con datos de ejemplo)
-- `/dashboard`: listar, crear, editar, eliminar productos (`ProductForm.tsx` como modal), toggle de disponibilidad, link del catálogo con copiar/ver.
-- `/dashboard/perfil`: editar nombre de tienda y WhatsApp; `store_code` visible mostrado como inmutable.
-- Sin guard de sesión todavía (llega con Fase 2). Datos persistidos en `localStorage` vía `useMockInventory`/`useMockTienda` — al conectar Supabase, se reemplazan por Server Actions reales.
-- `components/image-upload.tsx`: subir foto por drag-and-drop o selección de archivo (no una URL). Se comprime en el navegador (máx. 900px, JPEG) y por ahora queda incrustada como imagen local — cuando se conecte Supabase Storage (Fase 1), el mismo componente sube el archivo comprimido al bucket `productos` y usa la URL real; la UI del formulario no cambia.
+### Fase 4 — Capa de Panel Admin (`/dashboard`) ✅ Hecho, contra Supabase real
+- `/dashboard`: listar, crear, editar, eliminar productos (`ProductForm.tsx` como modal), toggle de disponibilidad, link del catálogo con copiar/ver — todo vía los Server Actions de `services/products.ts` (patrón optimista + `useTransition`, igual que `LicenciasPanel`).
+- `/dashboard/perfil`: editar nombre de tienda y WhatsApp vía `services/store.ts`; `store_code` visible mostrado como inmutable.
+- Guardado por `middleware.ts` (Fase 2). Si el usuario logueado no tiene tienda todavía, se le crea una automáticamente al entrar (`crearTienda`).
+- `components/image-upload.tsx`: subir foto por drag-and-drop o selección de archivo (no una URL). Se comprime en el navegador (máx. 900px, JPEG) y por ahora queda incrustada como imagen local — cuando se conecte Supabase Storage (bucket `productos`, pendiente de Fase 1), el mismo componente sube el archivo comprimido y usa la URL real; la UI del formulario no cambia.
 - Validación real en `ProductForm.tsx` y `dashboard-profile.tsx` (nombre, precio > 0, stock ≥ 0, WhatsApp con formato válido) — ver `lib/validation.ts`.
 
-### Fase 5 — Capa de Catálogo Público (`/store/[code]`) ✅ Hecho (con datos de ejemplo)
+### Fase 5 — Capa de Catálogo Público (`/store/[code]`) ✅ Hecho, contra Supabase real
 - Tienda + grid de productos disponibles, con estado "no encontrada" y "no disponible" (`estado_suscripcion: Inactivo`) ya manejados.
 - `ProductCard.tsx` mobile-first, tamaño de tarjeta fijo sin importar la imagen.
 
@@ -245,9 +245,9 @@ No se prueba nada nuevo sobre datos reales de clientes. Mientras no exista Supab
 - **En Vercel**: los *Preview deployments* (ramas, PRs) usan las variables del proyecto de QA; el *Production deployment* (rama `main`) usa las variables del proyecto de producción — Vercel permite configurar variables de entorno distintas por ambiente sin código adicional.
 - **`components/qa-banner.tsx`**: aviso visual fijo arriba de toda la app ("Entorno de pruebas (QA)") que se oculta solo cuando `NEXT_PUBLIC_APP_ENV=production` — si la variable no está definida, se asume QA a propósito (falla del lado seguro, para no exponer un entorno de pruebas como si fuera producción por accidente).
 
-### Fase 8 — QA y Despliegue ⏸️ Pendiente de Supabase
-- El flujo completo (dueño crea producto → cliente compra → mensaje a WhatsApp) ya está probado **con datos de ejemplo**.
-- Falta repetirlo con datos reales de Supabase (usando el proyecto de QA primero, nunca el de producción), validar RLS con dos tiendas reales, y el deploy a Vercel con las variables de entorno correctas por ambiente.
+### Fase 8 — QA y Despliegue ⏸️ Falta el deploy y probar RLS con dos tiendas
+- El flujo completo (dueño crea producto → cliente compra → mensaje a WhatsApp) ya está probado de punta a punta **contra el proyecto de QA real** (login → crear producto en `/dashboard` → aparece en `/store/[code]`), sin errores de consola.
+- Falta: validar RLS con una segunda tienda real (que un dueño no pueda editar productos de otra tienda), el bucket `productos` en Storage, y el deploy a Vercel con las variables de entorno correctas por ambiente (proyecto de producción todavía no existe).
 
 ---
 
@@ -266,7 +266,7 @@ A diferencia del resto de VentaFácil (que usa Server Actions y datos de ejemplo
   - Protegido por un secreto compartido en el header `X-Caja-Api-Key` (env `CAJASIMPLE_API_KEY`), no por sesión — CajaSimple no puede loguearse en VentaFácil.
   - `firma_seguridad`: HMAC-SHA256 (`LICENSE_SIGNING_SECRET`) sobre `licencia_key|estado|fecha_vencimiento|hardware_id` — ver `lib/licencias/signature.ts` para el detalle exacto que CajaSimple debe replicar para verificar.
 - **`/admin/licencias`**: panel del superadmin (renombrado desde `/panel/licencias`), sin enlace desde ninguna navegación pública. Generar licencia, cambiar estado, copiar código, eliminar — ahora contra Supabase real, no `localStorage`.
-- **`lib/auth/superadmin.ts`**: verificación **en el servidor** (la página es un Server Component que redirige antes de renderizar nada si no eres superadmin) — hoy retorna `true` fijo con un `TODO` claro; cuando exista sesión real de Supabase Auth (Fase 2), se reemplaza por la consulta real a `superadmins`.
+- **`lib/auth/superadmin.ts`**: verificación **en el servidor** (la página es un Server Component que redirige antes de renderizar nada si no eres superadmin) — ahora contra la sesión real (Fase 2) y la tabla `superadmins` (vía service role, ya que esa tabla no tiene GRANT de lectura para `authenticated`). Agregar un `user_id` a `superadmins` sigue siendo manual desde el SQL Editor a propósito (no hay UI, es una lista corta y sensible).
 
 ---
 
@@ -315,11 +315,11 @@ A diferencia del resto de VentaFácil (que usa Server Actions y datos de ejemplo
 
 ## 12. Próximo Paso Inmediato
 
-**Estado actual:** todo el frontend del MVP (Home, login UI, catálogo público, carrito, checkout, WhatsApp, dashboard) está construido y probado con datos de ejemplo (`localStorage`/`lib/mock-data.ts`). Lo único que falta para que sea 100% funcional es conectar Supabase de verdad:
+**Estado actual:** Fases 1–7 y el Sistema de Licencias están hechas contra el proyecto de Supabase de **QA** real (no datos de ejemplo) — login, dashboard, catálogo público y licencias probados de punta a punta sin errores de consola. Lo que falta:
 
-1. **Fase 1:** crear el proyecto en Supabase, ejecutar `supabase/schema.sql`, crear el bucket `productos` en Storage.
-2. **Fase 2/3:** cargar las credenciales reales en `.env.local` (usando `.env.local.example` como base) y verificar que `services/store.ts`/`services/products.ts` funcionen contra la base real; conectar el formulario de `/login`.
-3. Reemplazar los hooks de mock (`useMockInventory`, `useMockTienda`, `getMockTiendaByCode`) por las Server Actions reales en `/dashboard` y `/store/[code]`.
-4. **Fase 8:** QA end-to-end con datos reales y deploy a Vercel.
+1. **Storage:** crear el bucket `productos` en Supabase Storage y conectar `components/image-upload.tsx` para que suba el archivo real en vez de dejarlo embebido en el navegador.
+2. **RLS con dos tiendas:** crear una segunda tienda de prueba y confirmar que un dueño no puede ver/editar productos de otra (la política ya existe en `supabase/schema.sql`, falta la prueba manual).
+3. **Producción:** crear el **segundo** proyecto de Supabase (separado del de QA) y configurar las variables de entorno de producción en Vercel.
+4. **Fase 8:** deploy a Vercel.
 
 No se debe tocar nada de la sección "fuera del MVP" (sección 6) sin decisión explícita.

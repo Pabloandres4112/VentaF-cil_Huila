@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { createClient } from "@/lib/supabase/client";
 import { isValidEmail } from "@/lib/validation";
 
 const INPUT_CLASS =
@@ -10,17 +12,18 @@ const INPUT_CLASS =
 interface LoginErrors {
   email?: string;
   password?: string;
+  general?: string;
 }
 
 // Fase 2 (PLAN_EJECUCION.md): login del dueño de negocio con Supabase Auth.
-// Por ahora es solo la UI con validación: el envío no está conectado todavía
-// porque el proyecto de Supabase no se ha creado (Fase 1, en pausa a propósito).
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<LoginErrors>({});
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     const nextErrors: LoginErrors = {};
@@ -30,7 +33,23 @@ export default function LoginPage() {
     else if (password.length < 6) nextErrors.password = "Debe tener al menos 6 caracteres.";
 
     setErrors(nextErrors);
-    // TODO Fase 2: si no hay errores, llamar supabase.auth.signInWithPassword() en lib/supabase/client.ts.
+    if (Object.keys(nextErrors).length > 0) return;
+
+    setLoading(true);
+    const supabase = createClient();
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim(),
+      password,
+    });
+    setLoading(false);
+
+    if (error) {
+      setErrors({ general: "Correo o contraseña incorrectos." });
+      return;
+    }
+
+    router.push("/dashboard");
+    router.refresh();
   }
 
   return (
@@ -82,16 +101,15 @@ export default function LoginPage() {
             {errors.password && <p className="text-xs text-danger">{errors.password}</p>}
           </div>
 
-          {/* TODO Fase 2: conectar con supabase.auth.signInWithPassword() en lib/supabase/client.ts una vez exista el proyecto de Supabase. */}
+          {errors.general && <p className="text-sm text-danger">{errors.general}</p>}
+
           <button
             type="submit"
-            className="mt-2 rounded-md bg-accent px-5 py-3 text-sm font-bold text-accent-ink transition-colors hover:bg-accent/90"
+            disabled={loading}
+            className="mt-2 rounded-md bg-accent px-5 py-3 text-sm font-bold text-accent-ink transition-colors hover:bg-accent/90 disabled:opacity-60"
           >
-            Iniciar sesión
+            {loading ? "Entrando..." : "Iniciar sesión"}
           </button>
-          <p className="text-center text-xs text-ink-faint">
-            Conexión con Supabase pendiente (Fase 1).
-          </p>
         </form>
       </div>
 

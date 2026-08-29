@@ -1,14 +1,28 @@
 // Sistema de Licencias (multi-producto): verificación de superadmin.
 //
-// TODO Fase 2: reemplazar por la verificación real una vez exista el
-// proyecto de Supabase — obtener la sesión con lib/supabase/server.ts y
-// consultar `SELECT 1 FROM superadmins WHERE user_id = auth.uid()`. RLS en
-// la tabla `licencias` (supabase/schema.sql) ya bloquea el acceso a nivel
-// de base de datos aunque esta función fallara; esta capa es una segunda
-// barrera para no renderizar el panel a quien no debería verlo.
-//
-// Por ahora retorna un valor fijo para poder construir y probar el panel
-// mientras la Fase 1 está en pausa.
+// Consulta la tabla `superadmins` con la service role key (la tabla tiene
+// RLS "FOR ALL USING (false)" — ni siquiera el propio usuario logueado
+// puede leerla vía el cliente normal). RLS en `licencias` ya bloquea el
+// acceso a nivel de base de datos aunque esta función fallara; esta capa es
+// una segunda barrera para no renderizar el panel a quien no debería verlo.
+
+import { createClient } from "@/lib/supabase/server";
+import { createServiceClient } from "@/lib/supabase/service";
+
 export async function isSuperadmin(): Promise<boolean> {
-  return true;
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return false;
+
+  const service = createServiceClient();
+  const { data } = await service
+    .from("superadmins")
+    .select("user_id")
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  return data !== null;
 }

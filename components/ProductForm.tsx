@@ -6,7 +6,7 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import { CloseIcon } from "@/components/icons";
 import { ImageUpload } from "@/components/image-upload";
 import { ToggleSwitch } from "@/components/toggle-switch";
-import type { NuevoProducto } from "@/hooks/useMockInventory";
+import type { NuevoProducto } from "@/services/products";
 import type { Producto } from "@/types";
 
 const INPUT_CLASS =

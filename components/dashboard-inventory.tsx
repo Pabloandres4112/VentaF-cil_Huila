@@ -3,7 +3,7 @@
 // Fase 4 (PLAN_EJECUCION.md): panel de inventario — listar, crear, editar,
 // eliminar productos, toggle de disponibilidad, link del catálogo.
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import {
   CheckIcon,
   CopyIcon,
@@ -15,17 +15,30 @@ import {
 } from "@/components/icons";
 import { ProductForm } from "@/components/ProductForm";
 import { ToggleSwitch } from "@/components/toggle-switch";
-import { useMockInventory, type NuevoProducto } from "@/hooks/useMockInventory";
 import { formatCOP } from "@/lib/utils";
+import {
+  actualizarProducto,
+  alternarDisponibleProducto,
+  crearProducto,
+  eliminarProducto,
+  type NuevoProducto,
+} from "@/services/products";
 import type { Producto, Tienda } from "@/types";
 
-export function DashboardInventory({ tienda }: { tienda: Tienda }) {
-  const { productos, addProducto, updateProducto, deleteProducto, toggleDisponible } =
-    useMockInventory(tienda.id);
+export function DashboardInventory({
+  tienda,
+  productosIniciales,
+}: {
+  tienda: Tienda;
+  productosIniciales: Producto[];
+}) {
+  const [productos, setProductos] = useState<Producto[]>(productosIniciales);
   const [formOpen, setFormOpen] = useState(false);
   const [editing, setEditing] = useState<Producto | undefined>(undefined);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [, startTransition] = useTransition();
 
   const storeUrl = `/store/${tienda.store_code}`;
 
@@ -40,12 +53,63 @@ export function DashboardInventory({ tienda }: { tienda: Tienda }) {
   }
 
   function handleSubmit(values: NuevoProducto) {
-    if (editing) {
-      updateProducto(editing.id, values);
-    } else {
-      addProducto(values);
-    }
     setFormOpen(false);
+    if (editing) {
+      const id = editing.id;
+      const anterior = productos;
+      setProductos((prev) => prev.map((p) => (p.id === id ? { ...p, ...values } : p)));
+      startTransition(async () => {
+        try {
+          await actualizarProducto(id, values);
+          setError(null);
+        } catch {
+          setProductos(anterior);
+          setError("No se pudo guardar el producto. Intenta de nuevo.");
+        }
+      });
+    } else {
+      startTransition(async () => {
+        try {
+          const nuevo = await crearProducto(tienda.id, values);
+          setProductos((prev) => [nuevo, ...prev]);
+          setError(null);
+        } catch {
+          setError("No se pudo crear el producto. Intenta de nuevo.");
+        }
+      });
+    }
+  }
+
+  function handleDelete(id: string) {
+    const anterior = productos;
+    setProductos((prev) => prev.filter((p) => p.id !== id));
+    setConfirmDeleteId(null);
+    startTransition(async () => {
+      try {
+        await eliminarProducto(id);
+        setError(null);
+      } catch {
+        setProductos(anterior);
+        setError("No se pudo eliminar el producto. Intenta de nuevo.");
+      }
+    });
+  }
+
+  function handleToggleDisponible(producto: Producto) {
+    const anterior = productos;
+    const nuevoValor = !producto.disponible;
+    setProductos((prev) =>
+      prev.map((p) => (p.id === producto.id ? { ...p, disponible: nuevoValor } : p)),
+    );
+    startTransition(async () => {
+      try {
+        await alternarDisponibleProducto(producto.id, nuevoValor);
+        setError(null);
+      } catch {
+        setProductos(anterior);
+        setError("No se pudo actualizar. Intenta de nuevo.");
+      }
+    });
   }
 
   async function handleCopy() {
@@ -90,6 +154,8 @@ export function DashboardInventory({ tienda }: { tienda: Tienda }) {
           </a>
         </div>
       </div>
+
+      {error && <p className="text-sm text-danger">{error}</p>}
 
       <div className="flex items-center justify-between gap-3">
         <h1 className="font-display text-xl">
@@ -152,7 +218,7 @@ export function DashboardInventory({ tienda }: { tienda: Tienda }) {
                   <span className="text-xs font-semibold text-ink-soft">Visible</span>
                   <ToggleSwitch
                     checked={producto.disponible}
-                    onChange={() => toggleDisponible(producto.id)}
+                    onChange={() => handleToggleDisponible(producto)}
                     label={`Visible en el catálogo: ${producto.nombre}`}
                   />
                 </label>
@@ -169,10 +235,7 @@ export function DashboardInventory({ tienda }: { tienda: Tienda }) {
                       </button>
                       <button
                         type="button"
-                        onClick={() => {
-                          deleteProducto(producto.id);
-                          setConfirmDeleteId(null);
-                        }}
+                        onClick={() => handleDelete(producto.id)}
                         className="flex-1 rounded-md bg-danger py-2 text-xs font-bold text-danger-ink transition-colors hover:bg-danger/90"
                       >
                         Confirmar

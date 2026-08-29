@@ -1,11 +1,9 @@
 // Fase 5 (PLAN_EJECUCION.md): catálogo público del cliente final.
-// Usa datos de ejemplo (lib/mock-data.ts) hasta que exista el proyecto de
-// Supabase (Fase 1, en pausa a propósito) — para entonces, reemplazar por
-// getTiendaByCode / getProductosByTiendaId (services/store.ts y products.ts).
 
-import { getMockTiendaByCode, MOCK_PRODUCTOS } from "@/lib/mock-data";
 import { StoreCatalog } from "@/components/store-catalog";
 import { WhatsappIcon } from "@/components/icons";
+import { getProductosByTiendaId } from "@/services/products";
+import { getTiendaByCode } from "@/services/store";
 
 export default async function StorePage({
   params,
@@ -13,7 +11,7 @@ export default async function StorePage({
   params: Promise<{ code: string }>;
 }) {
   const { code } = await params;
-  const tienda = getMockTiendaByCode(code);
+  const tienda = await getTiendaByCode(code);
 
   if (!tienda) {
     return (
@@ -32,7 +30,8 @@ export default async function StorePage({
     );
   }
 
-  const productos = MOCK_PRODUCTOS.filter((producto) => producto.disponible);
+  const todosLosProductos = await getProductosByTiendaId(tienda.id);
+  const productos = todosLosProductos.filter((producto) => producto.disponible);
 
   return (
     <main className="flex-1 bg-ground pb-28">
