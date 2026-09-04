@@ -2,7 +2,7 @@ import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
 // Refresca la sesión de Supabase en cada request y protege /dashboard.
-// Patrón estándar de @supabase/ssr para Next.js App Router.
+// Patrón estándar de @supabase/ssr para el Proxy de Next.js App Router.
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
 

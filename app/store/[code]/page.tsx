@@ -1,5 +1,6 @@
 // Fase 5 (PLAN_EJECUCION.md): catálogo público del cliente final.
 
+import type { CSSProperties } from "react";
 import { StoreCatalog } from "@/components/store-catalog";
 import { WhatsappIcon } from "@/components/icons";
 import { getProductosByTiendaId } from "@/services/products";
@@ -33,12 +34,20 @@ export default async function StorePage({
   const todosLosProductos = await getProductosByTiendaId(tienda.id);
   const productos = todosLosProductos.filter((producto) => producto.disponible);
 
+  // Personalización de marca (Fase 4b, PLAN_EJECUCION.md): el dueño solo
+  // puede cambiar nombre + estos 2 colores — nunca el verde de WhatsApp
+  // (--wa*), que se mantiene fijo en toda la app a propósito.
+  const colorVars = {
+    ...(tienda.color_primario ? { "--accent": tienda.color_primario } : {}),
+    ...(tienda.color_secundario ? { "--accent-2": tienda.color_secundario } : {}),
+  } as CSSProperties;
+
   return (
-    <main className="flex-1 bg-ground pb-28">
+    <main className="flex-1 bg-ground pb-28" style={colorVars}>
       <header className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-284 items-center justify-between gap-4 px-5 py-5 sm:px-8">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-accent font-display text-base text-accent-ink">
+            <div className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-accent-2 font-display text-base text-accent-2-ink">
               {tienda.nombre.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">

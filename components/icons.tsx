@@ -204,6 +204,23 @@ export function ExternalLinkIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function PaletteIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <path
+        d="M12 3a9 9 0 1 0 0 18c1.1 0 1.5-.8 1.5-1.5 0-.4-.15-.75-.4-1.05-.25-.3-.4-.65-.4-1.05 0-.83.67-1.4 1.5-1.4H16a3 3 0 0 0 3-3c0-4.42-3.13-8-7-8Z"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx={7.5} cy={10.5} r={1.1} fill="currentColor" />
+      <circle cx={11} cy={7.5} r={1.1} fill="currentColor" />
+      <circle cx={15} cy={8.5} r={1.1} fill="currentColor" />
+    </Svg>
+  );
+}
+
 export function LogoutIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Svg {...props}>

@@ -7,6 +7,13 @@ export interface Tienda {
   store_code: string;
   telefono_whatsapp: string;
   estado_suscripcion: EstadoSuscripcion;
+  // Personalización de marca (Fase 4b): null hasta que el dueño elige un
+  // color propio — el catálogo público usa los colores por defecto de
+  // globals.css mientras tanto. A propósito, esto es lo único de marca que
+  // se puede personalizar (junto al nombre) — para que cada tienda tenga su
+  // toque sin volverse un editor de diseño completo.
+  color_primario: string | null;
+  color_secundario: string | null;
   created_at: string;
 }
 

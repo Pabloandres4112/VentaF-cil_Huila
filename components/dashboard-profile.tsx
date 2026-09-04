@@ -22,6 +22,10 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
   const [tienda, setTienda] = useState(tiendaInicial);
   const [nombre, setNombre] = useState(tiendaInicial.nombre);
   const [telefono, setTelefono] = useState(tiendaInicial.telefono_whatsapp);
+  const [colorPrimario, setColorPrimario] = useState(tiendaInicial.color_primario ?? "#24405e");
+  const [colorSecundario, setColorSecundario] = useState(
+    tiendaInicial.color_secundario ?? "#58626f",
+  );
   const [errors, setErrors] = useState<PerfilErrors>({});
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -40,7 +44,12 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
-    const datos = { nombre: nombre.trim(), telefono_whatsapp: telefono.trim() };
+    const datos = {
+      nombre: nombre.trim(),
+      telefono_whatsapp: telefono.trim(),
+      color_primario: colorPrimario,
+      color_secundario: colorSecundario,
+    };
     startTransition(async () => {
       try {
         const actualizada = await actualizarTienda(tienda.id, datos);
@@ -135,6 +144,34 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
               Con indicativo de país, sin espacios ni signo +. Ej: 573001234567.
             </p>
           )}
+        </div>
+
+        <div className="flex flex-col gap-2 border-t border-line pt-4">
+          <p className="text-sm font-semibold text-ink-soft">Colores de tu tienda</p>
+          <p className="text-xs text-ink-faint">
+            Se aplican en tu catálogo público — el nombre y estos dos colores son lo único que
+            puedes personalizar.
+          </p>
+          <div className="flex gap-4 pt-1">
+            <label className="flex flex-1 flex-col gap-1.5">
+              <span className="text-xs font-semibold text-ink-soft">Primario (botones)</span>
+              <input
+                type="color"
+                value={colorPrimario}
+                onChange={(e) => setColorPrimario(e.target.value)}
+                className="h-10 w-full cursor-pointer rounded-md border border-line-strong bg-ground p-1"
+              />
+            </label>
+            <label className="flex flex-1 flex-col gap-1.5">
+              <span className="text-xs font-semibold text-ink-soft">Secundario (identidad)</span>
+              <input
+                type="color"
+                value={colorSecundario}
+                onChange={(e) => setColorSecundario(e.target.value)}
+                className="h-10 w-full cursor-pointer rounded-md border border-line-strong bg-ground p-1"
+              />
+            </label>
+          </div>
         </div>
 
         {errors.general && <p className="text-xs text-danger">{errors.general}</p>}

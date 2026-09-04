@@ -44,7 +44,7 @@ export async function crearTienda(userId: string, nombre: string): Promise<Tiend
 
 export async function actualizarTienda(
   id: string,
-  datos: Pick<Tienda, "nombre" | "telefono_whatsapp">,
+  datos: Pick<Tienda, "nombre" | "telefono_whatsapp" | "color_primario" | "color_secundario">,
 ): Promise<Tienda> {
   const supabase = await createClient();
   const { data, error } = await supabase

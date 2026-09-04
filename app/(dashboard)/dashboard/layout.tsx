@@ -7,11 +7,8 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { LogoutIcon } from "@/components/icons";
-import { ThemeToggle } from "@/components/theme-toggle";
+import { LogoutIcon, PaletteIcon } from "@/components/icons";
 import { createClient } from "@/lib/supabase/client";
-
-const THEME_LABELS = { toLight: "Cambiar a tema claro", toDark: "Cambiar a tema oscuro" };
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -52,7 +49,13 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </Link>
           </nav>
           <div className="flex items-center gap-2">
-            <ThemeToggle labels={THEME_LABELS} />
+            <Link
+              href="/dashboard/perfil"
+              aria-label="Personalizar colores de la tienda"
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-line-strong text-ink-soft transition-colors hover:bg-ink/5"
+            >
+              <PaletteIcon width={16} height={16} />
+            </Link>
             <button
               type="button"
               onClick={handleLogout}

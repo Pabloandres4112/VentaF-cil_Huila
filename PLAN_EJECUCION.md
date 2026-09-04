@@ -210,7 +210,9 @@ El orden respeta dependencias técnicas: primero la infraestructura de datos, lu
 
 ### Fase 2 — Capa de Autenticación ✅ Hecho, contra Supabase real
 - `app/(auth)/login/page.tsx` conectado a `supabase.auth.signInWithPassword()` (`lib/supabase/client.ts`), con manejo de error genérico ("Correo o contraseña incorrectos").
-- `middleware.ts` + `lib/supabase/middleware.ts`: refresca la sesión en cada request y redirige a `/login` cualquier acceso a `/dashboard` sin sesión — es el guard real, no depende de cada página.
+- `app/(auth)/registro/page.tsx`: alta self-service con `supabase.auth.signUp()`. Si el proyecto de Supabase tiene "Confirm email" activado (es el caso del proyecto de QA), no entrega sesión de inmediato — se muestra "Revisa tu correo" en vez de redirigir. El nombre de la tienda se completa después en `/dashboard/perfil` (al primer ingreso se crea con un nombre provisional, ver `lib/auth/session.ts`).
+- `middleware.ts` + `lib/supabase/middleware.ts`: refresca la sesión y redirige a `/login` cualquier acceso a `/dashboard` sin sesión. El matcher está acotado a `/dashboard/:path*` a propósito — el resto del sitio (Home, `/store/[code]`, `/login`, `/registro`) es público y no debe pagar una llamada de red a Supabase Auth en cada request.
+- `lib/auth/session.ts` (`requireTienda()`): helper de servidor compartido por `/dashboard` y `/dashboard/perfil` — obtiene el usuario (redirige a `/login` si no hay sesión) y su tienda, creándola si es su primer ingreso. Antes esta lógica estaba duplicada en cada página.
 - `app/(dashboard)/dashboard/layout.tsx`: botón de cerrar sesión (`supabase.auth.signOut()`).
 
 ### Fase 3 — Capa de Lógica de Servidor (Server Actions) ✅ Hecho, contra Supabase real

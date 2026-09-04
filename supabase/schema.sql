@@ -12,6 +12,11 @@ CREATE TABLE public.tiendas (
   store_code TEXT UNIQUE NOT NULL DEFAULT upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 6)),
   telefono_whatsapp TEXT NOT NULL, -- Ej: '573001234567' (sin signo +)
   estado_suscripcion TEXT DEFAULT 'Activo' CHECK (estado_suscripcion IN ('Activo', 'Inactivo')),
+  -- Personalización de marca: lo único que el dueño puede personalizar
+  -- aparte del nombre. NULL = usa los colores por defecto de globals.css.
+  -- Nunca controla el verde de WhatsApp, que queda fijo en toda la app.
+  color_primario TEXT,
+  color_secundario TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -136,3 +141,14 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.productos TO anon, authenticated,
 -- superadmins/licencias: solo los toca el servidor con la service role key.
 GRANT SELECT ON public.superadmins TO service_role;
 GRANT SELECT, INSERT, UPDATE, DELETE ON public.licencias TO service_role;
+
+-- =============================================================================
+-- MIGRACIÓN — Personalización de marca (colores de tienda)
+--
+-- Si tu proyecto ya existía antes de este cambio (como el de QA), la tabla
+-- `tiendas` ya está creada y el CREATE TABLE de arriba no vuelve a correr.
+-- Ejecuta solo este bloque en el SQL Editor de Supabase:
+-- =============================================================================
+
+ALTER TABLE public.tiendas ADD COLUMN IF NOT EXISTS color_primario TEXT;
+ALTER TABLE public.tiendas ADD COLUMN IF NOT EXISTS color_secundario TEXT;
