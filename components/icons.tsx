@@ -204,6 +204,30 @@ export function ExternalLinkIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function ColombiaFlagIcon({
+  width = 18,
+  height = 13,
+  className,
+}: {
+  width?: number;
+  height?: number;
+  className?: string;
+}) {
+  return (
+    <svg
+      width={width}
+      height={height}
+      viewBox="0 0 18 13"
+      aria-hidden="true"
+      className={className}
+    >
+      <rect width="18" height="13" rx="1.5" fill="#FCD116" />
+      <path d="M0 6.5h18v3.25a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 0 9.75V6.5z" fill="#003893" />
+      <path d="M0 9.75h18V11.5A1.5 1.5 0 0 1 16.5 13h-15A1.5 1.5 0 0 1 0 11.5V9.75z" fill="#CE1126" />
+    </svg>
+  );
+}
+
 export function PaletteIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Svg {...props}>

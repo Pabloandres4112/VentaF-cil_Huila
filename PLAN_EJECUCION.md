@@ -211,7 +211,7 @@ El orden respeta dependencias técnicas: primero la infraestructura de datos, lu
 ### Fase 2 — Capa de Autenticación ✅ Hecho, contra Supabase real
 - `app/(auth)/login/page.tsx` conectado a `supabase.auth.signInWithPassword()` (`lib/supabase/client.ts`), con manejo de error genérico ("Correo o contraseña incorrectos").
 - `app/(auth)/registro/page.tsx`: alta self-service con `supabase.auth.signUp()`. Si el proyecto de Supabase tiene "Confirm email" activado (es el caso del proyecto de QA), no entrega sesión de inmediato — se muestra "Revisa tu correo" en vez de redirigir. El nombre de la tienda se completa después en `/dashboard/perfil` (al primer ingreso se crea con un nombre provisional, ver `lib/auth/session.ts`).
-- `middleware.ts` + `lib/supabase/middleware.ts`: refresca la sesión y redirige a `/login` cualquier acceso a `/dashboard` sin sesión. El matcher está acotado a `/dashboard/:path*` a propósito — el resto del sitio (Home, `/store/[code]`, `/login`, `/registro`) es público y no debe pagar una llamada de red a Supabase Auth en cada request.
+- `proxy.ts` + `lib/supabase/proxy.ts` (Next.js 16 renombró "Middleware" a "Proxy" — mismo mecanismo): refresca la sesión y redirige a `/login` cualquier acceso a `/dashboard` sin sesión. El matcher está acotado a `/dashboard/:path*` a propósito — el resto del sitio (Home, `/store/[code]`, `/login`, `/registro`) es público y no debe pagar una llamada de red a Supabase Auth en cada request.
 - `lib/auth/session.ts` (`requireTienda()`): helper de servidor compartido por `/dashboard` y `/dashboard/perfil` — obtiene el usuario (redirige a `/login` si no hay sesión) y su tienda, creándola si es su primer ingreso. Antes esta lógica estaba duplicada en cada página.
 - `app/(dashboard)/dashboard/layout.tsx`: botón de cerrar sesión (`supabase.auth.signOut()`).
 
@@ -223,9 +223,11 @@ El orden respeta dependencias técnicas: primero la infraestructura de datos, lu
 ### Fase 4 — Capa de Panel Admin (`/dashboard`) ✅ Hecho, contra Supabase real
 - `/dashboard`: listar, crear, editar, eliminar productos (`ProductForm.tsx` como modal), toggle de disponibilidad, link del catálogo con copiar/ver — todo vía los Server Actions de `services/products.ts` (patrón optimista + `useTransition`, igual que `LicenciasPanel`).
 - `/dashboard/perfil`: editar nombre de tienda y WhatsApp vía `services/store.ts`; `store_code` visible mostrado como inmutable.
-- Guardado por `middleware.ts` (Fase 2). Si el usuario logueado no tiene tienda todavía, se le crea una automáticamente al entrar (`crearTienda`).
+- Guardado por `proxy.ts` (Fase 2). Si el usuario logueado no tiene tienda todavía, se le crea una automáticamente al entrar (`crearTienda`).
 - `components/image-upload.tsx`: subir foto por drag-and-drop o selección de archivo (no una URL). Se comprime en el navegador (máx. 900px, JPEG) y por ahora queda incrustada como imagen local — cuando se conecte Supabase Storage (bucket `productos`, pendiente de Fase 1), el mismo componente sube el archivo comprimido y usa la URL real; la UI del formulario no cambia.
 - Validación real en `ProductForm.tsx` y `dashboard-profile.tsx` (nombre, precio > 0, stock ≥ 0, WhatsApp con formato válido) — ver `lib/validation.ts`.
+- **Probado con productos de tipos distintos** (no solo ropa): camisa, escritorio, mesa de comedor, almuerzo ejecutivo — confirma que el catálogo es agnóstico al tipo de producto, tal como está definido el MVP en la sección 6.
+- **Personalización de marca (color_primario/color_secundario)**: reemplaza el toggle claro/oscuro en el header del dashboard (ver nota de decisión de producto abajo) por un ícono de paleta que lleva a `/dashboard/perfil`, donde el dueño elige 2 colores (primario = botones/acciones, secundario = identidad/avatar) además del nombre — es lo único de marca personalizable a propósito. Se aplican en `/store/[code]` vía variables CSS inline (`--accent`/`--accent-2`), nunca sobre `--wa*` (el verde de WhatsApp queda fijo siempre, regla de oro #8). Requiere correr la migración `ALTER TABLE` marcada en `supabase/schema.sql` en cada proyecto de Supabase existente (QA ya pendiente).
 
 ### Fase 5 — Capa de Catálogo Público (`/store/[code]`) ✅ Hecho, contra Supabase real
 - Tienda + grid de productos disponibles, con estado "no encontrada" y "no disponible" (`estado_suscripcion: Inactivo`) ya manejados.
