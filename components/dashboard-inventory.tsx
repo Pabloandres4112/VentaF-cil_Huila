@@ -7,7 +7,6 @@ import { useState, useTransition } from "react";
 import {
   CheckIcon,
   CopyIcon,
-  ExternalLinkIcon,
   ImagePlaceholderIcon,
   PencilIcon,
   PlusIcon,
@@ -15,6 +14,7 @@ import {
 } from "@/components/icons";
 import { ProductForm } from "@/components/ProductForm";
 import { ToggleSwitch } from "@/components/toggle-switch";
+import { VerCatalogoLink } from "@/components/ver-catalogo-link";
 import { formatCOP } from "@/lib/utils";
 import {
   actualizarProducto,
@@ -143,15 +143,7 @@ export function DashboardInventory({
             )}
             {copied ? "Copiado" : "Copiar link"}
           </button>
-          <a
-            href={storeUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-md bg-accent px-3.5 py-2 text-sm font-bold text-accent-ink transition-colors hover:bg-accent/90"
-          >
-            <ExternalLinkIcon width={16} height={16} />
-            Ver catálogo
-          </a>
+          <VerCatalogoLink storeCode={tienda.store_code} />
         </div>
       </div>
 

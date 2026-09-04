@@ -1,8 +1,11 @@
 // Fase 5 (PLAN_EJECUCION.md): catálogo público del cliente final.
 
+import Link from "next/link";
 import type { CSSProperties } from "react";
 import { StoreCatalog } from "@/components/store-catalog";
-import { WhatsappIcon } from "@/components/icons";
+import { ArrowLeftIcon, StoreIcon, WhatsappIcon } from "@/components/icons";
+import { createClient } from "@/lib/supabase/server";
+import { pickContrastingInk } from "@/lib/utils";
 import { getProductosByTiendaId } from "@/services/products";
 import { getTiendaByCode } from "@/services/store";
 
@@ -34,17 +37,50 @@ export default async function StorePage({
   const todosLosProductos = await getProductosByTiendaId(tienda.id);
   const productos = todosLosProductos.filter((producto) => producto.disponible);
 
+  // Si quien mira el catálogo es el dueño logueado de esta misma tienda, se
+  // le muestra un atajo para volver a su panel sin tener que navegar hacia
+  // atrás manualmente. Cualquier otro visitante (o nadie logueado) no ve nada
+  // distinto — es un extra solo para el propio dueño revisando su vista pública.
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const esDuenio = user?.id === tienda.user_id;
+
   // Personalización de marca (Fase 4b, PLAN_EJECUCION.md): el dueño solo
   // puede cambiar nombre + estos 2 colores — nunca el verde de WhatsApp
-  // (--wa*), que se mantiene fijo en toda la app a propósito.
+  // (--wa*), que se mantiene fijo en toda la app a propósito. La tinta del
+  // texto/ícono se calcula según el color elegido (no según el tema
+  // claro/oscuro) para que siga siendo legible sin importar qué tan claro u
+  // oscuro sea el color que el dueño escoja.
   const colorVars = {
-    ...(tienda.color_primario ? { "--accent": tienda.color_primario } : {}),
-    ...(tienda.color_secundario ? { "--accent-2": tienda.color_secundario } : {}),
+    ...(tienda.color_primario
+      ? { "--accent": tienda.color_primario, "--accent-ink": pickContrastingInk(tienda.color_primario) }
+      : {}),
+    ...(tienda.color_secundario
+      ? {
+          "--accent-2": tienda.color_secundario,
+          "--accent-2-ink": pickContrastingInk(tienda.color_secundario),
+        }
+      : {}),
   } as CSSProperties;
 
   return (
     <main className="flex-1 bg-ground pb-28" style={colorVars}>
       <header className="border-b border-line bg-surface">
+        {esDuenio && (
+          <div className="border-b border-line bg-surface-2">
+            <div className="mx-auto max-w-284 px-5 py-2 sm:px-8">
+              <Link
+                href="/dashboard"
+                className="flex w-fit items-center gap-1.5 text-xs font-bold text-ink-soft transition-colors hover:text-ink"
+              >
+                <ArrowLeftIcon width={14} height={14} />
+                Volver al panel
+              </Link>
+            </div>
+          </div>
+        )}
         <div className="mx-auto flex max-w-284 items-center justify-between gap-4 px-5 py-5 sm:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-accent-2 font-display text-base text-accent-2-ink">
@@ -58,15 +94,25 @@ export default async function StorePage({
               </p>
             </div>
           </div>
-          <a
-            href={`https://wa.me/${tienda.telefono_whatsapp}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex flex-none items-center gap-1.5 rounded-full border border-line-strong px-3.5 py-2 text-xs font-bold text-ink-soft transition-colors hover:bg-ink/5 sm:text-sm"
-          >
-            <WhatsappIcon className="text-wa-deep" />
-            <span className="hidden sm:inline">Escríbenos</span>
-          </a>
+          <div className="flex flex-none items-center gap-2">
+            <Link
+              href="/"
+              aria-label="Creado con VentaFácil"
+              title="Creado con VentaFácil"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-line-strong text-ink-soft transition-colors hover:bg-ink/5"
+            >
+              <StoreIcon width={16} height={16} />
+            </Link>
+            <a
+              href={`https://wa.me/${tienda.telefono_whatsapp}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 rounded-full border border-line-strong px-3.5 py-2 text-xs font-bold text-ink-soft transition-colors hover:bg-ink/5 sm:text-sm"
+            >
+              <WhatsappIcon className="text-wa-deep" />
+              <span className="hidden sm:inline">Escríbenos</span>
+            </a>
+          </div>
         </div>
       </header>
       <div className="mx-auto max-w-284 px-5 py-6 sm:px-8">

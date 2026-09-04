@@ -204,6 +204,35 @@ export function ExternalLinkIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function ArrowLeftIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <path
+        d="M19 12H5M11 6l-6 6 6 6"
+        stroke="currentColor"
+        strokeWidth={2}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
+export function StoreIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <path
+        d="M4 9.5 5.2 4h13.6l1.2 5.5M4 9.5a2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0 2 2 0 0 0 4 0M4 9.5V19a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9.5"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M9.5 20v-5.5a1 1 0 0 1 1-1h3a1 1 0 0 1 1 1V20" stroke="currentColor" strokeWidth={1.8} strokeLinejoin="round" />
+    </Svg>
+  );
+}
+
 export function ColombiaFlagIcon({
   width = 18,
   height = 13,

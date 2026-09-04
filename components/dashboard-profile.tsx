@@ -6,6 +6,7 @@
 import { useState, useTransition, type FormEvent } from "react";
 import { CheckIcon, ColombiaFlagIcon, CopyIcon } from "@/components/icons";
 import { actualizarTienda } from "@/services/store";
+import { VerCatalogoLink } from "@/components/ver-catalogo-link";
 import type { Tienda } from "@/types";
 
 const INPUT_CLASS =
@@ -163,12 +164,15 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
         </div>
 
         <div className="flex flex-col gap-3 border-t border-line pt-4">
-          <div>
-            <p className="text-sm font-semibold text-ink-soft">Colores de tu tienda</p>
-            <p className="text-xs text-ink-faint">
-              Se aplican en tu catálogo público — el nombre y estos dos colores son lo único que
-              puedes personalizar.
-            </p>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-sm font-semibold text-ink-soft">Colores de tu tienda</p>
+              <p className="text-xs text-ink-faint">
+                Se aplican en tu catálogo público — el nombre y estos dos colores son lo único que
+                puedes personalizar.
+              </p>
+            </div>
+            <VerCatalogoLink storeCode={tienda.store_code} />
           </div>
 
           <div className="flex items-center gap-4 rounded-lg border border-line bg-ground p-4">
