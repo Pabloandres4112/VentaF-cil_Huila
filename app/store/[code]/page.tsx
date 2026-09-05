@@ -3,7 +3,7 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { StoreCatalog } from "@/components/store-catalog";
-import { ArrowLeftIcon, StoreIcon, WhatsappIcon } from "@/components/icons";
+import { StoreIcon, WhatsappIcon } from "@/components/icons";
 import { createClient } from "@/lib/supabase/server";
 import { pickContrastingInk } from "@/lib/utils";
 import { getProductosByTiendaId } from "@/services/products";
@@ -63,24 +63,12 @@ export default async function StorePage({
           "--accent-2-ink": pickContrastingInk(tienda.color_secundario),
         }
       : {}),
+    ...(tienda.color_fondo ? { "--ground": tienda.color_fondo } : {}),
   } as CSSProperties;
 
   return (
     <main className="flex-1 bg-ground pb-28" style={colorVars}>
       <header className="border-b border-line bg-surface">
-        {esDuenio && (
-          <div className="border-b border-line bg-surface-2">
-            <div className="mx-auto max-w-284 px-5 py-2 sm:px-8">
-              <Link
-                href="/dashboard"
-                className="flex w-fit items-center gap-1.5 text-xs font-bold text-ink-soft transition-colors hover:text-ink"
-              >
-                <ArrowLeftIcon width={14} height={14} />
-                Volver al panel
-              </Link>
-            </div>
-          </div>
-        )}
         <div className="mx-auto flex max-w-284 items-center justify-between gap-4 px-5 py-5 sm:px-8">
           <div className="flex min-w-0 items-center gap-3">
             <div className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-accent-2 font-display text-base text-accent-2-ink">
@@ -95,14 +83,16 @@ export default async function StorePage({
             </div>
           </div>
           <div className="flex flex-none items-center gap-2">
-            <Link
-              href="/"
-              aria-label="Creado con VentaFácil"
-              title="Creado con VentaFácil"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-line-strong text-ink-soft transition-colors hover:bg-ink/5"
-            >
-              <StoreIcon width={16} height={16} />
-            </Link>
+            {esDuenio && (
+              <Link
+                href="/dashboard"
+                aria-label="Volver al panel"
+                title="Volver al panel"
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-line-strong text-ink-soft transition-colors hover:bg-ink/5"
+              >
+                <StoreIcon width={16} height={16} />
+              </Link>
+            )}
             <a
               href={`https://wa.me/${tienda.telefono_whatsapp}`}
               target="_blank"

@@ -8,7 +8,10 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
 import { LogoutIcon, PaletteIcon } from "@/components/icons";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { createClient } from "@/lib/supabase/client";
+
+const THEME_LABELS = { toLight: "Cambiar a tema claro", toDark: "Cambiar a tema oscuro" };
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -49,6 +52,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </Link>
           </nav>
           <div className="flex items-center gap-2">
+            <ThemeToggle labels={THEME_LABELS} />
             <Link
               href="/dashboard/perfil"
               aria-label="Personalizar colores de la tienda"

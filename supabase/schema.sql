@@ -17,6 +17,7 @@ CREATE TABLE public.tiendas (
   -- Nunca controla el verde de WhatsApp, que queda fijo en toda la app.
   color_primario TEXT,
   color_secundario TEXT,
+  color_fondo TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
@@ -152,3 +153,4 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.licencias TO service_role;
 
 ALTER TABLE public.tiendas ADD COLUMN IF NOT EXISTS color_primario TEXT;
 ALTER TABLE public.tiendas ADD COLUMN IF NOT EXISTS color_secundario TEXT;
+ALTER TABLE public.tiendas ADD COLUMN IF NOT EXISTS color_fondo TEXT;

@@ -14,6 +14,7 @@ export interface Tienda {
   // toque sin volverse un editor de diseño completo.
   color_primario: string | null;
   color_secundario: string | null;
+  color_fondo: string | null;
   created_at: string;
 }
 

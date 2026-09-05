@@ -7,6 +7,7 @@ import { useState, useTransition, type FormEvent } from "react";
 import { CheckIcon, ColombiaFlagIcon, CopyIcon } from "@/components/icons";
 import { actualizarTienda } from "@/services/store";
 import { VerCatalogoLink } from "@/components/ver-catalogo-link";
+import { pickContrastingInk } from "@/lib/utils";
 import type { Tienda } from "@/types";
 
 const INPUT_CLASS =
@@ -40,6 +41,7 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
   const [colorSecundario, setColorSecundario] = useState(
     tiendaInicial.color_secundario ?? "#58626f",
   );
+  const [colorFondo, setColorFondo] = useState(tiendaInicial.color_fondo ?? "#f6f7f9");
   const [errors, setErrors] = useState<PerfilErrors>({});
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -63,6 +65,7 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
       telefono_whatsapp: INDICATIVO_COLOMBIA + telefonoLocal,
       color_primario: colorPrimario,
       color_secundario: colorSecundario,
+      color_fondo: colorFondo,
     };
     startTransition(async () => {
       try {
@@ -168,17 +171,17 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
             <div>
               <p className="text-sm font-semibold text-ink-soft">Colores de tu tienda</p>
               <p className="text-xs text-ink-faint">
-                Se aplican en tu catálogo público — el nombre y estos dos colores son lo único que
-                puedes personalizar.
+                Se aplican en tu catálogo público — el nombre y estos tres colores son lo único
+                que puedes personalizar.
               </p>
             </div>
             <VerCatalogoLink storeCode={tienda.store_code} />
           </div>
 
-          <div className="flex items-center gap-4 rounded-lg border border-line bg-ground p-4">
-            <div className="flex flex-1 gap-4">
-              <label className="flex flex-1 flex-col gap-1.5">
-                <span className="text-xs font-semibold text-ink-soft">Primario (botones)</span>
+          <div className="flex flex-col gap-4 rounded-lg border border-line bg-ground p-4 sm:flex-row sm:items-center">
+            <div className="grid flex-1 grid-cols-3 gap-3">
+              <label className="flex flex-col gap-1.5">
+                <span className="text-xs font-semibold text-ink-soft">Primario</span>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
@@ -192,8 +195,8 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
                   </span>
                 </div>
               </label>
-              <label className="flex flex-1 flex-col gap-1.5">
-                <span className="text-xs font-semibold text-ink-soft">Secundario (identidad)</span>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-xs font-semibold text-ink-soft">Secundario</span>
                 <div className="flex items-center gap-2">
                   <input
                     type="color"
@@ -207,22 +210,43 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
                   </span>
                 </div>
               </label>
+              <label className="flex flex-col gap-1.5">
+                <span className="text-xs font-semibold text-ink-soft">Fondo</span>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="color"
+                    aria-label="Color de fondo"
+                    value={colorFondo}
+                    onChange={(e) => setColorFondo(e.target.value)}
+                    className="h-9 w-9 flex-none cursor-pointer rounded-full border-2 border-surface p-0 shadow-[0_0_0_1px_var(--line-strong)]"
+                  />
+                  <span className="font-display text-xs uppercase tabular-nums text-ink-faint">
+                    {colorFondo}
+                  </span>
+                </div>
+              </label>
             </div>
 
-            <div className="flex flex-none flex-col items-center gap-1.5 border-l border-line pl-4">
+            <div className="flex flex-none flex-col items-center gap-1.5 border-t border-line pt-3 sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
               <span className="text-[0.65rem] font-bold uppercase tracking-wide text-ink-faint">
                 Vista previa
               </span>
-              <div className="flex items-center gap-2 rounded-full border border-line bg-surface p-1.5 pr-3">
+              <div
+                className="flex items-center gap-2 rounded-full border border-line p-1.5 pr-3"
+                style={{ backgroundColor: colorFondo }}
+              >
                 <span
-                  className="flex h-7 w-7 flex-none items-center justify-center rounded-full font-display text-xs text-white"
-                  style={{ backgroundColor: colorSecundario }}
+                  className="flex h-7 w-7 flex-none items-center justify-center rounded-full font-display text-xs"
+                  style={{
+                    backgroundColor: colorSecundario,
+                    color: pickContrastingInk(colorSecundario),
+                  }}
                 >
                   {(nombre.trim().charAt(0) || "T").toUpperCase()}
                 </span>
                 <span
-                  className="flex h-6 w-6 flex-none items-center justify-center rounded-md text-sm font-bold text-white"
-                  style={{ backgroundColor: colorPrimario }}
+                  className="flex h-6 w-6 flex-none items-center justify-center rounded-md text-sm font-bold"
+                  style={{ backgroundColor: colorPrimario, color: pickContrastingInk(colorPrimario) }}
                 >
                   +
                 </span>

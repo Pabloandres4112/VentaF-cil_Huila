@@ -1,6 +1,13 @@
 @import "tailwindcss";
 
 :root {
+  /* Le dice al navegador que esta página ya maneja su propio claro/oscuro
+     (media query + [data-theme]) — sin esto, algunos navegadores basados en
+     Chromium (Brave incluido) aplican su propio "modo oscuro forzado" que
+     repinta la página por su cuenta, ignorando los colores reales del CSS
+     (incluidos los personalizados por tienda). Con esto declarado, confían
+     en que la página ya lo resuelve y no interfieren. */
+  color-scheme: light dark;
   --ink: #1b2430;
   --ink-soft: #58626f;
   --ink-faint: #8991a0;
