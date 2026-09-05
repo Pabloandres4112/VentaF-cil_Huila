@@ -1,5 +1,6 @@
 // Fase 5 (PLAN_EJECUCION.md): catálogo público del cliente final.
 
+import { cookies } from "next/headers";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { StoreCatalog } from "@/components/store-catalog";
@@ -41,11 +42,24 @@ export default async function StorePage({
   // le muestra un atajo para volver a su panel sin tener que navegar hacia
   // atrás manualmente. Cualquier otro visitante (o nadie logueado) no ve nada
   // distinto — es un extra solo para el propio dueño revisando su vista pública.
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  const esDuenio = user?.id === tienda.user_id;
+  //
+  // La inmensa mayoría de visitas a esta página son clientes anónimos sin
+  // ninguna cookie de Supabase — verificar eso es una lectura local (sin red),
+  // así que evitamos la llamada de red a auth.getUser() cuando no hay ninguna
+  // cookie de sesión que valga la pena revisar.
+  const cookieStore = await cookies();
+  const tieneCookieDeSesion = cookieStore
+    .getAll()
+    .some((c) => c.name.startsWith("sb-") && c.name.includes("-auth-token"));
+
+  let esDuenio = false;
+  if (tieneCookieDeSesion) {
+    const supabase = await createClient();
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+    esDuenio = user?.id === tienda.user_id;
+  }
 
   // Personalización de marca (Fase 4b, PLAN_EJECUCION.md): el dueño solo
   // puede cambiar nombre + estos 2 colores — nunca el verde de WhatsApp
