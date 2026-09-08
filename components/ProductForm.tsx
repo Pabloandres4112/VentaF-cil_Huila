@@ -19,10 +19,12 @@ interface ProductFormErrors {
 }
 
 export function ProductForm({
+  tiendaId,
   producto,
   onClose,
   onSubmit,
 }: {
+  tiendaId: string;
   producto?: Producto;
   onClose: () => void;
   onSubmit: (values: NuevoProducto) => void;
@@ -96,7 +98,11 @@ export function ProductForm({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-1 flex-col gap-4 overflow-y-auto px-6 py-5">
+        <form
+          onSubmit={handleSubmit}
+          noValidate
+          className="flex flex-1 flex-col gap-4 overflow-y-auto px-6 py-5"
+        >
           <Field label="Nombre" error={errors.nombre}>
             <input
               value={nombre}
@@ -145,7 +151,7 @@ export function ProductForm({
             </Field>
           </div>
 
-          <ImageUpload value={imagenUrl} onChange={setImagenUrl} />
+          <ImageUpload tiendaId={tiendaId} value={imagenUrl} onChange={setImagenUrl} />
 
           <label className="flex items-center justify-between rounded-md border border-line-strong px-3.5 py-2.5">
             <span className="text-sm font-semibold text-ink-soft">Visible en el catálogo</span>

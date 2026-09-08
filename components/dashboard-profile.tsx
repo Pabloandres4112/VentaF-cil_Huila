@@ -126,7 +126,11 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-5">
+      <form
+        onSubmit={handleSubmit}
+        noValidate
+        className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-5"
+      >
         <div className="flex flex-col gap-1.5">
           <label htmlFor="perfil-nombre" className="text-sm font-semibold text-ink-soft">
             Nombre de la tienda

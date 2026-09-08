@@ -1,4 +1,5 @@
 export type EstadoSuscripcion = "Activo" | "Inactivo";
+export type PlanTienda = "gratis" | "pro";
 
 export interface Tienda {
   id: string;
@@ -7,6 +8,10 @@ export interface Tienda {
   store_code: string;
   telefono_whatsapp: string;
   estado_suscripcion: EstadoSuscripcion;
+  // "gratis" tiene un límite de productos (LIMITE_PRODUCTOS_GRATIS en
+  // services/products.ts); "pro" no tiene límite. Solo el superadministrador
+  // puede cambiarlo (/admin/tiendas) — el dueño de la tienda no lo controla.
+  plan: PlanTienda;
   // Personalización de marca (Fase 4b): null hasta que el dueño elige un
   // color propio — el catálogo público usa los colores por defecto de
   // globals.css mientras tanto. A propósito, esto es lo único de marca que

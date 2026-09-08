@@ -15,6 +15,7 @@ import {
 import { ProductForm } from "@/components/ProductForm";
 import { ToggleSwitch } from "@/components/toggle-switch";
 import { VerCatalogoLink } from "@/components/ver-catalogo-link";
+import { LIMITE_PRODUCTOS_GRATIS, MENSAJE_LIMITE_PRODUCTOS_GRATIS } from "@/lib/plan";
 import { formatCOP } from "@/lib/utils";
 import {
   actualizarProducto,
@@ -38,7 +39,11 @@ export function DashboardInventory({
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [limiteAlcanzado, setLimiteAlcanzado] = useState(false);
   const [, startTransition] = useTransition();
+
+  const enPlanGratis = tienda.plan !== "pro";
+  const cercaDelLimite = enPlanGratis && productos.length >= LIMITE_PRODUCTOS_GRATIS - 2;
 
   const storeUrl = `/store/${tienda.store_code}`;
 
@@ -73,8 +78,13 @@ export function DashboardInventory({
           const nuevo = await crearProducto(tienda.id, values);
           setProductos((prev) => [nuevo, ...prev]);
           setError(null);
-        } catch {
-          setError("No se pudo crear el producto. Intenta de nuevo.");
+          setLimiteAlcanzado(false);
+        } catch (err) {
+          if (err instanceof Error && err.message === MENSAJE_LIMITE_PRODUCTOS_GRATIS) {
+            setLimiteAlcanzado(true);
+          } else {
+            setError("No se pudo crear el producto. Intenta de nuevo.");
+          }
         }
       });
     }
@@ -151,7 +161,11 @@ export function DashboardInventory({
 
       <div className="flex items-center justify-between gap-3">
         <h1 className="font-display text-xl">
-          Mis productos <span className="text-ink-faint">· {productos.length}</span>
+          Mis productos{" "}
+          <span className="text-ink-faint">
+            · {productos.length}
+            {enPlanGratis ? `/${LIMITE_PRODUCTOS_GRATIS}` : ""}
+          </span>
         </h1>
         <button
           type="button"
@@ -163,6 +177,15 @@ export function DashboardInventory({
           <span className="sm:hidden">Agregar</span>
         </button>
       </div>
+
+      {(cercaDelLimite || limiteAlcanzado) && (
+        <p className="rounded-lg bg-accent-soft px-4 py-2.5 text-sm text-accent">
+          {limiteAlcanzado
+            ? `Llegaste al límite de ${LIMITE_PRODUCTOS_GRATIS} productos del plan gratis.`
+            : `Te quedan ${LIMITE_PRODUCTOS_GRATIS - productos.length} productos en tu plan gratis.`}{" "}
+          Escríbenos si quieres pasar a Pro y agregar más.
+        </p>
+      )}
 
       {productos.length === 0 ? (
         <p className="rounded-xl border border-dashed border-line-strong py-12 text-center text-sm text-ink-soft">
@@ -263,6 +286,7 @@ export function DashboardInventory({
 
       {formOpen && (
         <ProductForm
+          tiendaId={tienda.id}
           producto={editing}
           onClose={() => setFormOpen(false)}
           onSubmit={handleSubmit}

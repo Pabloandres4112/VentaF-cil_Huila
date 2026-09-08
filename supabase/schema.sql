@@ -12,6 +12,10 @@ CREATE TABLE public.tiendas (
   store_code TEXT UNIQUE NOT NULL DEFAULT upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 6)),
   telefono_whatsapp TEXT NOT NULL, -- Ej: '573001234567' (sin signo +)
   estado_suscripcion TEXT DEFAULT 'Activo' CHECK (estado_suscripcion IN ('Activo', 'Inactivo')),
+  -- "gratis" = límite de productos (LIMITE_PRODUCTOS_GRATIS en
+  -- services/products.ts); "pro" = sin límite. Solo lo cambia el
+  -- superadministrador desde /admin/tiendas — el dueño no lo controla.
+  plan TEXT NOT NULL DEFAULT 'gratis' CHECK (plan IN ('gratis', 'pro')),
   -- Personalización de marca: lo único que el dueño puede personalizar
   -- aparte del nombre. NULL = usa los colores por defecto de globals.css.
   -- Nunca controla el verde de WhatsApp, que queda fijo en toda la app.
@@ -154,3 +158,31 @@ GRANT SELECT, INSERT, UPDATE, DELETE ON public.licencias TO service_role;
 ALTER TABLE public.tiendas ADD COLUMN IF NOT EXISTS color_primario TEXT;
 ALTER TABLE public.tiendas ADD COLUMN IF NOT EXISTS color_secundario TEXT;
 ALTER TABLE public.tiendas ADD COLUMN IF NOT EXISTS color_fondo TEXT;
+
+-- =============================================================================
+-- MIGRACIÓN — Planes (límite de productos del plan gratis)
+-- =============================================================================
+
+-- Nota: sin CHECK constraint aquí a propósito — Postgres no soporta
+-- "ADD CONSTRAINT IF NOT EXISTS" y solo el código de la app escribe este
+-- valor, siempre 'gratis' o 'pro'.
+ALTER TABLE public.tiendas ADD COLUMN IF NOT EXISTS plan TEXT NOT NULL DEFAULT 'gratis';
+
+-- =============================================================================
+-- MIGRACIÓN — Storage de fotos de producto (bucket `productos`)
+--
+-- Requiere haber creado el bucket `productos` desde Storage → Files en el
+-- dashboard de Supabase (público, límite 5MB, MIME image/jpeg,image/png,
+-- image/webp). El toggle "Public bucket" ya crea la política de lectura
+-- pública por su cuenta — estas de aquí son las que faltan (subir/reemplazar/
+-- borrar), restringidas a usuarios logueados.
+-- =============================================================================
+
+CREATE POLICY "Autenticados suben fotos de productos" ON storage.objects
+  FOR INSERT WITH CHECK (bucket_id = 'productos' AND auth.role() = 'authenticated');
+
+CREATE POLICY "Autenticados reemplazan fotos de productos" ON storage.objects
+  FOR UPDATE USING (bucket_id = 'productos' AND auth.role() = 'authenticated');
+
+CREATE POLICY "Autenticados borran fotos de productos" ON storage.objects
+  FOR DELETE USING (bucket_id = 'productos' AND auth.role() = 'authenticated');

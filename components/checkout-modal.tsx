@@ -93,7 +93,7 @@ export function CheckoutModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+        <form onSubmit={handleSubmit} noValidate className="flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <label htmlFor="checkout-nombre" className="text-sm font-semibold text-ink-soft">
               Nombre

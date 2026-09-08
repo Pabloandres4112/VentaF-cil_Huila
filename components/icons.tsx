@@ -204,6 +204,20 @@ export function ExternalLinkIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function SpinnerIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props} className={`animate-spin ${props.className ?? ""}`}>
+      <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth={2.5} opacity={0.2} />
+      <path
+        d="M21 12a9 9 0 0 0-9-9"
+        stroke="currentColor"
+        strokeWidth={2.5}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
+
 export function ArrowLeftIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Svg {...props}>

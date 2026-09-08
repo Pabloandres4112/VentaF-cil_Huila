@@ -1,16 +1,18 @@
 "use client";
 
-// Subida de foto de producto: arrastrar o seleccionar un archivo, se
-// comprime en el navegador (máx. 900px, JPEG) y queda lista como imagen
-// incrustada. Cuando exista el proyecto de Supabase (Fase 1), este mismo
-// componente sube el archivo comprimido a Supabase Storage en vez de
-// incrustarlo — el resto del formulario no cambia.
+// Subida de foto de producto: arrastrar o seleccionar un archivo, se valida
+// tipo y peso, se comprime en el navegador (máx. 900px, siempre reexportada
+// como JPEG — esto también neutraliza SVGs con scripts embebidos, porque se
+// rasterizan a píxeles) y se sube al bucket `productos` de Supabase Storage.
 
 import { useRef, useState, type ChangeEvent, type DragEvent, type KeyboardEvent } from "react";
-import { CloseIcon, ImagePlaceholderIcon } from "@/components/icons";
+import { CloseIcon, ImagePlaceholderIcon, SpinnerIcon } from "@/components/icons";
+import { subirImagenProducto } from "@/lib/supabase/storage";
 
 const MAX_DIMENSION = 900;
 const JPEG_QUALITY = 0.8;
+const MAX_ARCHIVO_MB = 8; // antes de comprimir — el bucket ya limita a 5MB el archivo final.
+const TIPOS_ACEPTADOS = ["image/jpeg", "image/png", "image/webp"];
 
 function readFileAsDataUrl(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -45,16 +47,22 @@ async function compressImage(file: File): Promise<string> {
   canvas.width = width;
   canvas.height = height;
   const ctx = canvas.getContext("2d");
-  if (!ctx) return original;
+  if (!ctx) throw new Error("No se pudo procesar la imagen");
 
+  // Fondo blanco antes de dibujar: si el original tenía transparencia (PNG),
+  // el JPEG de salida no la soporta y quedaría negro sin esto.
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(0, 0, width, height);
   ctx.drawImage(img, 0, 0, width, height);
   return canvas.toDataURL("image/jpeg", JPEG_QUALITY);
 }
 
 export function ImageUpload({
+  tiendaId,
   value,
   onChange,
 }: {
+  tiendaId: string;
   value: string | null;
   onChange: (imagenUrl: string | null) => void;
 }) {
@@ -65,17 +73,24 @@ export function ImageUpload({
 
   async function handleFile(file: File | undefined | null) {
     if (!file) return;
-    if (!file.type.startsWith("image/")) {
-      setError("Solo se aceptan imágenes (JPG, PNG, WebP).");
+
+    if (!TIPOS_ACEPTADOS.includes(file.type)) {
+      setError("Solo se aceptan imágenes JPG, PNG o WebP.");
       return;
     }
+    if (file.size > MAX_ARCHIVO_MB * 1024 * 1024) {
+      setError(`La imagen pesa demasiado (máx. ${MAX_ARCHIVO_MB}MB).`);
+      return;
+    }
+
     setError(null);
     setProcessing(true);
     try {
-      const compressed = await compressImage(file);
-      onChange(compressed);
+      const comprimida = await compressImage(file);
+      const url = await subirImagenProducto(tiendaId, comprimida);
+      onChange(url);
     } catch {
-      setError("No se pudo procesar la imagen. Intenta con otra.");
+      setError("No se pudo subir la imagen. Intenta de nuevo.");
     } finally {
       setProcessing(false);
     }
@@ -105,7 +120,7 @@ export function ImageUpload({
 
       {value ? (
         <div className="relative h-32 w-32 overflow-hidden rounded-lg border border-line bg-surface-2">
-          {/* eslint-disable-next-line @next/next/no-img-element -- imagen incrustada (data URL) o remota */}
+          {/* eslint-disable-next-line @next/next/no-img-element -- imagen remota de Supabase Storage, sin dominio configurado aún */}
           <img
             src={value}
             alt="Vista previa del producto"
@@ -137,10 +152,14 @@ export function ImageUpload({
             dragOver ? "border-accent bg-accent-soft" : "border-line-strong hover:border-accent"
           }`}
         >
-          <ImagePlaceholderIcon width={22} height={22} className="text-ink-faint" />
+          {processing ? (
+            <SpinnerIcon width={22} height={22} className="text-ink-faint" />
+          ) : (
+            <ImagePlaceholderIcon width={22} height={22} className="text-ink-faint" />
+          )}
           <p className="text-xs font-semibold text-ink-soft">
             {processing ? (
-              "Procesando imagen…"
+              "Subiendo imagen…"
             ) : (
               <>
                 Arrastra una foto o <span className="text-accent">selecciona un archivo</span>
@@ -156,7 +175,7 @@ export function ImageUpload({
       <input
         ref={inputRef}
         type="file"
-        accept="image/*"
+        accept="image/jpeg,image/png,image/webp"
         className="hidden"
         onChange={handleInputChange}
       />
