@@ -10,7 +10,9 @@ import { useCart } from "@/hooks/useCart";
 import type { Producto, Tienda } from "@/types";
 
 export function StoreCatalog({ tienda, productos }: { tienda: Tienda; productos: Producto[] }) {
-  const { items, addItem, setCantidad, clearCart, total, cantidadTotal } = useCart(tienda.id);
+  const { items, addItem, removeItem, setCantidad, clearCart, total, cantidadTotal } = useCart(
+    tienda.id,
+  );
   const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   function increment(productoId: string) {
@@ -32,7 +34,12 @@ export function StoreCatalog({ tienda, productos }: { tienda: Tienda; productos:
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
           {productos.map((producto) => (
-            <ProductCard key={producto.id} producto={producto} onAdd={addItem} />
+            <ProductCard
+              key={producto.id}
+              producto={producto}
+              cantidadEnCarrito={items.find((i) => i.producto.id === producto.id)?.cantidad ?? 0}
+              onAdd={addItem}
+            />
           ))}
         </div>
       )}
@@ -43,6 +50,7 @@ export function StoreCatalog({ tienda, productos }: { tienda: Tienda; productos:
         cantidadTotal={cantidadTotal}
         onIncrement={increment}
         onDecrement={decrement}
+        onRemove={removeItem}
         onCheckout={() => setCheckoutOpen(true)}
       />
 

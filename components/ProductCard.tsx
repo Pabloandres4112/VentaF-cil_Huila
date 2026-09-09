@@ -6,12 +6,15 @@ import { formatCOP } from "@/lib/utils";
 
 export function ProductCard({
   producto,
+  cantidadEnCarrito = 0,
   onAdd,
 }: {
   producto: Producto;
+  cantidadEnCarrito?: number;
   onAdd: (producto: Producto) => void;
 }) {
   const agotado = producto.stock <= 0;
+  const sinMasStock = cantidadEnCarrito >= producto.stock;
 
   return (
     <article className="flex flex-col overflow-hidden rounded-xl border border-line bg-surface">
@@ -48,8 +51,12 @@ export function ProductCard({
           <button
             type="button"
             onClick={() => onAdd(producto)}
-            disabled={agotado}
-            aria-label={`Agregar ${producto.nombre} al carrito`}
+            disabled={agotado || sinMasStock}
+            aria-label={
+              sinMasStock && !agotado
+                ? `Ya agregaste todo el stock disponible de ${producto.nombre}`
+                : `Agregar ${producto.nombre} al carrito`
+            }
             className="flex h-9 w-9 flex-none items-center justify-center rounded-md bg-accent text-accent-ink transition-colors hover:bg-accent/90 disabled:cursor-not-allowed disabled:bg-surface-2 disabled:text-ink-faint"
           >
             <PlusIcon width={18} height={18} />

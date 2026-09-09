@@ -26,15 +26,19 @@ export function useCart(tiendaId: string) {
     window.localStorage.setItem(storageKey, JSON.stringify(items));
   }, [storageKey, items]);
 
+  // El stock es la barrera real en los dos casos: nunca se agrega ni se sube
+  // una cantidad por encima de producto.stock, sin importar cuántas veces se
+  // haga clic. Evita pedidos que prometan más de lo que la tienda tiene.
   const addItem = useCallback((producto: Producto) => {
     setItems((prev) => {
       const existente = prev.find((i) => i.producto.id === producto.id);
       if (existente) {
+        if (existente.cantidad >= producto.stock) return prev;
         return prev.map((i) =>
           i.producto.id === producto.id ? { ...i, cantidad: i.cantidad + 1 } : i,
         );
       }
-      return [...prev, { producto, cantidad: 1 }];
+      return producto.stock > 0 ? [...prev, { producto, cantidad: 1 }] : prev;
     });
   }, []);
 
@@ -44,9 +48,11 @@ export function useCart(tiendaId: string) {
 
   const setCantidad = useCallback((productoId: string, cantidad: number) => {
     setItems((prev) =>
-      cantidad <= 0
-        ? prev.filter((i) => i.producto.id !== productoId)
-        : prev.map((i) => (i.producto.id === productoId ? { ...i, cantidad } : i)),
+      prev.flatMap((i) => {
+        if (i.producto.id !== productoId) return [i];
+        if (cantidad <= 0) return [];
+        return [{ ...i, cantidad: Math.min(cantidad, i.producto.stock) }];
+      }),
     );
   }, []);
 

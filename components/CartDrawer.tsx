@@ -3,7 +3,14 @@
 // Fase 6 (PLAN_EJECUCION.md): carrito — bottom sheet en mobile, panel flotante en desktop.
 
 import { useState } from "react";
-import { CartIcon, CloseIcon, ImagePlaceholderIcon, MinusIcon, PlusIcon } from "@/components/icons";
+import {
+  CartIcon,
+  CloseIcon,
+  ImagePlaceholderIcon,
+  MinusIcon,
+  PlusIcon,
+  TrashIcon,
+} from "@/components/icons";
 import type { CartItem } from "@/hooks/useCart";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { formatCOP } from "@/lib/utils";
@@ -14,6 +21,7 @@ export function CartDrawer({
   cantidadTotal,
   onIncrement,
   onDecrement,
+  onRemove,
   onCheckout,
 }: {
   items: CartItem[];
@@ -21,6 +29,7 @@ export function CartDrawer({
   cantidadTotal: number;
   onIncrement: (productoId: string) => void;
   onDecrement: (productoId: string) => void;
+  onRemove: (productoId: string) => void;
   onCheckout: () => void;
 }) {
   const [open, setOpen] = useState(false);
@@ -91,25 +100,40 @@ export function CartDrawer({
                   {formatCOP(item.producto.precio)} ·{" "}
                   {formatCOP(item.producto.precio * item.cantidad)}
                 </p>
+                {item.cantidad >= item.producto.stock && (
+                  <p className="text-xs text-danger">Ya tienes todo el stock disponible</p>
+                )}
               </div>
 
-              <div className="flex flex-none items-center gap-1 rounded-full bg-surface-2 p-1">
+              <div className="flex flex-none flex-col items-end gap-1.5">
+                <div className="flex items-center gap-1 rounded-full bg-surface-2 p-1">
+                  <button
+                    type="button"
+                    onClick={() => onDecrement(item.producto.id)}
+                    aria-label={`Restar ${item.producto.nombre}`}
+                    className="flex h-6 w-6 items-center justify-center rounded-full bg-surface text-ink-soft transition-colors hover:bg-ink/10"
+                  >
+                    <MinusIcon width={12} height={12} />
+                  </button>
+                  <span className="w-4 text-center text-sm tabular-nums">{item.cantidad}</span>
+                  <button
+                    type="button"
+                    onClick={() => onIncrement(item.producto.id)}
+                    disabled={item.cantidad >= item.producto.stock}
+                    aria-label={`Sumar ${item.producto.nombre}`}
+                    className="flex h-6 w-6 items-center justify-center rounded-full bg-surface text-ink-soft transition-colors hover:bg-ink/10 disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    <PlusIcon width={12} height={12} />
+                  </button>
+                </div>
                 <button
                   type="button"
-                  onClick={() => onDecrement(item.producto.id)}
-                  aria-label={`Restar ${item.producto.nombre}`}
-                  className="flex h-6 w-6 items-center justify-center rounded-full bg-surface text-ink-soft transition-colors hover:bg-ink/10"
+                  onClick={() => onRemove(item.producto.id)}
+                  aria-label={`Eliminar ${item.producto.nombre} del carrito`}
+                  className="flex items-center gap-1 text-xs text-ink-faint transition-colors hover:text-danger"
                 >
-                  <MinusIcon width={12} height={12} />
-                </button>
-                <span className="w-4 text-center text-sm tabular-nums">{item.cantidad}</span>
-                <button
-                  type="button"
-                  onClick={() => onIncrement(item.producto.id)}
-                  aria-label={`Sumar ${item.producto.nombre}`}
-                  className="flex h-6 w-6 items-center justify-center rounded-full bg-surface text-ink-soft transition-colors hover:bg-ink/10"
-                >
-                  <PlusIcon width={12} height={12} />
+                  <TrashIcon width={12} height={12} />
+                  Eliminar
                 </button>
               </div>
             </li>
