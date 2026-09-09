@@ -114,6 +114,17 @@ body {
   letter-spacing: -0.015em;
 }
 
+/* Neutraliza el color de fondo que Chrome/Brave le imponen a un campo
+   autocompletado (normalmente amarillo o gris), que ignora nuestro CSS a
+   propósito salvo por este truco: una transición tan larga que nunca llega
+   a completarse, así el fondo declarado en cada input es el que se ve. */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-ink);
+  transition: background-color 9999s ease-in-out 0s;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,

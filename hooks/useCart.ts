@@ -20,11 +20,23 @@ function readCartFromStorage(storageKey: string): CartItem[] {
 
 export function useCart(tiendaId: string) {
   const storageKey = `${STORAGE_KEY_PREFIX}${tiendaId}`;
-  const [items, setItems] = useState<CartItem[]>(() => readCartFromStorage(storageKey));
+  // Arranca vacío a propósito (igual en servidor y en el primer render del
+  // cliente) y solo carga el carrito real de localStorage después de montar,
+  // en un efecto — leerlo directo en useState causaba un mismatch de
+  // hidratación cuando ya había productos guardados de una sesión anterior
+  // (mismo motivo por el que theme-toggle.tsx hace lo mismo con el tema).
+  const [items, setItems] = useState<CartItem[]>([]);
+  const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    setItems(readCartFromStorage(storageKey));
+    setHydrated(true);
+  }, [storageKey]);
+
+  useEffect(() => {
+    if (!hydrated) return;
     window.localStorage.setItem(storageKey, JSON.stringify(items));
-  }, [storageKey, items]);
+  }, [storageKey, items, hydrated]);
 
   // El stock es la barrera real en los dos casos: nunca se agrega ni se sube
   // una cantidad por encima de producto.stock, sin importar cuántas veces se

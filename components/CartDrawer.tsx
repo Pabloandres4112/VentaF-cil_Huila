@@ -101,11 +101,11 @@ export function CartDrawer({
                   {formatCOP(item.producto.precio * item.cantidad)}
                 </p>
                 {item.cantidad >= item.producto.stock && (
-                  <p className="text-xs text-danger">Ya tienes todo el stock disponible</p>
+                  <p className="text-xs text-ink-faint">Ya tienes todo el stock disponible</p>
                 )}
               </div>
 
-              <div className="flex flex-none flex-col items-end gap-1.5">
+              <div className="flex flex-none items-center gap-2">
                 <div className="flex items-center gap-1 rounded-full bg-surface-2 p-1">
                   <button
                     type="button"
@@ -130,10 +130,9 @@ export function CartDrawer({
                   type="button"
                   onClick={() => onRemove(item.producto.id)}
                   aria-label={`Eliminar ${item.producto.nombre} del carrito`}
-                  className="flex items-center gap-1 text-xs text-ink-faint transition-colors hover:text-danger"
+                  className="flex h-8 w-8 flex-none items-center justify-center rounded-md border border-line-strong text-ink-faint transition-colors hover:border-danger hover:text-danger"
                 >
-                  <TrashIcon width={12} height={12} />
-                  Eliminar
+                  <TrashIcon width={14} height={14} />
                 </button>
               </div>
             </li>
