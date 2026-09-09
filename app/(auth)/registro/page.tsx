@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
 import { TerminosModal } from "@/components/terminos-modal";
+import { VolverInicioLink } from "@/components/volver-inicio-link";
 import { createClient } from "@/lib/supabase/client";
 import { isValidEmail } from "@/lib/validation";
 
@@ -14,7 +15,6 @@ interface RegistroErrors {
   email?: string;
   password?: string;
   confirmar?: string;
-  cookies?: string;
   terminos?: string;
   general?: string;
 }
@@ -28,7 +28,6 @@ export default function RegistroPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmar, setConfirmar] = useState("");
-  const [aceptaCookies, setAceptaCookies] = useState(false);
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
   const [terminosAbiertos, setTerminosAbiertos] = useState(false);
   const [errors, setErrors] = useState<RegistroErrors>({});
@@ -44,7 +43,6 @@ export default function RegistroPage() {
     if (!password) nextErrors.password = "Ingresa una contraseña.";
     else if (password.length < 6) nextErrors.password = "Debe tener al menos 6 caracteres.";
     if (confirmar !== password) nextErrors.confirmar = "Las contraseñas no coinciden.";
-    if (!aceptaCookies) nextErrors.cookies = "Debes aceptar el uso de cookies para continuar.";
     if (!aceptaTerminos) nextErrors.terminos = "Debes aceptar los Términos y Condiciones para continuar.";
 
     setErrors(nextErrors);
@@ -83,7 +81,9 @@ export default function RegistroPage() {
 
   if (emailEnviado) {
     return (
-      <main className="flex flex-1 flex-col items-center justify-center bg-ground p-6">
+      <main className="relative flex flex-1 flex-col items-center justify-center bg-ground p-6">
+        <VolverInicioLink />
+
         <Link href="/" className="font-display mb-8 text-xl">
           VentaFácil
         </Link>
@@ -105,7 +105,9 @@ export default function RegistroPage() {
   }
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center bg-ground p-6">
+    <main className="relative flex flex-1 flex-col items-center justify-center bg-ground p-6">
+      <VolverInicioLink />
+
       <Link href="/" className="font-display mb-8 text-xl">
         VentaFácil
       </Link>
@@ -171,20 +173,7 @@ export default function RegistroPage() {
             {errors.confirmar && <p className="text-xs text-danger">{errors.confirmar}</p>}
           </div>
 
-          <div className="flex flex-col gap-2 border-t border-line pt-4">
-            <label className="flex items-start gap-2.5 text-sm text-ink-soft">
-              <input
-                type="checkbox"
-                checked={aceptaCookies}
-                onChange={(e) => setAceptaCookies(e.target.checked)}
-                aria-invalid={Boolean(errors.cookies)}
-                className="mt-0.5 h-4 w-4 flex-none accent-accent"
-              />
-              Acepto el uso de cookies necesarias para mantener mi sesión iniciada (ver sección de
-              Cookies en los Términos).
-            </label>
-            {errors.cookies && <p className="text-xs text-danger">{errors.cookies}</p>}
-
+          <div className="flex flex-col gap-1.5 border-t border-line pt-4">
             <label className="flex items-start gap-2.5 text-sm text-ink-soft">
               <input
                 type="checkbox"
@@ -200,8 +189,8 @@ export default function RegistroPage() {
                 className="font-semibold underline underline-offset-2 hover:text-ink"
               >
                 Términos y Condiciones
-              </button>
-              .
+              </button>{" "}
+              (incluye el uso de cookies necesarias para mantener tu sesión iniciada).
             </label>
             {errors.terminos && <p className="text-xs text-danger">{errors.terminos}</p>}
           </div>

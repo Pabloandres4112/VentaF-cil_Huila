@@ -18,9 +18,15 @@ function Hairline() {
   );
 }
 
-// El login sigue solo en español por ahora: el multi-idioma cubre únicamente
-// la Home (regla de alcance acordada con el usuario).
+// El login/registro siguen solo en español por ahora: el multi-idioma cubre
+// únicamente la Home (regla de alcance acordada con el usuario).
 const LOGIN_HREF = "/login";
+const REGISTRO_HREF = "/registro";
+const WHATSAPP_NUMBER = "573027938712";
+
+function whatsappHref(mensaje: string): string {
+  return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`;
+}
 
 export function HomeContent({ dict, locale }: { dict: HomeDict; locale: Locale }) {
   return (
@@ -51,7 +57,7 @@ export function HomeContent({ dict, locale }: { dict: HomeDict; locale: Locale }
             <LanguageSwitcher locale={locale} />
             <ThemeToggle labels={dict.theme} />
             <Link
-              href={LOGIN_HREF}
+              href={REGISTRO_HREF}
               className="hidden rounded-md bg-accent px-4 py-2 text-sm font-bold text-accent-ink transition-colors hover:bg-accent/90 sm:inline-flex"
             >
               {dict.nav.cta}
@@ -273,21 +279,40 @@ export function HomeContent({ dict, locale }: { dict: HomeDict; locale: Locale }
                       </li>
                     ))}
                   </ul>
-                  <Link
-                    href={LOGIN_HREF}
-                    className={`mt-auto rounded-md px-5 py-3 text-center text-sm font-bold transition-colors ${
-                      plan.featured
-                        ? "bg-accent text-accent-ink hover:bg-accent/90"
-                        : "border border-line-strong hover:bg-ink/5"
-                    }`}
-                  >
-                    {plan.cta}
-                  </Link>
+                  {plan.ctaAction === "whatsapp" ? (
+                    <a
+                      href={whatsappHref(`Hola, quiero el plan ${plan.name} de VentaFácil.`)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className={`mt-auto rounded-md px-5 py-3 text-center text-sm font-bold transition-colors ${
+                        plan.featured
+                          ? "bg-accent text-accent-ink hover:bg-accent/90"
+                          : "border border-line-strong hover:bg-ink/5"
+                      }`}
+                    >
+                      {plan.cta}
+                    </a>
+                  ) : (
+                    <Link
+                      href={REGISTRO_HREF}
+                      className={`mt-auto rounded-md px-5 py-3 text-center text-sm font-bold transition-colors ${
+                        plan.featured
+                          ? "bg-accent text-accent-ink hover:bg-accent/90"
+                          : "border border-line-strong hover:bg-ink/5"
+                      }`}
+                    >
+                      {plan.cta}
+                    </Link>
+                  )}
                   {plan.optionalNote && (
                     <p className="mt-3 text-center text-xs text-ink-faint">
                       {plan.optionalNote.text}{" "}
-                      {/* TODO: enlazar al contacto real (WhatsApp/calendario) cuando exista */}
-                      <a href="#" className="font-semibold text-ink-soft underline underline-offset-2 hover:text-ink">
+                      <a
+                        href={whatsappHref("Hola, quiero agendar una demo gratis de VentaFácil.")}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-ink-soft underline underline-offset-2 hover:text-ink"
+                      >
                         {plan.optionalNote.cta}
                       </a>
                     </p>
@@ -347,12 +372,13 @@ export function HomeContent({ dict, locale }: { dict: HomeDict; locale: Locale }
                 >
                   {dict.final.ctaPrimary}
                 </a>
-                {/* TODO: reemplazar por el número real de contacto de VentaFácil cuando exista */}
                 <a
-                  href="#"
-                  className="flex items-center gap-2 rounded-md bg-wa px-5 py-3 text-sm font-bold text-wa-ink transition-colors hover:bg-wa/90"
+                  href="https://wa.me/573027938712"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 rounded-md border border-accent-ink/30 px-5 py-3 text-sm font-bold text-accent-ink transition-colors hover:bg-accent-ink/10"
                 >
-                  <WhatsappIcon />
+                  <WhatsappIcon className="text-wa" />
                   {dict.final.ctaWhatsapp}
                 </a>
               </div>

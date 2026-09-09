@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { VolverInicioLink } from "@/components/volver-inicio-link";
 import { createClient } from "@/lib/supabase/client";
 import { isValidEmail } from "@/lib/validation";
 
@@ -53,7 +54,9 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="flex flex-1 flex-col items-center justify-center bg-ground p-6">
+    <main className="relative flex flex-1 flex-col items-center justify-center bg-ground p-6">
+      <VolverInicioLink />
+
       <Link href="/" className="font-display mb-8 text-xl">
         VentaFácil
       </Link>

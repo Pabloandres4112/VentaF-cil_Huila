@@ -104,7 +104,7 @@ export function CheckoutModal({
               onChange={(e) => setNombre(e.target.value)}
               placeholder="Tu nombre"
               aria-invalid={Boolean(errors.nombre)}
-              className={`rounded-md border bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent ${errors.nombre ? "border-danger" : "border-line-strong"}`}
+              className={`rounded-md border bg-surface-2 px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent ${errors.nombre ? "border-danger" : "border-line-strong"}`}
             />
             {errors.nombre && <p className="text-xs text-danger">{errors.nombre}</p>}
           </div>
@@ -119,7 +119,7 @@ export function CheckoutModal({
               onChange={(e) => setDireccion(e.target.value)}
               placeholder="Calle, número, barrio"
               aria-invalid={Boolean(errors.direccion)}
-              className={`rounded-md border bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent ${errors.direccion ? "border-danger" : "border-line-strong"}`}
+              className={`rounded-md border bg-surface-2 px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent ${errors.direccion ? "border-danger" : "border-line-strong"}`}
             />
             {errors.direccion && <p className="text-xs text-danger">{errors.direccion}</p>}
           </div>

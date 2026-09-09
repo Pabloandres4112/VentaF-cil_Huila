@@ -12,11 +12,11 @@ export const en: HomeDict = {
     cta: "Start for free",
   },
   hero: {
-    eyebrow: "Digital catalog · Orders over WhatsApp",
+    eyebrow: "Digital catalog · The bridge between you and your customers",
     headlinePre: "Stop typing ",
     headlineAccent: "the same price",
     headlinePost: " twenty times a day.",
-    lede: "Upload your products, share your link, and every order lands in your WhatsApp already organized — with customer, address, and total. Nothing to install, free to start.",
+    lede: "Upload your catalog with your WhatsApp number and that's it — nothing else to configure. Share your link and every order lands already organized: customer, address, and total. Nothing to install, free to start.",
     ctaPrimary: "Create my catalog for free",
     ctaSecondary: "See how it works",
     proof: [
@@ -70,7 +70,7 @@ export const en: HomeDict = {
   how: {
     eyebrow: "How it works",
     title: "Two short paths: yours and your customer's.",
-    body: "Nothing to install on the buyer's side. On yours, three steps and you're set up.",
+    body: "We're just the bridge that organizes things so your customers can place their order — the sale and the delivery are still 100% yours. Nothing to install on the buyer's side; on yours, three steps and you're set up.",
     ownerLabel: "For you, the owner",
     clientLabel: "For your customer",
     ownerSteps: [
@@ -117,6 +117,7 @@ export const en: HomeDict = {
           "Orders sent straight to WhatsApp",
         ],
         cta: "Start for free",
+        ctaAction: "registro",
         optionalNote: {
           text: "Prefer some help setting it up? It's optional.",
           cta: "Book a free demo",
@@ -127,11 +128,12 @@ export const en: HomeDict = {
         priceLabel: "From $30,000",
         priceUnit: "COP · one-time",
         features: [
-          "Up to 20 products",
-          "We upload your photos and prices for you",
+          "We upload your first 20 products for you",
+          "You just send us the name, price and photos",
           "Includes your first month of service",
         ],
         cta: "Set it up for me",
+        ctaAction: "whatsapp",
       },
       {
         name: "Entrepreneur",
@@ -140,11 +142,12 @@ export const en: HomeDict = {
         featured: true,
         badge: "Recommended",
         features: [
-          "Up to 100 products",
-          "Automatic stock deduction",
-          "Custom link, no watermark",
+          "Unlimited products",
+          "Customize your store's colors",
+          "Direct support from us",
         ],
         cta: "Try 14 days free",
+        ctaAction: "whatsapp",
       },
     ],
   },

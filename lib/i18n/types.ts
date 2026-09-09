@@ -25,6 +25,13 @@ export interface PlanDict {
   badge?: string;
   features: string[];
   cta: string;
+  /**
+   * "registro": autoservicio, lleva a crear cuenta (hoy solo el plan
+   * gratuito da acceso real de inmediato). "whatsapp": planes que requieren
+   * hablar con nosotros primero (carga asistida, o cualquier cosa que no
+   * esté automatizada todavía, como el trial de Pro).
+   */
+  ctaAction: "registro" | "whatsapp";
   /** Nota de un servicio opcional relacionado (ej. demo asistida), no un plan aparte. */
   optionalNote?: { text: string; cta: string };
 }
