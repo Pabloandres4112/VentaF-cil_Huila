@@ -223,3 +223,15 @@ GRANT EXECUTE ON FUNCTION public.descontar_stock_producto(UUID, INT) TO anon, au
 -- =============================================================================
 
 ALTER TABLE public.tiendas ADD COLUMN IF NOT EXISTS logo_url TEXT;
+
+-- =============================================================================
+-- MIGRACIÓN — Una sola tienda por usuario (evita duplicados por condición
+-- de carrera: el login hace router.push("/dashboard") + router.refresh(),
+-- que puede disparar dos renders del dashboard casi simultáneos la primera
+-- vez que alguien entra, cada uno viendo "todavía no tiene tienda" e
+-- intentando crearla. Con esta restricción el segundo intento falla con
+-- 23505 en vez de crear una fila duplicada — services/store.ts ya maneja
+-- ese error devolviendo la tienda que el primero creó.
+-- =============================================================================
+
+ALTER TABLE public.tiendas ADD CONSTRAINT tiendas_user_id_key UNIQUE (user_id);

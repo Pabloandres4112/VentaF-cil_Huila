@@ -17,5 +17,10 @@ export async function requireTienda(): Promise<Tienda> {
   const tienda = await getTiendaByUserId(user.id);
   if (tienda) return tienda;
 
-  return crearTienda(user.id, user.email?.split("@")[0] ?? "Mi tienda");
+  const telefonoWhatsapp =
+    typeof user.user_metadata?.telefono_whatsapp === "string"
+      ? user.user_metadata.telefono_whatsapp
+      : "";
+
+  return crearTienda(user.id, user.email?.split("@")[0] ?? "Mi tienda", telefonoWhatsapp);
 }

@@ -9,10 +9,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { PasswordInput } from "@/components/password-input";
 import { createClient } from "@/lib/supabase/client";
-
-const INPUT_CLASS =
-  "rounded-md border bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent";
 
 interface RestablecerErrors {
   password?: string;
@@ -77,16 +75,14 @@ export default function RestablecerPage() {
                 <label htmlFor="password" className="text-sm font-semibold text-ink-soft">
                   Nueva contraseña
                 </label>
-                <input
+                <PasswordInput
                   id="password"
                   name="password"
-                  type="password"
                   autoComplete="new-password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  aria-invalid={Boolean(errors.password)}
-                  className={`${INPUT_CLASS} ${errors.password ? "border-danger" : "border-line-strong"}`}
+                  invalid={Boolean(errors.password)}
                 />
                 {errors.password && <p className="text-xs text-danger">{errors.password}</p>}
               </div>
@@ -95,16 +91,14 @@ export default function RestablecerPage() {
                 <label htmlFor="confirmar" className="text-sm font-semibold text-ink-soft">
                   Confirmar contraseña
                 </label>
-                <input
+                <PasswordInput
                   id="confirmar"
                   name="confirmar"
-                  type="password"
                   autoComplete="new-password"
                   value={confirmar}
                   onChange={(e) => setConfirmar(e.target.value)}
                   placeholder="••••••••"
-                  aria-invalid={Boolean(errors.confirmar)}
-                  className={`${INPUT_CLASS} ${errors.confirmar ? "border-danger" : "border-line-strong"}`}
+                  invalid={Boolean(errors.confirmar)}
                 />
                 {errors.confirmar && <p className="text-xs text-danger">{errors.confirmar}</p>}
               </div>

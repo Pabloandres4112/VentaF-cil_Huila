@@ -302,6 +302,35 @@ export function LogoutIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function EyeIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <path
+        d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth={1.8} />
+    </Svg>
+  );
+}
+
+export function EyeOffIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <path
+        d="M3 3l18 18M10.6 10.6a3 3 0 0 0 4.24 4.24M9.4 5.3A10.9 10.9 0 0 1 12 5c6.5 0 10 7 10 7a13.2 13.2 0 0 1-3.1 3.9M6.2 6.2C4 7.7 2 12 2 12a13.2 13.2 0 0 0 5.6 5.9"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </Svg>
+  );
+}
+
 export function WhatsappIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Svg {...props}>

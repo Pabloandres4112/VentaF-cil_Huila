@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { PasswordInput } from "@/components/password-input";
 import { VolverInicioLink } from "@/components/volver-inicio-link";
 import { createClient } from "@/lib/supabase/client";
 import { isValidEmail } from "@/lib/validation";
@@ -98,16 +99,14 @@ export default function LoginPage() {
                 ¿Olvidaste tu contraseña?
               </Link>
             </div>
-            <input
+            <PasswordInput
               id="password"
               name="password"
-              type="password"
               autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              aria-invalid={Boolean(errors.password)}
-              className={`${INPUT_CLASS} ${errors.password ? "border-danger" : "border-line-strong"}`}
+              invalid={Boolean(errors.password)}
             />
             {errors.password && <p className="text-xs text-danger">{errors.password}</p>}
           </div>

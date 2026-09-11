@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, type FormEvent } from "react";
+import { CheckIcon, ColombiaFlagIcon } from "@/components/icons";
+import { PasswordInput } from "@/components/password-input";
 import { TerminosModal } from "@/components/terminos-modal";
 import { VolverInicioLink } from "@/components/volver-inicio-link";
 import { createClient } from "@/lib/supabase/client";
@@ -11,8 +13,11 @@ import { isValidEmail } from "@/lib/validation";
 const INPUT_CLASS =
   "rounded-md border bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent";
 
+const INDICATIVO_COLOMBIA = "57";
+
 interface RegistroErrors {
   email?: string;
+  telefono?: string;
   password?: string;
   confirmar?: string;
   terminos?: string;
@@ -20,12 +25,15 @@ interface RegistroErrors {
 }
 
 // Fase 2 (PLAN_EJECUCION.md): alta self-service del dueño de negocio.
-// El nombre de la tienda y el WhatsApp se completan después en
-// /dashboard/perfil — al primer ingreso, requireTienda() (lib/auth/session.ts)
-// crea la fila de `tiendas` automáticamente con un nombre provisional.
+// El WhatsApp se pide acá y viaja en los metadatos del usuario de Supabase
+// Auth (options.data) porque la tienda todavía no existe en este punto —
+// requireTienda() (lib/auth/session.ts) la crea al primer ingreso al
+// dashboard, leyendo ese metadato. El nombre de la tienda sigue siendo
+// provisional hasta que el dueño lo cambia en /dashboard/perfil.
 export default function RegistroPage() {
   const router = useRouter();
   const [email, setEmail] = useState("");
+  const [telefonoLocal, setTelefonoLocal] = useState("");
   const [password, setPassword] = useState("");
   const [confirmar, setConfirmar] = useState("");
   const [aceptaTerminos, setAceptaTerminos] = useState(false);
@@ -40,6 +48,9 @@ export default function RegistroPage() {
     const nextErrors: RegistroErrors = {};
     if (!email.trim()) nextErrors.email = "Ingresa tu correo.";
     else if (!isValidEmail(email)) nextErrors.email = "Ingresa un correo válido.";
+    if (!/^\d{10}$/.test(telefonoLocal)) {
+      nextErrors.telefono = "Ingresa los 10 dígitos de tu número, sin el indicativo.";
+    }
     if (!password) nextErrors.password = "Ingresa una contraseña.";
     else if (password.length < 6) nextErrors.password = "Debe tener al menos 6 caracteres.";
     if (confirmar !== password) nextErrors.confirmar = "Las contraseñas no coinciden.";
@@ -53,6 +64,9 @@ export default function RegistroPage() {
     const { data, error } = await supabase.auth.signUp({
       email: email.trim(),
       password,
+      options: {
+        data: { telefono_whatsapp: INDICATIVO_COLOMBIA + telefonoLocal },
+      },
     });
     setLoading(false);
 
@@ -138,19 +152,42 @@ export default function RegistroPage() {
           </div>
 
           <div className="flex flex-col gap-1.5">
+            <label htmlFor="telefono" className="text-sm font-semibold text-ink-soft">
+              Número de WhatsApp
+            </label>
+            <div className="flex gap-2">
+              <span className="flex flex-none items-center gap-1.5 rounded-md border border-line-strong bg-surface-2 px-3 text-sm font-bold text-ink-soft">
+                <ColombiaFlagIcon />+{INDICATIVO_COLOMBIA}
+              </span>
+              <input
+                id="telefono"
+                inputMode="numeric"
+                value={telefonoLocal}
+                onChange={(e) => setTelefonoLocal(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                placeholder="3001234567"
+                aria-invalid={Boolean(errors.telefono)}
+                className={`${INPUT_CLASS} flex-1 ${errors.telefono ? "border-danger" : "border-line-strong"}`}
+              />
+            </div>
+            {errors.telefono ? (
+              <p className="text-xs text-danger">{errors.telefono}</p>
+            ) : (
+              <p className="text-xs text-ink-faint">Solo tu número, sin indicativo. Ej: 3001234567.</p>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1.5">
             <label htmlFor="password" className="text-sm font-semibold text-ink-soft">
               Contraseña
             </label>
-            <input
+            <PasswordInput
               id="password"
               name="password"
-              type="password"
               autoComplete="new-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              aria-invalid={Boolean(errors.password)}
-              className={`${INPUT_CLASS} ${errors.password ? "border-danger" : "border-line-strong"}`}
+              invalid={Boolean(errors.password)}
             />
             {errors.password && <p className="text-xs text-danger">{errors.password}</p>}
           </div>
@@ -159,40 +196,48 @@ export default function RegistroPage() {
             <label htmlFor="confirmar" className="text-sm font-semibold text-ink-soft">
               Confirmar contraseña
             </label>
-            <input
+            <PasswordInput
               id="confirmar"
               name="confirmar"
-              type="password"
               autoComplete="new-password"
               value={confirmar}
               onChange={(e) => setConfirmar(e.target.value)}
               placeholder="••••••••"
-              aria-invalid={Boolean(errors.confirmar)}
-              className={`${INPUT_CLASS} ${errors.confirmar ? "border-danger" : "border-line-strong"}`}
+              invalid={Boolean(errors.confirmar)}
             />
             {errors.confirmar && <p className="text-xs text-danger">{errors.confirmar}</p>}
           </div>
 
           <div className="flex flex-col gap-1.5 border-t border-line pt-4">
-            <label className="flex items-start gap-2.5 text-sm text-ink-soft">
-              <input
-                type="checkbox"
-                checked={aceptaTerminos}
-                onChange={(e) => setAceptaTerminos(e.target.checked)}
-                aria-invalid={Boolean(errors.terminos)}
-                className="mt-0.5 h-4 w-4 flex-none accent-accent"
-              />
-              He leído y acepto los{" "}
-              <button
-                type="button"
-                onClick={() => setTerminosAbiertos(true)}
-                className="font-semibold underline underline-offset-2 hover:text-ink"
-              >
-                Términos y Condiciones
-              </button>{" "}
-              (incluye el uso de cookies necesarias para mantener tu sesión iniciada).
-            </label>
+            {aceptaTerminos ? (
+              <p className="flex items-center gap-1.5 text-sm text-ink-soft">
+                <CheckIcon width={14} height={14} className="flex-none text-wa-deep" />
+                Aceptaste los{" "}
+                <button
+                  type="button"
+                  onClick={() => setTerminosAbiertos(true)}
+                  className="font-semibold underline underline-offset-2 hover:text-ink"
+                >
+                  Términos y Condiciones
+                </button>
+              </p>
+            ) : (
+              <p className={`text-sm ${errors.terminos ? "text-danger" : "text-ink-soft"}`}>
+                Al continuar aceptas los{" "}
+                <button
+                  type="button"
+                  onClick={() => setTerminosAbiertos(true)}
+                  className="font-semibold underline underline-offset-2 hover:text-ink"
+                >
+                  Términos y Condiciones
+                </button>
+                .
+              </p>
+            )}
             {errors.terminos && <p className="text-xs text-danger">{errors.terminos}</p>}
+            <p className="text-xs text-ink-faint">
+              Incluye el uso de cookies necesarias para mantener tu sesión iniciada.
+            </p>
           </div>
 
           {errors.general && <p className="text-sm text-danger">{errors.general}</p>}
@@ -217,7 +262,15 @@ export default function RegistroPage() {
         </Link>
       </p>
 
-      {terminosAbiertos && <TerminosModal onClose={() => setTerminosAbiertos(false)} />}
+      {terminosAbiertos && (
+        <TerminosModal
+          onClose={() => setTerminosAbiertos(false)}
+          onAccept={() => {
+            setAceptaTerminos(true);
+            setErrors((prev) => ({ ...prev, terminos: undefined }));
+          }}
+        />
+      )}
     </main>
   );
 }

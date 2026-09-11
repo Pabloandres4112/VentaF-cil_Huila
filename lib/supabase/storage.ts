@@ -36,14 +36,24 @@ export async function subirImagenProducto(tiendaId: string, dataUrl: string): Pr
 // Se le agrega un parámetro de caché al final de la URL porque, al ser
 // siempre el mismo nombre de archivo, el navegador podría seguir mostrando
 // la imagen vieja en caché después de reemplazarla.
+//
+// No usamos upload({ upsert: true }): Supabase Storage necesita una política
+// RLS de SELECT sobre storage.objects para resolver ese chequeo de "¿ya
+// existe?", y a propósito no hay ninguna (solo INSERT/UPDATE/DELETE) — eso
+// producía un 403 "new row violates row-level security policy" en cada
+// subida. En vez de agregar una política nueva, borramos el archivo viejo
+// (si existe) y subimos uno nuevo sin upsert, reutilizando permisos ya
+// probados.
 export async function subirLogoTienda(tiendaId: string, dataUrl: string): Promise<string> {
   const supabase = createClient();
   const blob = dataUrlToBlob(dataUrl);
   const nombreArchivo = `${tiendaId}/logo.jpg`;
 
+  await supabase.storage.from(BUCKET).remove([nombreArchivo]);
+
   const { error } = await supabase.storage
     .from(BUCKET)
-    .upload(nombreArchivo, blob, { contentType: "image/jpeg", upsert: true });
+    .upload(nombreArchivo, blob, { contentType: "image/jpeg", upsert: false });
 
   if (error) throw error;
 
