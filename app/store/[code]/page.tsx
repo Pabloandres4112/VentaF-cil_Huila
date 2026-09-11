@@ -85,9 +85,18 @@ export default async function StorePage({
       <header className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-284 items-center justify-between gap-4 px-5 py-5 sm:px-8">
           <div className="flex min-w-0 items-center gap-3">
-            <div className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-accent-2 font-display text-base text-accent-2-ink">
-              {tienda.nombre.charAt(0).toUpperCase()}
-            </div>
+            {tienda.logo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element -- imagen remota de Supabase Storage, sin dominio configurado aún
+              <img
+                src={tienda.logo_url}
+                alt={tienda.nombre}
+                className="h-11 w-11 flex-none rounded-full object-cover"
+              />
+            ) : (
+              <div className="flex h-11 w-11 flex-none items-center justify-center rounded-full bg-accent-2 font-display text-base text-accent-2-ink">
+                {tienda.nombre.charAt(0).toUpperCase()}
+              </div>
+            )}
             <div className="min-w-0">
               <p className="font-display truncate text-lg leading-tight">{tienda.nombre}</p>
               <p className="truncate text-xs text-ink-faint">

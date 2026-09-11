@@ -29,3 +29,24 @@ export async function subirImagenProducto(tiendaId: string, dataUrl: string): Pr
   const { data } = supabase.storage.from(BUCKET).getPublicUrl(nombreArchivo);
   return data.publicUrl;
 }
+
+// El logo usa un nombre fijo por tienda (a diferencia de las fotos de
+// producto) — cada vez que se sube uno nuevo reemplaza al anterior en el
+// mismo archivo, así no se acumulan logos viejos huérfanos en el bucket.
+// Se le agrega un parámetro de caché al final de la URL porque, al ser
+// siempre el mismo nombre de archivo, el navegador podría seguir mostrando
+// la imagen vieja en caché después de reemplazarla.
+export async function subirLogoTienda(tiendaId: string, dataUrl: string): Promise<string> {
+  const supabase = createClient();
+  const blob = dataUrlToBlob(dataUrl);
+  const nombreArchivo = `${tiendaId}/logo.jpg`;
+
+  const { error } = await supabase.storage
+    .from(BUCKET)
+    .upload(nombreArchivo, blob, { contentType: "image/jpeg", upsert: true });
+
+  if (error) throw error;
+
+  const { data } = supabase.storage.from(BUCKET).getPublicUrl(nombreArchivo);
+  return `${data.publicUrl}?v=${Date.now()}`;
+}

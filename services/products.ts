@@ -3,19 +3,11 @@
 // Fase 3 (PLAN_EJECUCION.md): Server Actions de productos (CRUD).
 
 import { LIMITE_PRODUCTOS_GRATIS, MENSAJE_LIMITE_PRODUCTOS_GRATIS } from "@/lib/plan";
+import { esUrlImagenValida } from "@/lib/storage-validation";
 import { createClient } from "@/lib/supabase/server";
 import type { Producto } from "@/types";
 
 export type NuevoProducto = Omit<Producto, "id" | "tienda_id" | "created_at">;
-
-// Defensa en profundidad: aunque el formulario solo permite subir una imagen
-// real a Storage (image-upload.tsx), esto bloquea que alguien llame al
-// Server Action directamente con una URL externa, un `javascript:` o
-// cualquier otra cosa que no sea una foto de nuestro propio bucket.
-function esUrlImagenValida(url: string): boolean {
-  const prefijo = `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/productos/`;
-  return url.startsWith(prefijo);
-}
 
 function validarImagenUrl(datos: NuevoProducto): NuevoProducto {
   if (datos.imagen_url && !esUrlImagenValida(datos.imagen_url)) {

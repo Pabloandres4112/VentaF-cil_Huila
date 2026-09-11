@@ -20,6 +20,10 @@ export interface Tienda {
   color_primario: string | null;
   color_secundario: string | null;
   color_fondo: string | null;
+  // Logo de la tienda — reemplaza el círculo con la inicial del nombre en el
+  // catálogo público cuando está definido. Mismo bucket de Storage que las
+  // fotos de producto (services/store.ts valida que la URL venga de ahí).
+  logo_url: string | null;
   created_at: string;
 }
 

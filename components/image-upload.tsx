@@ -7,55 +7,12 @@
 
 import { useRef, useState, type ChangeEvent, type DragEvent, type KeyboardEvent } from "react";
 import { CloseIcon, ImagePlaceholderIcon, SpinnerIcon } from "@/components/icons";
+import { compressImageToJpeg } from "@/lib/image-compress";
 import { subirImagenProducto } from "@/lib/supabase/storage";
 
 const MAX_DIMENSION = 900;
-const JPEG_QUALITY = 0.8;
 const MAX_ARCHIVO_MB = 8; // antes de comprimir — el bucket ya limita a 5MB el archivo final.
 const TIPOS_ACEPTADOS = ["image/jpeg", "image/png", "image/webp"];
-
-function readFileAsDataUrl(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = () => reject(reader.error);
-    reader.readAsDataURL(file);
-  });
-}
-
-function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => resolve(img);
-    img.onerror = () => reject(new Error("No se pudo leer la imagen"));
-    img.src = src;
-  });
-}
-
-async function compressImage(file: File): Promise<string> {
-  const original = await readFileAsDataUrl(file);
-  const img = await loadImage(original);
-
-  let { width, height } = img;
-  if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
-    const scale = MAX_DIMENSION / Math.max(width, height);
-    width = Math.round(width * scale);
-    height = Math.round(height * scale);
-  }
-
-  const canvas = document.createElement("canvas");
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("No se pudo procesar la imagen");
-
-  // Fondo blanco antes de dibujar: si el original tenía transparencia (PNG),
-  // el JPEG de salida no la soporta y quedaría negro sin esto.
-  ctx.fillStyle = "#ffffff";
-  ctx.fillRect(0, 0, width, height);
-  ctx.drawImage(img, 0, 0, width, height);
-  return canvas.toDataURL("image/jpeg", JPEG_QUALITY);
-}
 
 export function ImageUpload({
   tiendaId,
@@ -86,7 +43,7 @@ export function ImageUpload({
     setError(null);
     setProcessing(true);
     try {
-      const comprimida = await compressImage(file);
+      const comprimida = await compressImageToJpeg(file, MAX_DIMENSION);
       const url = await subirImagenProducto(tiendaId, comprimida);
       onChange(url);
     } catch {

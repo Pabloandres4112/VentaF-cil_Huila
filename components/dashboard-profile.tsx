@@ -5,6 +5,7 @@
 
 import { useState, useTransition, type FormEvent } from "react";
 import { CheckIcon, ColombiaFlagIcon, CopyIcon } from "@/components/icons";
+import { LogoUpload } from "@/components/logo-upload";
 import { actualizarTienda } from "@/services/store";
 import { VerCatalogoLink } from "@/components/ver-catalogo-link";
 import { pickContrastingInk } from "@/lib/utils";
@@ -42,6 +43,7 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
     tiendaInicial.color_secundario ?? "#58626f",
   );
   const [colorFondo, setColorFondo] = useState(tiendaInicial.color_fondo ?? "#f6f7f9");
+  const [logoUrl, setLogoUrl] = useState(tiendaInicial.logo_url);
   const [errors, setErrors] = useState<PerfilErrors>({});
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -66,6 +68,7 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
       color_primario: colorPrimario,
       color_secundario: colorSecundario,
       color_fondo: colorFondo,
+      logo_url: logoUrl,
     };
     startTransition(async () => {
       try {
@@ -168,6 +171,10 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
           ) : (
             <p className="text-xs text-ink-faint">Solo tu número, sin indicativo. Ej: 3001234567.</p>
           )}
+        </div>
+
+        <div className="border-t border-line pt-4">
+          <LogoUpload tiendaId={tienda.id} value={logoUrl} onChange={setLogoUrl} />
         </div>
 
         <div className="flex flex-col gap-3 border-t border-line pt-4">

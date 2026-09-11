@@ -2,6 +2,7 @@
 
 // Fase 3 (PLAN_EJECUCION.md): Server Actions de la tienda (perfil, WhatsApp, store_code).
 
+import { esUrlImagenValida } from "@/lib/storage-validation";
 import { createClient } from "@/lib/supabase/server";
 import type { Tienda } from "@/types";
 
@@ -46,9 +47,18 @@ export async function actualizarTienda(
   id: string,
   datos: Pick<
     Tienda,
-    "nombre" | "telefono_whatsapp" | "color_primario" | "color_secundario" | "color_fondo"
+    | "nombre"
+    | "telefono_whatsapp"
+    | "color_primario"
+    | "color_secundario"
+    | "color_fondo"
+    | "logo_url"
   >,
 ): Promise<Tienda> {
+  if (datos.logo_url && !esUrlImagenValida(datos.logo_url)) {
+    throw new Error("URL de logo inválida");
+  }
+
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("tiendas")

@@ -87,9 +87,17 @@ export default function LoginPage() {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-sm font-semibold text-ink-soft">
-              Contraseña
-            </label>
+            <div className="flex items-center justify-between">
+              <label htmlFor="password" className="text-sm font-semibold text-ink-soft">
+                Contraseña
+              </label>
+              <Link
+                href="/recuperar"
+                className="text-xs font-semibold text-ink-soft underline underline-offset-2 hover:text-ink"
+              >
+                ¿Olvidaste tu contraseña?
+              </Link>
+            </div>
             <input
               id="password"
               name="password"

@@ -215,3 +215,11 @@ AS $$
 $$;
 
 GRANT EXECUTE ON FUNCTION public.descontar_stock_producto(UUID, INT) TO anon, authenticated;
+
+-- =============================================================================
+-- MIGRACIÓN — Logo de la tienda
+-- Reutiliza el mismo bucket `productos` (misma política de Storage, sin
+-- crear un bucket nuevo) — solo cambia dónde se guarda el link.
+-- =============================================================================
+
+ALTER TABLE public.tiendas ADD COLUMN IF NOT EXISTS logo_url TEXT;
