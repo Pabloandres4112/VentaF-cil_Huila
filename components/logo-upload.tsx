@@ -2,13 +2,17 @@
 
 // Subida del logo de la tienda — mismo mecanismo que image-upload.tsx
 // (comprimir a JPEG, subir a Storage, validar tipo/peso) pero con nombre de
-// archivo fijo por tienda (se reemplaza, no se acumula) y vista previa
-// circular, ya que sustituye el círculo con la inicial del nombre.
+// archivo fijo por tienda (se reemplaza, no se acumula), vista previa
+// circular (sustituye el círculo con la inicial del nombre) y guardado
+// inmediato en la base de datos — no depende del botón "Guardar cambios"
+// del resto del formulario de perfil (ver actualizarLogoTienda en
+// services/store.ts).
 
 import { useRef, useState, type ChangeEvent, type KeyboardEvent } from "react";
 import { CloseIcon, ImagePlaceholderIcon, SpinnerIcon } from "@/components/icons";
 import { compressImageToJpeg } from "@/lib/image-compress";
 import { subirLogoTienda } from "@/lib/supabase/storage";
+import { actualizarLogoTienda } from "@/services/store";
 
 const MAX_DIMENSION = 400;
 const MAX_ARCHIVO_MB = 8;
@@ -44,9 +48,23 @@ export function LogoUpload({
     try {
       const comprimida = await compressImageToJpeg(file, MAX_DIMENSION);
       const url = await subirLogoTienda(tiendaId, comprimida);
+      await actualizarLogoTienda(tiendaId, url);
       onChange(url);
     } catch {
       setError("No se pudo subir el logo. Intenta de nuevo.");
+    } finally {
+      setProcessing(false);
+    }
+  }
+
+  async function handleQuitar() {
+    setError(null);
+    setProcessing(true);
+    try {
+      await actualizarLogoTienda(tiendaId, null);
+      onChange(null);
+    } catch {
+      setError("No se pudo quitar el logo. Intenta de nuevo.");
     } finally {
       setProcessing(false);
     }
@@ -90,21 +108,25 @@ export function LogoUpload({
           <button
             type="button"
             onClick={() => inputRef.current?.click()}
-            className="w-fit text-xs font-bold text-accent underline underline-offset-2"
+            disabled={processing}
+            className="w-fit text-xs font-bold text-accent underline underline-offset-2 disabled:opacity-60"
           >
             {value ? "Cambiar logo" : "Subir logo"}
           </button>
           {value && (
             <button
               type="button"
-              onClick={() => onChange(null)}
-              className="flex w-fit items-center gap-1 text-xs text-ink-faint transition-colors hover:text-danger"
+              onClick={handleQuitar}
+              disabled={processing}
+              className="flex w-fit items-center gap-1 text-xs text-ink-faint transition-colors hover:text-danger disabled:opacity-60"
             >
               <CloseIcon width={10} height={10} />
               Quitar
             </button>
           )}
-          <p className="text-[0.7rem] text-ink-faint">Opcional — si no subes uno, se usa la inicial del nombre.</p>
+          <p className="text-[0.7rem] text-ink-faint">
+            Opcional — si no subes uno, se usa la inicial del nombre. Se guarda al instante.
+          </p>
         </div>
       </div>
 

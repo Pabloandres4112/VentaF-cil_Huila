@@ -69,22 +69,35 @@ export async function actualizarTienda(
   id: string,
   datos: Pick<
     Tienda,
-    | "nombre"
-    | "telefono_whatsapp"
-    | "color_primario"
-    | "color_secundario"
-    | "color_fondo"
-    | "logo_url"
+    "nombre" | "telefono_whatsapp" | "color_primario" | "color_secundario" | "color_fondo"
   >,
 ): Promise<Tienda> {
-  if (datos.logo_url && !esUrlImagenValida(datos.logo_url)) {
+  const supabase = await createClient();
+  const { data, error } = await supabase
+    .from("tiendas")
+    .update(datos)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) throw error;
+  return data;
+}
+
+// El logo se guarda aparte del resto del perfil (no espera al botón
+// "Guardar cambios"): en cuanto termina de subirse a Storage, se persiste
+// acá mismo — si dependiera del submit general, la vista previa que cambia
+// al instante hace pensar que ya quedó guardado aunque no se haya tocado el
+// botón, y el logo se queda huérfano en la base de datos.
+export async function actualizarLogoTienda(id: string, logoUrl: string | null): Promise<Tienda> {
+  if (logoUrl && !esUrlImagenValida(logoUrl)) {
     throw new Error("URL de logo inválida");
   }
 
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("tiendas")
-    .update(datos)
+    .update({ logo_url: logoUrl })
     .eq("id", id)
     .select()
     .single();

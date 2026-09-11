@@ -68,7 +68,6 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
       color_primario: colorPrimario,
       color_secundario: colorSecundario,
       color_fondo: colorFondo,
-      logo_url: logoUrl,
     };
     startTransition(async () => {
       try {

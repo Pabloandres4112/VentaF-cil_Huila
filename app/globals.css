@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "react-day-picker/style.css";
 
 :root {
   /* Le dice al navegador que esta página ya maneja su propio claro/oscuro
@@ -134,4 +135,26 @@ input:-webkit-autofill:focus {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
+}
+
+/* Recolorea react-day-picker (components/date-field.tsx) para que combine
+   con el resto de la app en vez de quedarse con su azul por defecto —
+   scoped a .date-field-calendar para no afectar nada más si el paquete se
+   usa en otro lado más adelante. */
+.date-field-calendar {
+  --rdp-accent-color: var(--color-accent);
+  --rdp-accent-background-color: var(--color-accent-soft);
+  --rdp-today-color: var(--color-accent);
+  --rdp-day-height: 2.25rem;
+  --rdp-day-width: 2.25rem;
+  color: var(--color-ink);
+}
+
+.date-field-calendar .rdp-day_button:hover:not([disabled]) {
+  background-color: var(--color-surface-2);
+}
+
+.date-field-calendar .rdp-selected .rdp-day_button {
+  color: var(--color-accent-ink);
+  font-weight: 700;
 }

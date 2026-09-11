@@ -4,6 +4,7 @@
 
 import { useState, type FormEvent } from "react";
 import { CloseIcon } from "@/components/icons";
+import { DateField } from "@/components/date-field";
 import type { NuevaLicencia } from "@/services/licencias";
 
 const INPUT_CLASS =
@@ -108,12 +109,10 @@ export function LicenciaForm({
             <label htmlFor="lic-vencimiento" className="text-sm font-semibold text-ink-soft">
               Fecha de vencimiento
             </label>
-            <input
+            <DateField
               id="lic-vencimiento"
-              type="date"
               value={fechaVencimiento}
-              onChange={(e) => setFechaVencimiento(e.target.value)}
-              className={`${INPUT_CLASS} border-line-strong`}
+              onChange={setFechaVencimiento}
             />
             <p className="text-xs text-ink-faint">Opcional — déjalo vacío si no tiene vencimiento.</p>
           </div>
