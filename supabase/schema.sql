@@ -186,3 +186,32 @@ CREATE POLICY "Autenticados reemplazan fotos de productos" ON storage.objects
 
 CREATE POLICY "Autenticados borran fotos de productos" ON storage.objects
   FOR DELETE USING (bucket_id = 'productos' AND auth.role() = 'authenticated');
+
+-- =============================================================================
+-- MIGRACIÓN — Descuento de stock al enviar el pedido por WhatsApp
+--
+-- No existe forma de saber si el cliente realmente pagó (el pedido se va
+-- directo a WhatsApp, nunca toca este servidor) — esto descuenta el stock en
+-- el momento en que el cliente le da "Enviar pedido", que es lo más cercano
+-- a "se vendió" que podemos detectar. Es SECURITY DEFINER a propósito: el
+-- cliente que hace checkout nunca tiene sesión (no es el dueño de la
+-- tienda), así que la política RLS de `productos` ("solo el dueño modifica")
+-- se lo bloquearía — esta función salta esa regla, pero solo para esta
+-- operación puntual y segura (nunca puede dejar el stock en negativo, y
+-- WHERE stock >= p_cantidad evita que dos pedidos casi simultáneos vendan
+-- la misma última unidad dos veces).
+-- =============================================================================
+
+CREATE OR REPLACE FUNCTION public.descontar_stock_producto(p_id UUID, p_cantidad INT)
+RETURNS TABLE (id UUID, stock INT)
+LANGUAGE sql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  UPDATE public.productos
+  SET stock = productos.stock - p_cantidad
+  WHERE productos.id = p_id AND p_cantidad > 0 AND productos.stock >= p_cantidad
+  RETURNING productos.id, productos.stock;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.descontar_stock_producto(UUID, INT) TO anon, authenticated;

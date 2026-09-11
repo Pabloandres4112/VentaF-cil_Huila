@@ -92,3 +92,33 @@ export async function alternarDisponibleProducto(
   const { error } = await supabase.from("productos").update({ disponible }).eq("id", id);
   if (error) throw error;
 }
+
+// Se llama al enviar el pedido por WhatsApp (checkout-modal.tsx) — es lo más
+// cercano a "se vendió" que la app puede detectar, ya que el pedido nunca
+// toca el servidor después de eso. La función de Postgres es SECURITY
+// DEFINER porque quien hace checkout no tiene sesión (RLS normalmente solo
+// deja modificar productos al dueño de la tienda), y descuenta de forma
+// atómica (WHERE stock >= cantidad) para que dos pedidos casi simultáneos no
+// puedan vender la misma última unidad dos veces.
+export interface ItemPedidoStock {
+  productoId: string;
+  cantidad: number;
+}
+
+export async function descontarStockPedido(
+  items: ItemPedidoStock[],
+): Promise<{ ok: boolean; agotados: string[] }> {
+  const supabase = await createClient();
+  const agotados: string[] = [];
+
+  for (const item of items) {
+    const { data, error } = await supabase.rpc("descontar_stock_producto", {
+      p_id: item.productoId,
+      p_cantidad: item.cantidad,
+    });
+    if (error) throw error;
+    if (!data || data.length === 0) agotados.push(item.productoId);
+  }
+
+  return { ok: agotados.length === 0, agotados };
+}

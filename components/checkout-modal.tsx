@@ -8,12 +8,14 @@ import type { CartItem } from "@/hooks/useCart";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { formatCOP } from "@/lib/utils";
 import { buildWhatsappUrl } from "@/lib/whatsapp";
+import { descontarStockPedido } from "@/services/products";
 
 const METODOS_PAGO = ["Nequi", "Daviplata", "Efectivo"] as const;
 
 interface CheckoutErrors {
   nombre?: string;
   direccion?: string;
+  general?: string;
 }
 
 export function CheckoutModal({
@@ -37,11 +39,12 @@ export function CheckoutModal({
   const [direccion, setDireccion] = useState("");
   const [metodoPago, setMetodoPago] = useState<string>(METODOS_PAGO[0]);
   const [errors, setErrors] = useState<CheckoutErrors>({});
+  const [enviando, setEnviando] = useState(false);
   useBodyScrollLock(open);
 
   if (!open) return null;
 
-  function handleSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     const nextErrors: CheckoutErrors = {};
@@ -49,6 +52,35 @@ export function CheckoutModal({
     if (direccion.trim().length < 5) nextErrors.direccion = "Ingresa una dirección válida.";
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
+
+    setEnviando(true);
+    // Se descuenta el stock justo aquí, antes de abrir WhatsApp — es lo más
+    // cercano a "se vendió" que se puede detectar, porque después de esto el
+    // pedido ya no vuelve a tocar el servidor. Si alguien más se llevó la
+    // última unidad hace un segundo, esto lo atrapa antes de prometer algo
+    // que ya no hay.
+    let resultado: { ok: boolean; agotados: string[] };
+    try {
+      resultado = await descontarStockPedido(
+        items.map((item) => ({ productoId: item.producto.id, cantidad: item.cantidad })),
+      );
+    } catch {
+      setEnviando(false);
+      setErrors({ general: "No se pudo confirmar el pedido. Intenta de nuevo." });
+      return;
+    }
+    setEnviando(false);
+
+    if (!resultado.ok) {
+      const nombresAgotados = items
+        .filter((item) => resultado.agotados.includes(item.producto.id))
+        .map((item) => item.producto.nombre)
+        .join(", ");
+      setErrors({
+        general: `Justo se agotó: ${nombresAgotados}. Ajusta la cantidad o quítalo del carrito para continuar.`,
+      });
+      return;
+    }
 
     const url = buildWhatsappUrl(telefonoWhatsapp, {
       tiendaNombre,
@@ -149,12 +181,15 @@ export function CheckoutModal({
             <span className="font-display text-lg tabular-nums">{formatCOP(total)}</span>
           </div>
 
+          {errors.general && <p className="text-sm text-danger">{errors.general}</p>}
+
           <button
             type="submit"
-            className="flex items-center justify-center gap-2 rounded-md bg-wa px-5 py-3 text-sm font-bold text-wa-ink transition-colors hover:bg-wa/90"
+            disabled={enviando}
+            className="flex items-center justify-center gap-2 rounded-md bg-wa px-5 py-3 text-sm font-bold text-wa-ink transition-colors hover:bg-wa/90 disabled:opacity-60"
           >
             <WhatsappIcon />
-            Enviar pedido por WhatsApp
+            {enviando ? "Confirmando..." : "Enviar pedido por WhatsApp"}
           </button>
         </form>
       </div>

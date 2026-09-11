@@ -216,6 +216,11 @@ export function DashboardInventory({
                     Oculto
                   </span>
                 )}
+                {producto.stock <= 0 && (
+                  <span className="absolute right-2 top-2 rounded bg-danger px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-danger-ink">
+                    Sin stock
+                  </span>
+                )}
               </div>
 
               <div className="flex flex-1 flex-col gap-2 p-3.5">
@@ -226,7 +231,9 @@ export function DashboardInventory({
                   <span className="font-display text-base text-ink">
                     {formatCOP(producto.precio)}
                   </span>
-                  <span>Stock: {producto.stock}</span>
+                  <span className={producto.stock <= 0 ? "font-bold text-danger" : ""}>
+                    Stock: {producto.stock}
+                  </span>
                 </div>
 
                 <label className="flex items-center justify-between pt-1">
