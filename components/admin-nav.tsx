@@ -31,8 +31,13 @@ export function AdminNav() {
         </div>
 
         <nav className="flex items-center gap-1 rounded-md bg-surface-2 p-1 text-sm font-semibold">
+          {/* prefetch=false a propósito: cada pestaña dispara consultas con
+              la service role key (isSuperadmin + listar*) — sin esto,
+              Next.js precarga la pestaña que NO se está viendo apenas el nav
+              queda visible, duplicando esas llamadas sin necesidad. */}
           <Link
             href="/admin/tiendas"
+            prefetch={false}
             className={`flex items-center gap-1.5 rounded px-3 py-1.5 transition-colors ${
               pathname === "/admin/tiendas"
                 ? "bg-surface text-ink"
@@ -44,6 +49,7 @@ export function AdminNav() {
           </Link>
           <Link
             href="/admin/licencias"
+            prefetch={false}
             className={`flex items-center gap-1.5 rounded px-3 py-1.5 transition-colors ${
               pathname === "/admin/licencias"
                 ? "bg-surface text-ink"

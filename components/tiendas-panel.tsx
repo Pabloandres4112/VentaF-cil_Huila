@@ -5,6 +5,8 @@
 // mano cada vez.
 
 import { useState, useTransition } from "react";
+import { SearchBox } from "@/components/search-box";
+import { coincideBusqueda } from "@/lib/utils";
 import {
   actualizarEstadoSuscripcionTienda,
   actualizarPlanTienda,
@@ -23,8 +25,13 @@ const PLAN_STYLES: Record<PlanTienda, string> = {
 
 export function TiendasPanel({ tiendasIniciales }: { tiendasIniciales: Tienda[] }) {
   const [tiendas, setTiendas] = useState<Tienda[]>(tiendasIniciales);
+  const [busqueda, setBusqueda] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
+
+  const tiendasFiltradas = tiendas.filter((t) =>
+    coincideBusqueda(busqueda, t.nombre, t.store_code, t.telefono_whatsapp),
+  );
 
   function handleCambiarPlan(id: string, plan: PlanTienda) {
     const anterior = tiendas;
@@ -65,15 +72,27 @@ export function TiendasPanel({ tiendasIniciales }: { tiendasIniciales: Tienda[] 
         </p>
       </div>
 
+      {tiendas.length > 0 && (
+        <SearchBox
+          value={busqueda}
+          onChange={setBusqueda}
+          placeholder="Buscar por nombre, código o WhatsApp..."
+        />
+      )}
+
       {error && <p className="text-sm text-danger">{error}</p>}
 
       {tiendas.length === 0 ? (
         <p className="rounded-xl border border-dashed border-line-strong py-12 text-center text-sm text-ink-soft">
           Todavía no hay tiendas registradas.
         </p>
+      ) : tiendasFiltradas.length === 0 ? (
+        <p className="rounded-xl border border-dashed border-line-strong py-12 text-center text-sm text-ink-soft">
+          Ninguna tienda coincide con &quot;{busqueda}&quot;.
+        </p>
       ) : (
         <div className="flex flex-col gap-3">
-          {tiendas.map((tienda) => (
+          {tiendasFiltradas.map((tienda) => (
             <div
               key={tienda.id}
               className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-4 sm:flex-row sm:items-center sm:justify-between"

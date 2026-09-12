@@ -235,3 +235,70 @@ ALTER TABLE public.tiendas ADD COLUMN IF NOT EXISTS logo_url TEXT;
 -- =============================================================================
 
 ALTER TABLE public.tiendas ADD CONSTRAINT tiendas_user_id_key UNIQUE (user_id);
+
+-- =============================================================================
+-- MIGRACIÓN — Límite de intentos (rate limiting) para endpoints públicos.
+-- Hoy la usa /api/v1/licencias/validar (adivinar licencia_key/hardware_id a
+-- fuerza bruta) pero la tabla/función son genéricas por si más adelante se
+-- necesita limitar /login, /registro, etc. — `clave` combina un nombre de
+-- "balde" (ej. 'licencia-validar') con el identificador real (ej. una IP)
+-- para que distintos endpoints no compartan el mismo contador por error.
+--
+-- Ventana fija simple (no sliding window): cada `clave` tiene un contador
+-- que se resetea solo cuando `vence_en` ya pasó. Vive en Postgres (no en
+-- memoria del proceso de Node) para que funcione igual sin importar cuántas
+-- instancias del servidor estén corriendo.
+-- =============================================================================
+
+CREATE TABLE public.rate_limits (
+  clave TEXT PRIMARY KEY,
+  intentos INT NOT NULL DEFAULT 0,
+  vence_en TIMESTAMPTZ NOT NULL
+);
+
+ALTER TABLE public.rate_limits ENABLE ROW LEVEL SECURITY;
+
+-- Nadie accede directo a esta tabla — solo a través de la función
+-- SECURITY DEFINER de abajo, igual que `superadmins`.
+CREATE POLICY "Nadie accede a rate_limits desde la app" ON public.rate_limits
+  FOR ALL USING (false);
+
+GRANT SELECT ON public.rate_limits TO service_role;
+
+-- Devuelve TRUE si la petición puede seguir, FALSE si ya se pasó del límite
+-- para esa `clave` en la ventana actual. SECURITY DEFINER: necesita poder
+-- escribir en rate_limits aunque el rol que llama (anon) no tenga permiso
+-- directo sobre la tabla.
+CREATE OR REPLACE FUNCTION public.registrar_intento(
+  p_clave TEXT,
+  p_max_intentos INT,
+  p_ventana_segundos INT
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_fila public.rate_limits;
+BEGIN
+  SELECT * INTO v_fila FROM public.rate_limits WHERE clave = p_clave FOR UPDATE;
+
+  IF NOT FOUND OR v_fila.vence_en < now() THEN
+    INSERT INTO public.rate_limits (clave, intentos, vence_en)
+    VALUES (p_clave, 1, now() + (p_ventana_segundos || ' seconds')::interval)
+    ON CONFLICT (clave) DO UPDATE
+      SET intentos = 1, vence_en = now() + (p_ventana_segundos || ' seconds')::interval;
+    RETURN TRUE;
+  END IF;
+
+  IF v_fila.intentos >= p_max_intentos THEN
+    RETURN FALSE;
+  END IF;
+
+  UPDATE public.rate_limits SET intentos = intentos + 1 WHERE clave = p_clave;
+  RETURN TRUE;
+END;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.registrar_intento(TEXT, INT, INT) TO anon, authenticated;

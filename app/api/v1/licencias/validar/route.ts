@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { firmarLicencia } from "@/lib/licencias/signature";
-import { validarLicencia } from "@/services/licencias";
+import { puedeIntentarValidarLicencia, validarLicencia } from "@/services/licencias";
 
 // Sistema de Licencias (multi-producto) — endpoint público consumido por
 // CajaSimple (app de escritorio externa, no forma parte de este repo). Ver
@@ -12,7 +12,26 @@ import { validarLicencia } from "@/services/licencias";
 
 const API_KEY_HEADER = "x-caja-api-key";
 
+function obtenerIp(request: NextRequest): string {
+  // x-forwarded-for puede traer una lista "cliente, proxy1, proxy2" — el
+  // primero es el IP real del que hizo la petición.
+  const forwardedFor = request.headers.get("x-forwarded-for");
+  if (forwardedFor) return forwardedFor.split(",")[0].trim();
+  return request.headers.get("x-real-ip") ?? "desconocida";
+}
+
 export async function POST(request: NextRequest) {
+  // Se limita ANTES de revisar la API key a propósito: así también frena a
+  // quien intenta adivinar la key misma, no solo a quien ya la tiene y
+  // quiere adivinar licencia_key/hardware_id.
+  const permitido = await puedeIntentarValidarLicencia(obtenerIp(request));
+  if (!permitido) {
+    return NextResponse.json(
+      { error: "Demasiados intentos. Intenta de nuevo en un minuto." },
+      { status: 429 },
+    );
+  }
+
   const apiKey = request.headers.get(API_KEY_HEADER);
   const expectedKey = process.env.CAJASIMPLE_API_KEY;
 

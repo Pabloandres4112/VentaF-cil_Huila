@@ -25,3 +25,24 @@ export function pickContrastingInk(hex: string): string {
   const luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b;
   return luminance > 0.5 ? "#10131a" : "#ffffff";
 }
+
+// Búsqueda de texto (usada por SearchBox tanto en /admin/tiendas como en el
+// catálogo público): ignora mayúsculas y tildes para que "jabon" encuentre
+// "Jabón" — normalize("NFD") separa cada tilde de su letra en un carácter
+// aparte (marca diacrítica combinante, rango Unicode U+0300–U+036F) para
+// poder quitarla con el regex.
+function normalizarTexto(texto: string): string {
+  return texto
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
+}
+
+export function coincideBusqueda(
+  query: string,
+  ...campos: (string | null | undefined)[]
+): boolean {
+  const queryNormalizada = normalizarTexto(query.trim());
+  if (!queryNormalizada) return true;
+  return campos.some((campo) => campo && normalizarTexto(campo).includes(queryNormalizada));
+}

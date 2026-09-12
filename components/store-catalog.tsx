@@ -6,7 +6,9 @@ import { useState } from "react";
 import { CartDrawer } from "@/components/CartDrawer";
 import { CheckoutModal } from "@/components/checkout-modal";
 import { ProductCard } from "@/components/ProductCard";
+import { SearchBox } from "@/components/search-box";
 import { useCart } from "@/hooks/useCart";
+import { coincideBusqueda } from "@/lib/utils";
 import type { Producto, Tienda } from "@/types";
 
 export function StoreCatalog({ tienda, productos }: { tienda: Tienda; productos: Producto[] }) {
@@ -14,6 +16,11 @@ export function StoreCatalog({ tienda, productos }: { tienda: Tienda; productos:
     tienda.id,
   );
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [busqueda, setBusqueda] = useState("");
+
+  const productosFiltrados = productos.filter((p) =>
+    coincideBusqueda(busqueda, p.nombre, p.descripcion),
+  );
 
   function increment(productoId: string) {
     const item = items.find((i) => i.producto.id === productoId);
@@ -27,13 +34,23 @@ export function StoreCatalog({ tienda, productos }: { tienda: Tienda; productos:
 
   return (
     <>
+      {productos.length > 0 && (
+        <div className="mb-4 max-w-sm">
+          <SearchBox value={busqueda} onChange={setBusqueda} placeholder="Buscar producto..." />
+        </div>
+      )}
+
       {productos.length === 0 ? (
         <p className="py-12 text-center text-sm text-ink-soft">
           Esta tienda todavía no tiene productos disponibles.
         </p>
+      ) : productosFiltrados.length === 0 ? (
+        <p className="py-12 text-center text-sm text-ink-soft">
+          Ningún producto coincide con &quot;{busqueda}&quot;.
+        </p>
       ) : (
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-          {productos.map((producto) => (
+          {productosFiltrados.map((producto) => (
             <ProductCard
               key={producto.id}
               producto={producto}

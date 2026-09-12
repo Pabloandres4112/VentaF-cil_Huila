@@ -3,11 +3,15 @@
 // Fase 4 (PLAN_EJECUCION.md): editar nombre de tienda y WhatsApp.
 // El store_code es inmutable (no se edita, ver PLAN_EJECUCION.md sección 5).
 
+import { useRouter } from "next/navigation";
 import { useState, useTransition, type FormEvent } from "react";
-import { CheckIcon, ColombiaFlagIcon, CopyIcon } from "@/components/icons";
+import { CheckIcon, ColombiaFlagIcon, CopyIcon, DownloadIcon } from "@/components/icons";
+import { EliminarCuentaModal } from "@/components/eliminar-cuenta-modal";
 import { LogoUpload } from "@/components/logo-upload";
+import { eliminarCuenta, exportarDatosCuenta } from "@/services/account";
 import { actualizarTienda } from "@/services/store";
 import { VerCatalogoLink } from "@/components/ver-catalogo-link";
+import { createClient } from "@/lib/supabase/client";
 import { pickContrastingInk } from "@/lib/utils";
 import type { Tienda } from "@/types";
 
@@ -33,6 +37,7 @@ function extraerNumeroLocal(telefonoCompleto: string): string {
 }
 
 export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) {
+  const router = useRouter();
   const [tienda, setTienda] = useState(tiendaInicial);
   const [nombre, setNombre] = useState(tiendaInicial.nombre);
   const [telefonoLocal, setTelefonoLocal] = useState(
@@ -48,8 +53,44 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
   const [saved, setSaved] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isPending, startTransition] = useTransition();
+  const [eliminarModalAbierto, setEliminarModalAbierto] = useState(false);
+  const [exportando, setExportando] = useState(false);
+  const [errorExportar, setErrorExportar] = useState(false);
 
   const storeUrl = `/store/${tienda.store_code}`;
+
+  async function handleExportar() {
+    setExportando(true);
+    setErrorExportar(false);
+    try {
+      const datos = await exportarDatosCuenta();
+      const blob = new Blob([JSON.stringify(datos, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const enlace = document.createElement("a");
+      enlace.href = url;
+      enlace.download = `ventafacil-${tienda.store_code}.json`;
+      enlace.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      setErrorExportar(true);
+    } finally {
+      setExportando(false);
+    }
+  }
+
+  async function handleEliminarCuenta() {
+    await eliminarCuenta();
+    // El usuario ya no existe en el servidor a esta altura, así que
+    // signOut() siempre va a fallar al intentar avisarle a Supabase (403)
+    // — solo importa que borre la sesión guardada en este navegador.
+    try {
+      await createClient().auth.signOut();
+    } catch {
+      // Ignorado a propósito, ver comentario de arriba.
+    }
+    router.push("/");
+    router.refresh();
+  }
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -275,6 +316,46 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
           {saved ? "Guardado" : "Guardar cambios"}
         </button>
       </form>
+
+      <div className="flex flex-col gap-3 rounded-xl border border-danger/30 bg-surface p-5">
+        <div>
+          <p className="text-sm font-semibold text-danger">Zona de peligro</p>
+          <p className="text-xs text-ink-faint">
+            Puedes descargar todos tus datos o eliminar tu cuenta por completo.
+          </p>
+        </div>
+
+        <div className="flex flex-col gap-2 sm:flex-row">
+          <button
+            type="button"
+            onClick={handleExportar}
+            disabled={exportando}
+            className="flex flex-1 items-center justify-center gap-1.5 rounded-md border border-line-strong px-4 py-2.5 text-sm font-bold text-ink-soft transition-colors hover:bg-ink/5 disabled:opacity-60"
+          >
+            <DownloadIcon width={14} height={14} />
+            {exportando ? "Preparando..." : "Descargar mis datos"}
+          </button>
+          <button
+            type="button"
+            onClick={() => setEliminarModalAbierto(true)}
+            className="flex-1 rounded-md border border-danger px-4 py-2.5 text-sm font-bold text-danger transition-colors hover:bg-danger/10"
+          >
+            Eliminar mi cuenta
+          </button>
+        </div>
+
+        {errorExportar && (
+          <p className="text-xs text-danger">No se pudo generar la descarga. Intenta de nuevo.</p>
+        )}
+      </div>
+
+      {eliminarModalAbierto && (
+        <EliminarCuentaModal
+          storeCode={tienda.store_code}
+          onClose={() => setEliminarModalAbierto(false)}
+          onConfirmar={handleEliminarCuenta}
+        />
+      )}
     </div>
   );
 }

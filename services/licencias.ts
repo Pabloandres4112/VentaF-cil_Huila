@@ -17,6 +17,31 @@ export interface NuevaLicencia {
   fecha_vencimiento: string | null;
 }
 
+const LICENCIA_VALIDAR_MAX_INTENTOS = 20;
+const LICENCIA_VALIDAR_VENTANA_SEGUNDOS = 60;
+
+// Límite de intentos para /api/v1/licencias/validar (ver
+// supabase/schema.sql, función registrar_intento) — sin esto, alguien con
+// (o incluso sin) la API key de CajaSimple podía intentar adivinar
+// licencia_key/hardware_id sin que nada lo frenara. `identificador` es
+// normalmente la IP del que llama; 20 intentos/minuto alcanza de sobra para
+// el uso real (CajaSimple valida su licencia una vez al iniciar) y hace
+// impráctico un ataque de fuerza bruta.
+export async function puedeIntentarValidarLicencia(identificador: string): Promise<boolean> {
+  const supabase = createServiceClient();
+  const { data, error } = await supabase.rpc("registrar_intento", {
+    p_clave: `licencia-validar:${identificador}`,
+    p_max_intentos: LICENCIA_VALIDAR_MAX_INTENTOS,
+    p_ventana_segundos: LICENCIA_VALIDAR_VENTANA_SEGUNDOS,
+  });
+
+  // Si la función de rate limit falla por lo que sea (ej. la migración
+  // todavía no se corrió), se prefiere dejar pasar la petición a fallar
+  // cerrado y tumbar el endpoint entero para todo el mundo.
+  if (error) return true;
+  return data === true;
+}
+
 export async function listarLicencias(): Promise<Licencia[]> {
   const supabase = createServiceClient();
   const { data, error } = await supabase
