@@ -1,10 +1,10 @@
-Documento de Planificación Técnica y de Negocio: Vitrina Digital 
+Documento de Planificación Técnica y de Negocio: Vitrina Digital
 
 1. Resumen Ejecutivo 
 
-Nombre del Proyecto: Vitrina Digital (Catálogo e Inventario para WhatsApp). 
+Nombre del Proyecto: Vitrina Digital (Catálogo e Inventario para WhatsApp).
 
-Objetivo: Permitir a micronegocios en el Huila (Isnos, Pitalito) gestionar stock y recibir pedidos organizados vía WhatsApp sin costos de infraestructura inicial. 
+Objetivo: Permitir a micronegocios en el Huila (Isnos, Pitalito) gestionar stock y recibir pedidos organizados vía WhatsApp sin costos de infraestructura inicial.
 
 Propuesta de Valor: "Dinero rápido" (Time-to-market de 1 semana), costo $0 de mantenimiento y solución efectiva al desorden en ventas por chat mediante la automatización del formato de pedido. 
 
