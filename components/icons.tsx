@@ -27,6 +27,26 @@ export function CheckIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
+export function ResetIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <Svg {...props}>
+      <path
+        d="M4 4v6h6M20 20v-6h-6"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M5.5 15a8 8 0 0 0 13.9 2.5M18.5 9A8 8 0 0 0 4.6 6.5"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        strokeLinecap="round"
+      />
+    </Svg>
+  );
+}
+
 export function DownloadIcon(props: SVGProps<SVGSVGElement>) {
   return (
     <Svg {...props}>
