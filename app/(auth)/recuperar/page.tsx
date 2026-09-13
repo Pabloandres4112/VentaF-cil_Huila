@@ -44,7 +44,7 @@ export default function RecuperarPage() {
       <VolverInicioLink />
 
       <Link href="/" className="font-display mb-8 text-xl">
-        VentaFácil
+        Vitrina Digital
       </Link>
 
       <div className="w-full max-w-sm rounded-xl border border-line bg-surface p-7">

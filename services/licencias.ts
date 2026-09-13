@@ -1,7 +1,7 @@
 "use server";
 
 // Sistema de Licencias (multi-producto) — ver PLAN_EJECUCION.md, anexo
-// "Sistema de Licencias". No es parte del catálogo/pedidos de VentaFácil.
+// "Sistema de Licencias". No es parte del catálogo/pedidos de Vitrina Digital.
 //
 // Usa la service role key (lib/supabase/service.ts), no la de sesión de
 // usuario: ni el panel /admin/licencias ni el endpoint de validación

@@ -65,7 +65,7 @@ export interface Pedido {
 }
 
 // Sistema de Licencias (multi-producto) — no es parte del catálogo/pedidos
-// de VentaFácil; es el panel para administrar licencias de otros sistemas
+// de Vitrina Digital; es el panel para administrar licencias de otros sistemas
 // (hoy: CajaSimple, un POS/inventario de escritorio) desde la misma base
 // de datos. Ver PLAN_EJECUCION.md, anexo "Sistema de Licencias".
 

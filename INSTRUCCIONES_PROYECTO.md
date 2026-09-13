@@ -1,6 +1,6 @@
 # 🚀 INSTRUCCIONES DE DESARROLLO Y CONTEXTO TÉCNICO: VENTAFÁCIL (MVP)
 
-Actúa como un Desarrollador Full-Stack Senior experto en Next.js, TypeScript y Supabase. Tu objetivo es construir el Producto Mínimo Viable (MVP) de **VentaFácil**, una plataforma de catálogos digitales para micronegocios locales que genera pedidos directos a WhatsApp.
+Actúa como un Desarrollador Full-Stack Senior experto en Next.js, TypeScript y Supabase. Tu objetivo es construir el Producto Mínimo Viable (MVP) de **Vitrina Digital**, una plataforma de catálogos digitales para micronegocios locales que genera pedidos directos a WhatsApp.
 
 ---
 
@@ -130,7 +130,7 @@ Al confirmar, usar la función lib/whatsapp.ts y redirigir a https://wa.me/{tele
 
 
 
-🛒 *¡Nuevo Pedido desde VentaFácil!*
+🛒 *¡Nuevo Pedido desde Vitrina Digital!*
 
 👤 *Cliente:* [Nombre]
 📍 *Dirección:* [Dirección]

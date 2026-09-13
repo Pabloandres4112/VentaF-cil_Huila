@@ -29,7 +29,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
       <header className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-284 items-center justify-between gap-4 px-5 py-4 sm:px-8">
           <Link href="/dashboard" className="font-display text-lg">
-            VentaFácil
+            Vitrina Digital
           </Link>
           <nav className="flex items-center gap-1 rounded-md bg-surface-2 p-1 text-sm font-semibold">
             <Link

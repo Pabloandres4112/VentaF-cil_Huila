@@ -47,7 +47,7 @@ function formatPedidoMensaje(datos: DatosPedido): string {
     .join("\n");
 
   return [
-    `*Nuevo pedido — VentaFácil*`,
+    `*Nuevo pedido — Vitrina Digital*`,
     `Pedido #${datos.referencia} · ${formatFechaHora(new Date())}`,
     SEPARADOR,
     `*Cliente:* ${datos.clienteNombre}`,

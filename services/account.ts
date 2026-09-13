@@ -2,7 +2,7 @@
 
 // Derecho de habeas data (Ley 1581 de 2012, Colombia): el dueño de una
 // tienda debe poder pedir sus datos o borrar su cuenta él mismo, sin
-// depender de que alguien del equipo de VentaFácil lo haga a mano en
+// depender de que alguien del equipo de Vitrina Digital lo haga a mano en
 // Supabase. Ver components/eliminar-cuenta-modal.tsx (UI) y
 // components/dashboard-profile.tsx (dónde se usa).
 

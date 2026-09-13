@@ -4,7 +4,7 @@
 documentación inicial y el análisis profundo para que comiences a estructurar tu SaaS de Catálogo e Inventario para WhatsApp:
 
 1. Definición del Producto (El "Qué")
-Nombre sugerido: VentaFácil Huila (o algo que suene cercano a los negocios locales).
+Nombre sugerido: Vitrina Digital (o algo que suene cercano a los negocios locales).
 Propósito: Permitir que un pequeño comerciante cree un catálogo digital en 5 minutos para recibir pedidos organizados por WhatsApp, descontando automáticamente el inventario.
 
 2. Análisis de Viabilidad (Lo que "no te cuadra")
@@ -123,7 +123,7 @@ Para que empieces en Supabase hoy mismo, esta es la estructura mínima:
 
 ---
 
-### 1. Arquitectura de VentaFácil (BaaS + Frontend Framework)
+### 1. Arquitectura de Vitrina Digital (BaaS + Frontend Framework)
 Para este SaaS, manejaremos una **Arquitectura Monorepo Simplificada** basada en **Next.js**. No usaremos un backend tradicional de Node.js/Express para ahorrar costos de servidor. En su lugar, usaremos **Supabase** como nuestro Backend-as-a-Service (BaaS).
 
 *   **Frontend:** Next.js (App Router) para SSR (Server Side Rendering) y SEO.
@@ -163,7 +163,7 @@ ventafacil-saas/
 
 ### 3. Distribución de Responsabilidades
 
-| Parte | Tecnología | Función en VentaFácil |
+| Parte | Tecnología | Función en Vitrina Digital |
 | :--- | :--- | :--- |
 | **Frontend** | **Next.js + Tailwind** | Renderiza el catálogo rápido para el cliente y el panel para el dueño. |
 | **Backend (Lógica)** | **Next.js Server Actions** | Procesa la creación de productos y actualización de stock sin servidor externo. |
@@ -182,11 +182,11 @@ ventafacil-saas/
 
 **¿Qué te parece esta estructura?** Si te gusta, podemos empezar a definir el primer **Service Action** (el de creación de producto) para que veas cómo se conecta con Supabase sin necesidad de Express.
 
-Documento de Planificación Técnica y de Negocio: VentaFácil
+Documento de Planificación Técnica y de Negocio: Vitrina Digital
 
 1. Resumen Ejecutivo
 
-Nombre del Proyecto: VentaFácil (Catálogo e Inventario para WhatsApp).
+Nombre del Proyecto: Vitrina Digital (Catálogo e Inventario para WhatsApp).
 
 Objetivo: Permitir a micronegocios en el Huila (Isnos, Pitalito) gestionar stock y recibir pedidos organizados vía WhatsApp sin costos de infraestructura inicial.
 
