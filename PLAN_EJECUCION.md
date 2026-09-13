@@ -1,4 +1,4 @@
-# 📋 VentaFácil Huila — Documento Maestro de Ejecución
+# 📋 Vitrina Digital — Documento Maestro de Ejecución
 
 > Este es el **documento único de referencia** a partir de ahora. Consolida `README.md`, `INSTRUCCIONES_PROYECTO.md` y `documento_Completo.md` en una sola fuente de verdad. No se agrega nada fuera de lo ya definido en esos 3 archivos — solo se organiza y se prioriza para ejecutar el MVP sin desviarnos.
 
@@ -6,7 +6,7 @@
 
 ## 1. Resumen del Proyecto
 
-- **Nombre:** VentaFácil Huila
+- **Nombre:** Vitrina Digital
 - **Qué es:** SaaS de catálogo digital + inventario para micronegocios (Isnos, Pitalito, Huila) que reciben pedidos organizados por WhatsApp.
 - **Propuesta de valor:** El comerciante crea su catálogo en minutos, el cliente compra sin fricción, y el pedido llega formateado directo al WhatsApp del dueño, descontando inventario.
 - **Objetivo de negocio:** Suscripción mensual + instalación inicial ($150.000–$300.000 COP). Costo de infraestructura = **$0** mientras el proyecto sea pequeño.
@@ -110,7 +110,7 @@ CREATE TABLE public.tiendas (
   user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
   nombre TEXT NOT NULL,
   -- Código único e inmutable de la tienda (auto-generado, sin importar si la
-  -- crea el cliente en self-service o la crea el equipo de VentaFácil en un
+  -- crea el cliente en self-service o la crea el equipo de Vitrina Digital en un
   -- alta asistida). Es el único identificador público: /store/A3F9C2
   store_code TEXT UNIQUE NOT NULL DEFAULT upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 6)),
   telefono_whatsapp TEXT NOT NULL, -- Ej: '573001234567' (sin signo +)
@@ -154,7 +154,7 @@ CREATE POLICY "Solo dueño modifica su tienda" ON public.tiendas
 
 > **Nota:** el README/documento_Completo mencionaban además una tabla `pedidos` y una columna `plan_tipo` (para diferenciar Semilla/Emprendedor/Empresa). Ambas quedan **fuera del MVP**: no hay pasarela de pago automática ni gestión de planes por ahora (regla de oro #3 y #6), así que no se crean todavía. Se documentan en la sección 11 como backlog futuro.
 
-> **Nota (cambio de decisión):** el campo `slug` (elegible por el usuario) de las versiones iniciales del esquema se reemplazó por `store_code` — un código único, corto e **inmutable**, generado automáticamente por la base de datos sin importar si la tienda la crea el cliente (self-service) o el equipo de VentaFácil (alta asistida, plan "Promo Lanzamiento"). Objetivo: un solo identificador confiable por tienda para evitar cualquier cruce de datos entre negocios, y una URL pública predecible: `/store/[code]` (ej. `ventafacil.com/store/A3F9C2`).
+> **Nota (cambio de decisión):** el campo `slug` (elegible por el usuario) de las versiones iniciales del esquema se reemplazó por `store_code` — un código único, corto e **inmutable**, generado automáticamente por la base de datos sin importar si la tienda la crea el cliente (self-service) o el equipo de Vitrina Digital (alta asistida, plan "Promo Lanzamiento"). Objetivo: un solo identificador confiable por tienda para evitar cualquier cruce de datos entre negocios, y una URL pública predecible: `/store/[code]` (ej. `ventafacil.com/store/A3F9C2`).
 
 ---
 
@@ -257,9 +257,9 @@ No se prueba nada nuevo sobre datos reales de clientes. Mientras no exista Supab
 
 ## 9. Sistema de Licencias (Anexo — multi-producto) ✅ Hecho, contra Supabase real
 
-**No es parte del MVP de VentaFácil Huila** (catálogo/pedidos por WhatsApp). VentaFácil actúa como **servidor central de licencias** para **CajaSimple**, un POS/inventario de escritorio aparte (Tauri + React + SQLite, local-only, offline-first, no vive en este repo) — reutilizando la misma app y la misma base de datos de VentaFácil en vez de desplegar un proyecto nuevo. El único punto de integración es la validación de licencias; no se comparten datos de ventas/inventario/clientes entre los dos sistemas.
+**No es parte del MVP de Vitrina Digital** (catálogo/pedidos por WhatsApp). Vitrina Digital actúa como **servidor central de licencias** para **CajaSimple**, un POS/inventario de escritorio aparte (Tauri + React + SQLite, local-only, offline-first, no vive en este repo) — reutilizando la misma app y la misma base de datos de Vitrina Digital en vez de desplegar un proyecto nuevo. El único punto de integración es la validación de licencias; no se comparten datos de ventas/inventario/clientes entre los dos sistemas.
 
-A diferencia del resto de VentaFácil (que usa Server Actions y datos de ejemplo en `localStorage` mientras Supabase está en pausa), **este subsistema ya habla con Supabase de verdad**, porque un servidor de licencias sin persistencia real no sirve para probar la integración con CajaSimple. Necesita `SUPABASE_SERVICE_ROLE_KEY` configurada en `.env.local` para funcionar (ver `.env.local.example`).
+A diferencia del resto de Vitrina Digital (que usa Server Actions y datos de ejemplo en `localStorage` mientras Supabase está en pausa), **este subsistema ya habla con Supabase de verdad**, porque un servidor de licencias sin persistencia real no sirve para probar la integración con CajaSimple. Necesita `SUPABASE_SERVICE_ROLE_KEY` configurada en `.env.local` para funcionar (ver `.env.local.example`).
 
 - **`supabase/schema.sql`**: tablas `superadmins` (lista blanca de `user_id`, sin UI) y `licencias` (`licencia_key` único, `hardware_id` nullable hasta la primera activación, `producto` texto libre — hoy `cajasimple` —, cliente, `estado` ACTIVA/DESHABILITADA, `fecha_vencimiento` con hora/zona horaria). RLS bloquea todo acceso directo vía la API pública de Supabase; solo la service role key (usada por el servidor) puede leer/escribir.
 - **`lib/supabase/service.ts`**: cliente de Supabase con la service role key, solo para código de servidor — salta RLS a propósito, porque ni el panel admin ni el endpoint externo tienen sesión de Supabase Auth todavía.
@@ -267,7 +267,7 @@ A diferencia del resto de VentaFácil (que usa Server Actions y datos de ejemplo
 - **`POST /api/v1/licencias/validar`** (`app/api/v1/licencias/validar/route.ts`): endpoint público que consume CajaSimple. Contrato exacto acordado:
   - Request: `{ "licencia_key": "...", "hardware_id": "..." }`.
   - Response: `{ "valida": bool, "estado": "...", "fecha_vencimiento": "...", "firma_seguridad": "..." }`.
-  - Protegido por un secreto compartido en el header `X-Caja-Api-Key` (env `CAJASIMPLE_API_KEY`), no por sesión — CajaSimple no puede loguearse en VentaFácil.
+  - Protegido por un secreto compartido en el header `X-Caja-Api-Key` (env `CAJASIMPLE_API_KEY`), no por sesión — CajaSimple no puede loguearse en Vitrina Digital.
   - `firma_seguridad`: HMAC-SHA256 (`LICENSE_SIGNING_SECRET`) sobre `licencia_key|estado|fecha_vencimiento|hardware_id` — ver `lib/licencias/signature.ts` para el detalle exacto que CajaSimple debe replicar para verificar.
 - **`/admin/licencias`**: panel del superadmin (renombrado desde `/panel/licencias`), sin enlace desde ninguna navegación pública. Generar licencia, cambiar estado, copiar código, eliminar — ahora contra Supabase real, no `localStorage`.
 - **`lib/auth/superadmin.ts`**: verificación **en el servidor** (la página es un Server Component que redirige antes de renderizar nada si no eres superadmin) — ahora contra la sesión real (Fase 2) y la tabla `superadmins` (vía service role, ya que esa tabla no tiene GRANT de lectura para `authenticated`). Agregar un `user_id` a `superadmins` sigue siendo manual desde el SQL Editor a propósito (no hay UI, es una lista corta y sensible).

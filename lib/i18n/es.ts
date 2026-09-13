@@ -2,7 +2,7 @@ import type { HomeDict } from "./types";
 
 export const es: HomeDict = {
   meta: {
-    title: "VentaFácil Huila",
+    title: "Vitrina Digital",
     description:
       "Catálogo digital e inventario para micronegocios, con pedidos directos a WhatsApp.",
   },
@@ -33,7 +33,7 @@ export const es: HomeDict = {
       { name: "Aceite Gourmet 1L", price: 9800, tag: "Sin stock" },
     ],
     waCaption: "Así llega a tu WhatsApp",
-    waHeader: "Nuevo pedido — VentaFácil",
+    waHeader: "Nuevo pedido — Vitrina Digital",
     waClientLabel: "Cliente:",
     waClientValue: "María Fernanda",
     waAddressLabel: "Dirección:",
@@ -54,7 +54,7 @@ export const es: HomeDict = {
     title: "Tu chat de WhatsApp no es un catálogo.",
     body: "Los mismos precios, la misma disponibilidad, la misma dirección — escritos a mano, mensaje por mensaje, todo el día.",
     beforeLabel: "Antes",
-    afterLabel: "Con VentaFácil",
+    afterLabel: "Con Vitrina Digital",
     beforeChats: [
       "Hola, ¿cuánto vale el arroz?",
       "¿Tienen café de libra?",
@@ -157,7 +157,7 @@ export const es: HomeDict = {
   examples: {
     eyebrow: "Para negocios como el tuyo",
     title: "De la ferretería a la tienda de ropa.",
-    body: "VentaFácil no está pensado para un solo tipo de negocio. Así se vería tu catálogo según a qué te dediques.",
+    body: "Vitrina Digital no está pensado para un solo tipo de negocio. Así se vería tu catálogo según a qué te dediques.",
     shops: [
       {
         name: "Ferretería El Tornillo",
@@ -196,7 +196,7 @@ export const es: HomeDict = {
   },
   footer: {
     madeFor: "Hecho para negocios de Isnos, Pitalito y el Huila.",
-    disclaimer: "VentaFácil no está afiliado a WhatsApp Inc. — usamos enlaces públicos wa.me.",
+    disclaimer: "Vitrina Digital no está afiliado a WhatsApp Inc. — usamos enlaces públicos wa.me.",
     terms: "Términos y Condiciones",
   },
   theme: {

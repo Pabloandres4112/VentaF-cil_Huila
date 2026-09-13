@@ -5,7 +5,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition, type FormEvent } from "react";
-import { CheckIcon, ColombiaFlagIcon, CopyIcon, DownloadIcon } from "@/components/icons";
+import { CheckIcon, ColombiaFlagIcon, CopyIcon, DownloadIcon, ResetIcon } from "@/components/icons";
 import { EliminarCuentaModal } from "@/components/eliminar-cuenta-modal";
 import { LogoUpload } from "@/components/logo-upload";
 import { eliminarCuenta, exportarDatosCuenta } from "@/services/account";
@@ -19,6 +19,14 @@ const INPUT_CLASS =
   "rounded-md border bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent";
 
 const INDICATIVO_COLOMBIA = "57";
+
+// Mismos valores que usa el catálogo público cuando la tienda no ha elegido
+// colores propios (--accent/--accent-2/--ground en globals.css) — "volver a
+// los predeterminados" tiene que devolver exactamente esto, no cualquier
+// otro azul/gris parecido.
+const COLOR_PRIMARIO_DEFECTO = "#24405e";
+const COLOR_SECUNDARIO_DEFECTO = "#58626f";
+const COLOR_FONDO_DEFECTO = "#f6f7f9";
 
 interface PerfilErrors {
   nombre?: string;
@@ -43,11 +51,13 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
   const [telefonoLocal, setTelefonoLocal] = useState(
     extraerNumeroLocal(tiendaInicial.telefono_whatsapp),
   );
-  const [colorPrimario, setColorPrimario] = useState(tiendaInicial.color_primario ?? "#24405e");
-  const [colorSecundario, setColorSecundario] = useState(
-    tiendaInicial.color_secundario ?? "#58626f",
+  const [colorPrimario, setColorPrimario] = useState(
+    tiendaInicial.color_primario ?? COLOR_PRIMARIO_DEFECTO,
   );
-  const [colorFondo, setColorFondo] = useState(tiendaInicial.color_fondo ?? "#f6f7f9");
+  const [colorSecundario, setColorSecundario] = useState(
+    tiendaInicial.color_secundario ?? COLOR_SECUNDARIO_DEFECTO,
+  );
+  const [colorFondo, setColorFondo] = useState(tiendaInicial.color_fondo ?? COLOR_FONDO_DEFECTO);
   const [logoUrl, setLogoUrl] = useState(tiendaInicial.logo_url);
   const [errors, setErrors] = useState<PerfilErrors>({});
   const [saved, setSaved] = useState(false);
@@ -121,6 +131,12 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
         setErrors({ general: "No se pudo guardar. Intenta de nuevo." });
       }
     });
+  }
+
+  function handleResetColores() {
+    setColorPrimario(COLOR_PRIMARIO_DEFECTO);
+    setColorSecundario(COLOR_SECUNDARIO_DEFECTO);
+    setColorFondo(COLOR_FONDO_DEFECTO);
   }
 
   async function handleCopy() {
@@ -230,7 +246,17 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
           </div>
 
           <div className="flex flex-col gap-4 rounded-lg border border-line bg-ground p-4 sm:flex-row sm:items-center">
-            <div className="grid flex-1 grid-cols-3 gap-3">
+            <div className="grid flex-1 grid-cols-3 items-start gap-3">
+              <div className="col-span-3 -mt-1 -mb-1 flex justify-end">
+                <button
+                  type="button"
+                  onClick={handleResetColores}
+                  className="flex items-center gap-1 text-xs font-semibold text-ink-faint underline underline-offset-2 hover:text-ink"
+                >
+                  <ResetIcon width={12} height={12} />
+                  Restablecer colores
+                </button>
+              </div>
               <label className="flex flex-col gap-1.5">
                 <span className="text-xs font-semibold text-ink-soft">Primario</span>
                 <div className="flex items-center gap-2">

@@ -1,6 +1,6 @@
 // Sistema de Licencias (multi-producto): firma de la respuesta del
 // endpoint de validación, para que CajaSimple pueda verificar que la
-// respuesta viene realmente de VentaFácil y no fue alterada (incluso si
+// respuesta viene realmente de Vitrina Digital y no fue alterada (incluso si
 // CajaSimple la cachea localmente para uso offline).
 //
 // Esquema: HMAC-SHA256, hex, sobre los campos de la respuesta unidos con

@@ -2,7 +2,7 @@ import type { HomeDict } from "./types";
 
 export const en: HomeDict = {
   meta: {
-    title: "VentaFácil Huila",
+    title: "Vitrina Digital",
     description: "Digital catalog and inventory for small shops, with orders sent straight to WhatsApp.",
   },
   nav: {
@@ -32,7 +32,7 @@ export const en: HomeDict = {
       { name: "Gourmet Oil 1L", price: 9800, tag: "Out of stock" },
     ],
     waCaption: "This is what lands on WhatsApp",
-    waHeader: "New order — VentaFácil",
+    waHeader: "New order — Vitrina Digital",
     waClientLabel: "Customer:",
     waClientValue: "María Fernanda",
     waAddressLabel: "Address:",
@@ -53,7 +53,7 @@ export const en: HomeDict = {
     title: "Your WhatsApp chat is not a catalog.",
     body: "Same prices, same availability, same address — typed out by hand, message after message, all day long.",
     beforeLabel: "Before",
-    afterLabel: "With VentaFácil",
+    afterLabel: "With Vitrina Digital",
     beforeChats: [
       "Hi, how much is the rice?",
       "Do you have coffee by the pound?",
@@ -154,7 +154,7 @@ export const en: HomeDict = {
   examples: {
     eyebrow: "For businesses like yours",
     title: "From the hardware store to the clothing shop.",
-    body: "VentaFácil isn't built for just one kind of business. Here's what your catalog could look like depending on what you sell.",
+    body: "Vitrina Digital isn't built for just one kind of business. Here's what your catalog could look like depending on what you sell.",
     shops: [
       {
         name: "Ferretería El Tornillo",
@@ -193,7 +193,7 @@ export const en: HomeDict = {
   },
   footer: {
     madeFor: "Built for businesses in Isnos, Pitalito, and the Huila region.",
-    disclaimer: "VentaFácil is not affiliated with WhatsApp Inc. — we use public wa.me links.",
+    disclaimer: "Vitrina Digital is not affiliated with WhatsApp Inc. — we use public wa.me links.",
     terms: "Terms and Conditions",
   },
   theme: {
