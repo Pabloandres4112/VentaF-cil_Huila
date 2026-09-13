@@ -2,6 +2,7 @@
 
 import { cookies } from "next/headers";
 import Link from "next/link";
+import type { Metadata } from "next";
 import type { CSSProperties } from "react";
 import { StoreCatalog } from "@/components/store-catalog";
 import { StoreIcon, WhatsappIcon } from "@/components/icons";
@@ -9,6 +10,37 @@ import { createClient } from "@/lib/supabase/server";
 import { pickContrastingInk } from "@/lib/utils";
 import { getProductosByTiendaId } from "@/services/products";
 import { getTiendaByCode } from "@/services/store";
+
+// Antes toda tienda compartía el mismo título/descripción genérico de
+// app/layout.tsx ("VentaFácil Huila" para todas) — al compartir el link de
+// una tienda por WhatsApp o buscarla en Google no se distinguía de ninguna
+// otra. Acá cada tienda tiene su propio título y, cuando tiene logo, su
+// propia imagen de vista previa (Open Graph) en vez de ninguna.
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ code: string }>;
+}): Promise<Metadata> {
+  const { code } = await params;
+  const tienda = await getTiendaByCode(code);
+
+  if (!tienda) {
+    return { title: "Tienda no encontrada — VentaFácil" };
+  }
+
+  const titulo = `${tienda.nombre} — Catálogo digital`;
+  const descripcion = `Mira los productos de ${tienda.nombre} y haz tu pedido directo por WhatsApp.`;
+
+  return {
+    title: titulo,
+    description: descripcion,
+    openGraph: {
+      title: titulo,
+      description: descripcion,
+      images: tienda.logo_url ? [tienda.logo_url] : [],
+    },
+  };
+}
 
 export default async function StorePage({
   params,

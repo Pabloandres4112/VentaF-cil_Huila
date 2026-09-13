@@ -9,6 +9,7 @@ export interface ItemPedido {
 }
 
 export interface DatosPedido {
+  referencia: string;
   tiendaNombre: string;
   clienteNombre: string;
   direccion: string;
@@ -24,10 +25,10 @@ export function buildWhatsappUrl(telefonoWhatsapp: string, datos: DatosPedido): 
 
 const SEPARADOR = "----------------------";
 
-// Referencia corta (no es un ID de base de datos — no existe tabla `pedidos`
-// en el MVP a propósito) solo para que el dueño pueda diferenciar pedidos
-// seguidos en el chat de un vistazo, sin tener que leer el detalle completo.
-function generarReferencia(): string {
+// Referencia corta compartida entre el mensaje de WhatsApp y la fila que se
+// guarda en `pedidos` (services/pedidos.ts) — así el dueño puede relacionar
+// lo que le llegó al chat con lo que ve en /dashboard/pedidos de un vistazo.
+export function generarReferenciaPedido(): string {
   return Date.now().toString(36).slice(-4).toUpperCase();
 }
 
@@ -47,7 +48,7 @@ function formatPedidoMensaje(datos: DatosPedido): string {
 
   return [
     `*Nuevo pedido — VentaFácil*`,
-    `Pedido #${generarReferencia()} · ${formatFechaHora(new Date())}`,
+    `Pedido #${datos.referencia} · ${formatFechaHora(new Date())}`,
     SEPARADOR,
     `*Cliente:* ${datos.clienteNombre}`,
     `*Dirección:* ${datos.direccion}`,

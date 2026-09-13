@@ -41,6 +41,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               Productos
             </Link>
             <Link
+              href="/dashboard/pedidos"
+              className={`rounded px-3 py-1.5 transition-colors ${
+                pathname === "/dashboard/pedidos"
+                  ? "bg-surface text-ink"
+                  : "text-ink-soft hover:text-ink"
+              }`}
+            >
+              Pedidos
+            </Link>
+            <Link
               href="/dashboard/perfil"
               className={`rounded px-3 py-1.5 transition-colors ${
                 pathname === "/dashboard/perfil"

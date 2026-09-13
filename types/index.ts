@@ -39,6 +39,31 @@ export interface Producto {
   created_at: string;
 }
 
+export type EstadoPedido = "pendiente" | "completado" | "cancelado";
+
+export interface ItemPedidoGuardado {
+  nombre: string;
+  cantidad: number;
+  precio_unitario: number;
+  subtotal: number;
+}
+
+// Copia del pedido en el momento en que se hizo — no referencia productos.id
+// a propósito, para que borrar o repreciar un producto después no altere
+// pedidos ya guardados. Ver supabase/schema.sql y services/pedidos.ts.
+export interface Pedido {
+  id: string;
+  tienda_id: string;
+  referencia: string;
+  cliente_nombre: string;
+  cliente_direccion: string;
+  metodo_pago: string;
+  items: ItemPedidoGuardado[];
+  total: number;
+  estado: EstadoPedido;
+  created_at: string;
+}
+
 // Sistema de Licencias (multi-producto) — no es parte del catálogo/pedidos
 // de VentaFácil; es el panel para administrar licencias de otros sistemas
 // (hoy: CajaSimple, un POS/inventario de escritorio) desde la misma base

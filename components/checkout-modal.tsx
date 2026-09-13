@@ -7,7 +7,8 @@ import { CloseIcon, WhatsappIcon } from "@/components/icons";
 import type { CartItem } from "@/hooks/useCart";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { formatCOP } from "@/lib/utils";
-import { buildWhatsappUrl } from "@/lib/whatsapp";
+import { buildWhatsappUrl, generarReferenciaPedido } from "@/lib/whatsapp";
+import { crearPedido } from "@/services/pedidos";
 import { descontarStockPedido } from "@/services/products";
 
 const METODOS_PAGO = ["Nequi", "Daviplata", "Efectivo"] as const;
@@ -23,6 +24,7 @@ export function CheckoutModal({
   onClose,
   items,
   total,
+  tiendaId,
   tiendaNombre,
   telefonoWhatsapp,
   onConfirmado,
@@ -31,6 +33,7 @@ export function CheckoutModal({
   onClose: () => void;
   items: CartItem[];
   total: number;
+  tiendaId: string;
   tiendaNombre: string;
   telefonoWhatsapp: string;
   onConfirmado: () => void;
@@ -82,7 +85,31 @@ export function CheckoutModal({
       return;
     }
 
+    const referencia = generarReferenciaPedido();
+
+    // Si guardar el pedido falla, no se bloquea al comprador — el stock ya
+    // se descontó y lo que de verdad le llega al dueño es el mensaje de
+    // WhatsApp; esta copia es un extra para su historial en el dashboard.
+    try {
+      await crearPedido(tiendaId, {
+        referencia,
+        cliente_nombre: nombre,
+        cliente_direccion: direccion,
+        metodo_pago: metodoPago,
+        items: items.map((item) => ({
+          nombre: item.producto.nombre,
+          cantidad: item.cantidad,
+          precio_unitario: item.producto.precio,
+          subtotal: item.producto.precio * item.cantidad,
+        })),
+        total,
+      });
+    } catch {
+      // Silencioso a propósito, ver comentario de arriba.
+    }
+
     const url = buildWhatsappUrl(telefonoWhatsapp, {
+      referencia,
       tiendaNombre,
       clienteNombre: nombre,
       direccion,

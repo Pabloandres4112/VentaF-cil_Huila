@@ -76,6 +76,7 @@ export function StoreCatalog({ tienda, productos }: { tienda: Tienda; productos:
         onClose={() => setCheckoutOpen(false)}
         items={items}
         total={total}
+        tiendaId={tienda.id}
         tiendaNombre={tienda.nombre}
         telefonoWhatsapp={tienda.telefono_whatsapp}
         onConfirmado={() => {

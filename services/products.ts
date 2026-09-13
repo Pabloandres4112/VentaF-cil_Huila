@@ -3,9 +3,11 @@
 // Fase 3 (PLAN_EJECUCION.md): Server Actions de productos (CRUD).
 
 import { LIMITE_PRODUCTOS_GRATIS, MENSAJE_LIMITE_PRODUCTOS_GRATIS } from "@/lib/plan";
-import { esUrlImagenValida } from "@/lib/storage-validation";
+import { esUrlImagenValida, extraerPathStorage } from "@/lib/storage-validation";
 import { createClient } from "@/lib/supabase/server";
 import type { Producto } from "@/types";
+
+const BUCKET = "productos";
 
 export type NuevoProducto = Omit<Producto, "id" | "tienda_id" | "created_at">;
 
@@ -57,8 +59,18 @@ export async function crearProducto(tiendaId: string, datos: NuevoProducto): Pro
   return data;
 }
 
+// Si la foto cambia (o se quita), la anterior queda huérfana en Storage
+// para siempre si nadie la borra — acá se borra la vieja después de guardar
+// la nueva, solo cuando de verdad cambió.
 export async function actualizarProducto(id: string, datos: NuevoProducto): Promise<Producto> {
   const supabase = await createClient();
+
+  const { data: anterior } = await supabase
+    .from("productos")
+    .select("imagen_url")
+    .eq("id", id)
+    .single();
+
   const { data, error } = await supabase
     .from("productos")
     .update(validarImagenUrl(datos))
@@ -67,13 +79,31 @@ export async function actualizarProducto(id: string, datos: NuevoProducto): Prom
     .single();
 
   if (error) throw error;
+
+  if (anterior?.imagen_url && anterior.imagen_url !== datos.imagen_url) {
+    const path = extraerPathStorage(anterior.imagen_url);
+    if (path) await supabase.storage.from(BUCKET).remove([path]);
+  }
+
   return data;
 }
 
 export async function eliminarProducto(id: string): Promise<void> {
   const supabase = await createClient();
+
+  const { data: producto } = await supabase
+    .from("productos")
+    .select("imagen_url")
+    .eq("id", id)
+    .single();
+
   const { error } = await supabase.from("productos").delete().eq("id", id);
   if (error) throw error;
+
+  if (producto?.imagen_url) {
+    const path = extraerPathStorage(producto.imagen_url);
+    if (path) await supabase.storage.from(BUCKET).remove([path]);
+  }
 }
 
 export async function alternarDisponibleProducto(

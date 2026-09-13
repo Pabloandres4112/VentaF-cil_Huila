@@ -302,3 +302,47 @@ END;
 $$;
 
 GRANT EXECUTE ON FUNCTION public.registrar_intento(TEXT, INT, INT) TO anon, authenticated;
+
+-- =============================================================================
+-- MIGRACIÓN — Pedidos (control de pedidos en el dashboard).
+-- Hasta ahora el pedido solo existía como un mensaje de WhatsApp — esta
+-- tabla guarda una copia para que el dueño pueda ver su historial y marcar
+-- estados desde /dashboard/pedidos. `items` guarda una foto del pedido en
+-- ese momento (nombre/precio/cantidad) — no referencia productos.id, porque
+-- el producto puede borrarse o cambiar de precio después sin que eso
+-- altere pedidos ya hechos.
+-- =============================================================================
+
+CREATE TABLE public.pedidos (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  tienda_id UUID REFERENCES public.tiendas(id) ON DELETE CASCADE NOT NULL,
+  referencia TEXT NOT NULL,
+  cliente_nombre TEXT NOT NULL,
+  cliente_direccion TEXT NOT NULL,
+  metodo_pago TEXT NOT NULL,
+  items JSONB NOT NULL,
+  total NUMERIC NOT NULL,
+  estado TEXT NOT NULL DEFAULT 'pendiente' CHECK (estado IN ('pendiente', 'completado', 'cancelado')),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.pedidos ENABLE ROW LEVEL SECURITY;
+
+-- Quien hace checkout nunca tiene sesión (es un comprador anónimo) — igual
+-- que descontar_stock_producto, la creación queda abierta a cualquiera; el
+-- riesgo real es spam de filas basura (ignorables desde el panel), no fuga
+-- de datos, ya que solo el dueño puede LEER sus pedidos.
+CREATE POLICY "Cualquiera puede crear un pedido" ON public.pedidos
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Solo el dueño ve sus pedidos" ON public.pedidos
+  FOR SELECT USING (
+    tienda_id IN (SELECT id FROM public.tiendas WHERE user_id = auth.uid())
+  );
+
+CREATE POLICY "Solo el dueño cambia el estado de sus pedidos" ON public.pedidos
+  FOR UPDATE USING (
+    tienda_id IN (SELECT id FROM public.tiendas WHERE user_id = auth.uid())
+  );
+
+GRANT SELECT, INSERT, UPDATE ON public.pedidos TO anon, authenticated;
