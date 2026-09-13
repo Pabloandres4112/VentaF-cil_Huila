@@ -1,8 +1,8 @@
-Documento de Planificación Técnica y de Negocio: VentaFácil 
+Documento de Planificación Técnica y de Negocio: Vitrina Digital 
 
 1. Resumen Ejecutivo 
 
-Nombre del Proyecto: VentaFácil (Catálogo e Inventario para WhatsApp). 
+Nombre del Proyecto: Vitrina Digital (Catálogo e Inventario para WhatsApp). 
 
 Objetivo: Permitir a micronegocios en el Huila (Isnos, Pitalito) gestionar stock y recibir pedidos organizados vía WhatsApp sin costos de infraestructura inicial. 
 

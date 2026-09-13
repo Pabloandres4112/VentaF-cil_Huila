@@ -34,7 +34,7 @@ export function HomeContent({ dict, locale }: { dict: HomeDict; locale: Locale }
       <header className="sticky top-0 z-20 border-b border-transparent bg-ground/90 backdrop-blur-sm">
         <Wrap className="flex items-center justify-between gap-4 py-4">
           <div className="flex items-baseline gap-2">
-            <span className="font-display text-xl">VentaFácil</span>
+            <span className="font-display text-xl">Vitrina Digital</span>
             <span className="text-[0.65rem] font-bold uppercase tracking-wider text-ink-faint">
               Huila
             </span>
@@ -281,7 +281,7 @@ export function HomeContent({ dict, locale }: { dict: HomeDict; locale: Locale }
                   </ul>
                   {plan.ctaAction === "whatsapp" ? (
                     <a
-                      href={whatsappHref(`Hola, quiero el plan ${plan.name} de VentaFácil.`)}
+                      href={whatsappHref(`Hola, quiero el plan ${plan.name} de Vitrina Digital.`)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className={`mt-auto rounded-md px-5 py-3 text-center text-sm font-bold transition-colors ${
@@ -308,7 +308,7 @@ export function HomeContent({ dict, locale }: { dict: HomeDict; locale: Locale }
                     <p className="mt-3 text-center text-xs text-ink-faint">
                       {plan.optionalNote.text}{" "}
                       <a
-                        href={whatsappHref("Hola, quiero agendar una demo gratis de VentaFácil.")}
+                        href={whatsappHref("Hola, quiero agendar una demo gratis de Vitrina Digital.")}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="font-semibold text-ink-soft underline underline-offset-2 hover:text-ink"
@@ -390,7 +390,7 @@ export function HomeContent({ dict, locale }: { dict: HomeDict; locale: Locale }
       <footer>
         <Hairline />
         <Wrap className="flex flex-col gap-3 py-8 text-sm text-ink-faint sm:flex-row sm:items-center sm:justify-between sm:gap-6">
-          <span className="font-display text-base text-ink">VentaFácil</span>
+          <span className="font-display text-base text-ink">Vitrina Digital</span>
           <span>{dict.footer.madeFor}</span>
           <span>{dict.footer.disclaimer}</span>
           <Link href="/terminos" className="underline underline-offset-2 hover:text-ink-soft">

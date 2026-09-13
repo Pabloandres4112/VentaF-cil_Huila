@@ -10,7 +10,7 @@ const archivo = Archivo({
 });
 
 export const metadata: Metadata = {
-  title: "VentaFácil Huila",
+  title: "Vitrina Digital",
   description: "Catálogo digital e inventario para micronegocios, con pedidos directos a WhatsApp.",
 };
 

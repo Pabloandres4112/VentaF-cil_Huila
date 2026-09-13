@@ -54,7 +54,7 @@ export default function RestablecerPage() {
   return (
     <main className="relative flex flex-1 flex-col items-center justify-center bg-ground p-6">
       <Link href="/" className="font-display mb-8 text-xl">
-        VentaFácil
+        Vitrina Digital
       </Link>
 
       <div className="w-full max-w-sm rounded-xl border border-line bg-surface p-7">

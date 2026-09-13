@@ -6,7 +6,7 @@ import { puedeIntentarValidarLicencia, validarLicencia } from "@/services/licenc
 // CajaSimple (app de escritorio externa, no forma parte de este repo). Ver
 // PLAN_EJECUCION.md, anexo "Sistema de Licencias" para el contrato exacto.
 //
-// No requiere sesión de admin (CajaSimple no puede loguearse en VentaFácil)
+// No requiere sesión de admin (CajaSimple no puede loguearse en Vitrina Digital)
 // — se protege con un secreto compartido en el header X-Caja-Api-Key en
 // vez de con RLS/Supabase Auth.
 

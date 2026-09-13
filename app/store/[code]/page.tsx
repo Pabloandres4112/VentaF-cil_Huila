@@ -12,7 +12,7 @@ import { getProductosByTiendaId } from "@/services/products";
 import { getTiendaByCode } from "@/services/store";
 
 // Antes toda tienda compartía el mismo título/descripción genérico de
-// app/layout.tsx ("VentaFácil Huila" para todas) — al compartir el link de
+// app/layout.tsx ("Vitrina Digital" para todas) — al compartir el link de
 // una tienda por WhatsApp o buscarla en Google no se distinguía de ninguna
 // otra. Acá cada tienda tiene su propio título y, cuando tiene logo, su
 // propia imagen de vista previa (Open Graph) en vez de ninguna.
@@ -25,7 +25,7 @@ export async function generateMetadata({
   const tienda = await getTiendaByCode(code);
 
   if (!tienda) {
-    return { title: "Tienda no encontrada — VentaFácil" };
+    return { title: "Tienda no encontrada — Vitrina Digital" };
   }
 
   const titulo = `${tienda.nombre} — Catálogo digital`;

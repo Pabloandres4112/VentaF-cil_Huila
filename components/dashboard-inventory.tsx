@@ -12,6 +12,7 @@ import {
   PlusIcon,
   TrashIcon,
 } from "@/components/icons";
+import { OnboardingChecklist } from "@/components/onboarding-checklist";
 import { ProductForm } from "@/components/ProductForm";
 import { ToggleSwitch } from "@/components/toggle-switch";
 import { VerCatalogoLink } from "@/components/ver-catalogo-link";
@@ -131,6 +132,12 @@ export function DashboardInventory({
 
   return (
     <div className="flex flex-col gap-6">
+      <OnboardingChecklist
+        tienda={tienda}
+        cantidadProductos={productos.length}
+        onAgregarProducto={openCreate}
+      />
+
       <div className="flex flex-col gap-4 rounded-xl border border-line bg-surface p-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="min-w-0">
           <p className="text-xs font-bold uppercase tracking-wider text-ink-faint">

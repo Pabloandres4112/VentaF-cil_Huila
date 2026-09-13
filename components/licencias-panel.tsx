@@ -92,7 +92,7 @@ export function LicenciasPanel({ licenciasIniciales }: { licenciasIniciales: Lic
           <h1 className="font-display text-xl">
             Licencias <span className="text-ink-faint">· {licencias.length}</span>
           </h1>
-          <p className="text-sm text-ink-soft">Superadministrador — otros sistemas conectados a VentaFácil.</p>
+          <p className="text-sm text-ink-soft">Superadministrador — otros sistemas conectados a Vitrina Digital.</p>
         </div>
         <button
           type="button"
