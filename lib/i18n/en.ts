@@ -1,0 +1,203 @@
+import type { HomeDict } from "./types";
+
+export const en: HomeDict = {
+  meta: {
+    title: "Vitrina Digital",
+    description: "Digital catalog and inventory for small shops, with orders sent straight to WhatsApp.",
+  },
+  nav: {
+    how: "How it works",
+    plans: "Pricing",
+    login: "Log in",
+    cta: "Start for free",
+  },
+  hero: {
+    eyebrow: "Digital catalog · The bridge between you and your customers",
+    headlinePre: "Stop typing ",
+    headlineAccent: "the same price",
+    headlinePost: " twenty times a day.",
+    lede: "Upload your catalog with your WhatsApp number and that's it — nothing else to configure. Share your link and every order lands already organized: customer, address, and total. Nothing to install, free to start.",
+    ctaPrimary: "Create my catalog for free",
+    ctaSecondary: "See how it works",
+    proof: [
+      "Ready in under 5 minutes",
+      "No credit card required",
+      "Built for Isnos and Pitalito",
+    ],
+    ticketShop: "Donde Marleny",
+    ticketLabel: "Catalog",
+    ticket: [
+      { name: "Diana Rice 500g", price: 2500 },
+      { name: "Huila Coffee 500g", price: 14000 },
+      { name: "Gourmet Oil 1L", price: 9800, tag: "Out of stock" },
+    ],
+    waCaption: "This is what lands on WhatsApp",
+    waHeader: "New order — Vitrina Digital",
+    waClientLabel: "Customer:",
+    waClientValue: "María Fernanda",
+    waAddressLabel: "Address:",
+    waAddressValue: "Cra 5 #12-30, Pitalito",
+    waPaymentLabel: "Payment:",
+    waPaymentValue: "Nequi",
+    waDetailLabel: "Order details:",
+    waItems: [
+      { label: "2x Diana Rice 500g", price: 5000 },
+      { label: "1x Huila Coffee 500g", price: 14000 },
+    ],
+    waTotalLabel: "Total due:",
+    waTotalPrice: 19000,
+    waFooter: "Sent from Donde Marleny's digital catalog.",
+  },
+  problem: {
+    eyebrow: "The problem with selling over chat",
+    title: "Your WhatsApp chat is not a catalog.",
+    body: "Same prices, same availability, same address — typed out by hand, message after message, all day long.",
+    beforeLabel: "Before",
+    afterLabel: "With Vitrina Digital",
+    beforeChats: [
+      "Hi, how much is the rice?",
+      "Do you have coffee by the pound?",
+      "Yes, 14,000 a pound",
+      "Is my order from yesterday ready yet?",
+      "What was the address I gave you again?",
+    ],
+    afterHeader: "New order — María Fernanda",
+    afterLines: ["2x Diana Rice 500g", "1x Huila Coffee 500g"],
+    afterTotalLabel: "Total:",
+    afterTotalPrice: 19000,
+    afterAddress: "Address: Cra 5 #12-30",
+  },
+  how: {
+    eyebrow: "How it works",
+    title: "Two short paths: yours and your customer's.",
+    body: "We're just the bridge that organizes things so your customers can place their order — the sale and the delivery are still 100% yours. Nothing to install on the buyer's side; on yours, three steps and you're set up.",
+    ownerLabel: "For you, the owner",
+    clientLabel: "For your customer",
+    ownerSteps: [
+      {
+        title: "Create your shop",
+        description: "Your business name and the WhatsApp number where you want to receive orders.",
+      },
+      {
+        title: "Upload your products",
+        description: "Photo, price, and stock. Mark items as sold out with one click.",
+      },
+      {
+        title: "Share your link",
+        description: "ventafacil.com/store/your-code — post it in your WhatsApp status or Instagram bio.",
+      },
+    ],
+    clientSteps: [
+      {
+        title: "Open your catalog",
+        description: "See photos, prices, and current availability, right from their phone.",
+      },
+      {
+        title: "Build their order",
+        description: "Add quantities to the cart, no account or extra details required.",
+      },
+      {
+        title: "Order on WhatsApp",
+        description: "One tap and the message arrives ready, with the full order detail.",
+      },
+    ],
+  },
+  plans: {
+    eyebrow: "Pricing",
+    title: "Start free, on your own.",
+    body: "Sign up and set up your catalog yourself in minutes, no one else needed. No contracts — miss a month and your catalog just pauses, it isn't lost.",
+    items: [
+      {
+        name: "Seedling",
+        priceLabel: "$0",
+        priceUnit: "COP / month",
+        features: [
+          "Up to 10 products",
+          "Public catalog with your link",
+          "Orders sent straight to WhatsApp",
+        ],
+        cta: "Start for free",
+        ctaAction: "registro",
+        optionalNote: {
+          text: "Prefer some help setting it up? It's optional.",
+          cta: "Book a free demo",
+        },
+      },
+      {
+        name: "Launch Promo",
+        priceLabel: "From $30,000",
+        priceUnit: "COP · one-time",
+        features: [
+          "We upload your first 20 products for you",
+          "You just send us the name, price and photos",
+          "Includes your first month of service",
+        ],
+        cta: "Set it up for me",
+        ctaAction: "whatsapp",
+      },
+      {
+        name: "Entrepreneur",
+        priceLabel: "From $25,000",
+        priceUnit: "COP / month",
+        featured: true,
+        badge: "Recommended",
+        features: [
+          "Unlimited products",
+          "Customize your store's colors",
+          "Direct support from us",
+        ],
+        cta: "Try 14 days free",
+        ctaAction: "whatsapp",
+      },
+    ],
+  },
+  examples: {
+    eyebrow: "For businesses like yours",
+    title: "From the hardware store to the clothing shop.",
+    body: "Vitrina Digital isn't built for just one kind of business. Here's what your catalog could look like depending on what you sell.",
+    shops: [
+      {
+        name: "Ferretería El Tornillo",
+        tag: "Hardware",
+        items: [
+          { name: '1" Screws (x50)', price: 8000 },
+          { name: "Electrical tape", price: 3500 },
+          { name: "40mm Padlock", price: 12000 },
+        ],
+      },
+      {
+        name: "Ropa Bonita",
+        tag: "Fashion",
+        items: [
+          { name: "Cotton T-shirt", price: 35000 },
+          { name: "Classic jeans", price: 89000 },
+          { name: "Light jacket", price: 120000 },
+        ],
+      },
+      {
+        name: "Depósito La Cosecha",
+        tag: "Coffee",
+        items: [
+          { name: "Huila Coffee 500g", price: 14000 },
+          { name: "Huila Coffee 1kg", price: 26000 },
+          { name: "Panela 1kg", price: 4500 },
+        ],
+      },
+    ],
+  },
+  final: {
+    title: "Your digital storefront, ready before close of business today.",
+    body: "Set it up in five minutes and start receiving organized orders this afternoon.",
+    ctaPrimary: "Create my catalog for free",
+    ctaWhatsapp: "Message us on WhatsApp",
+  },
+  footer: {
+    madeFor: "Built for businesses in Isnos, Pitalito, and the Huila region.",
+    disclaimer: "Vitrina Digital is not affiliated with WhatsApp Inc. — we use public wa.me links.",
+    terms: "Terms and Conditions",
+  },
+  theme: {
+    toLight: "Switch to light theme",
+    toDark: "Switch to dark theme",
+  },
+};

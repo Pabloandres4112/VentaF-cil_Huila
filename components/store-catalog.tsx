@@ -1,0 +1,89 @@
+"use client";
+
+// Orquesta el catálogo público: grid de productos + carrito + checkout.
+
+import { useState } from "react";
+import { CartDrawer } from "@/components/CartDrawer";
+import { CheckoutModal } from "@/components/checkout-modal";
+import { ProductCard } from "@/components/ProductCard";
+import { SearchBox } from "@/components/search-box";
+import { useCart } from "@/hooks/useCart";
+import { coincideBusqueda } from "@/lib/utils";
+import type { Producto, Tienda } from "@/types";
+
+export function StoreCatalog({ tienda, productos }: { tienda: Tienda; productos: Producto[] }) {
+  const { items, addItem, removeItem, setCantidad, clearCart, total, cantidadTotal } = useCart(
+    tienda.id,
+  );
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [busqueda, setBusqueda] = useState("");
+
+  const productosFiltrados = productos.filter((p) =>
+    coincideBusqueda(busqueda, p.nombre, p.descripcion),
+  );
+
+  function increment(productoId: string) {
+    const item = items.find((i) => i.producto.id === productoId);
+    if (item) setCantidad(productoId, item.cantidad + 1);
+  }
+
+  function decrement(productoId: string) {
+    const item = items.find((i) => i.producto.id === productoId);
+    if (item) setCantidad(productoId, item.cantidad - 1);
+  }
+
+  return (
+    <>
+      {productos.length > 0 && (
+        <div className="mb-4 max-w-sm">
+          <SearchBox value={busqueda} onChange={setBusqueda} placeholder="Buscar producto..." />
+        </div>
+      )}
+
+      {productos.length === 0 ? (
+        <p className="py-12 text-center text-sm text-ink-soft">
+          Esta tienda todavía no tiene productos disponibles.
+        </p>
+      ) : productosFiltrados.length === 0 ? (
+        <p className="py-12 text-center text-sm text-ink-soft">
+          Ningún producto coincide con &quot;{busqueda}&quot;.
+        </p>
+      ) : (
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
+          {productosFiltrados.map((producto) => (
+            <ProductCard
+              key={producto.id}
+              producto={producto}
+              cantidadEnCarrito={items.find((i) => i.producto.id === producto.id)?.cantidad ?? 0}
+              onAdd={addItem}
+            />
+          ))}
+        </div>
+      )}
+
+      <CartDrawer
+        items={items}
+        total={total}
+        cantidadTotal={cantidadTotal}
+        onIncrement={increment}
+        onDecrement={decrement}
+        onRemove={removeItem}
+        onCheckout={() => setCheckoutOpen(true)}
+      />
+
+      <CheckoutModal
+        open={checkoutOpen}
+        onClose={() => setCheckoutOpen(false)}
+        items={items}
+        total={total}
+        tiendaId={tienda.id}
+        tiendaNombre={tienda.nombre}
+        telefonoWhatsapp={tienda.telefono_whatsapp}
+        onConfirmado={() => {
+          clearCart();
+          setCheckoutOpen(false);
+        }}
+      />
+    </>
+  );
+}
