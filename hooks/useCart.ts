@@ -29,6 +29,8 @@ export function useCart(tiendaId: string) {
   const [hydrated, setHydrated] = useState(false);
 
   useEffect(() => {
+    // Carga localStorage tras montar a propósito, ver comentario de arriba.
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setItems(readCartFromStorage(storageKey));
     setHydrated(true);
   }, [storageKey]);

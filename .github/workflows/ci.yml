@@ -29,6 +29,14 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
+      # Next.js genera tipos propios (ej. LayoutProps) recién cuando corre
+      # next build/dev al menos una vez — sin esto, tsc falla en una
+      # instalación nueva (como la de este runner) con "Cannot find name
+      # 'LayoutProps'" aunque el código esté bien. next typegen los genera
+      # sin tener que compilar todo el proyecto.
+      - name: Generar tipos de Next.js
+        run: pnpm exec next typegen
+
       - name: Typecheck
         run: pnpm exec tsc --noEmit
 
