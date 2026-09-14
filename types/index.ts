@@ -24,6 +24,10 @@ export interface Tienda {
   // catálogo público cuando está definido. Mismo bucket de Storage que las
   // fotos de producto (services/store.ts valida que la URL venga de ahí).
   logo_url: string | null;
+  // Fecha hasta la que el dueño ya pagó (formato "YYYY-MM-DD") — la pone el
+  // superadmin a mano en /admin/tiendas al confirmar un pago manual
+  // (Nequi/Daviplata/transferencia). NULL si nunca se le puso fecha.
+  fecha_pago_hasta: string | null;
   created_at: string;
 }
 
@@ -46,11 +50,18 @@ export interface ItemPedidoGuardado {
   cantidad: number;
   precio_unitario: number;
   subtotal: number;
+  // Referencia opcional al producto real (no requerida — ver comentario de
+  // abajo) que sí se usa para una cosa puntual: devolver el stock si el
+  // pedido se cancela (services/pedidos.ts). NULL si el producto ya no
+  // existe cuando se guardó el pedido, o en pedidos guardados antes de que
+  // existiera este campo.
+  producto_id: string | null;
 }
 
-// Copia del pedido en el momento en que se hizo — no referencia productos.id
-// a propósito, para que borrar o repreciar un producto después no altere
-// pedidos ya guardados. Ver supabase/schema.sql y services/pedidos.ts.
+// Copia del pedido en el momento en que se hizo — el nombre/precio no
+// referencian productos.id a propósito, para que borrar o repreciar un
+// producto después no altere pedidos ya guardados. Ver supabase/schema.sql
+// y services/pedidos.ts.
 export interface Pedido {
   id: string;
   tienda_id: string;

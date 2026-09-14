@@ -1,89 +1,13 @@
-"use client";
-
-// Shell del panel administrativo: nav entre Productos y Perfil.
-// El guard de sesión real vive en middleware.ts (redirige a /login si no
-// hay usuario autenticado antes de que esta ruta siquiera renderice).
-
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { LogoutIcon, PaletteIcon } from "@/components/icons";
-import { SoporteLink } from "@/components/soporte-link";
-import { ThemeToggle } from "@/components/theme-toggle";
-import { createClient } from "@/lib/supabase/client";
+import { DashboardChrome } from "@/components/dashboard-chrome";
+import { requireTienda } from "@/lib/auth/session";
 
-const THEME_LABELS = { toLight: "Cambiar a tema claro", toDark: "Cambiar a tema oscuro" };
+// Server Component a propósito: trae la tienda una sola vez (cache() en
+// requireTienda evita que la página de abajo la vuelva a consultar) para
+// poder mostrar el aviso de vencimiento del plan Pro en cualquier pestaña
+// del dashboard, no solo en la que ya la pedía.
+export default async function DashboardLayout({ children }: { children: ReactNode }) {
+  const tienda = await requireTienda();
 
-export default function DashboardLayout({ children }: { children: ReactNode }) {
-  const pathname = usePathname();
-  const router = useRouter();
-
-  async function handleLogout() {
-    const supabase = createClient();
-    await supabase.auth.signOut();
-    router.push("/login");
-    router.refresh();
-  }
-
-  return (
-    <div className="flex min-h-full flex-1 flex-col bg-ground">
-      <header className="border-b border-line bg-surface">
-        <div className="mx-auto flex max-w-284 items-center justify-between gap-4 px-5 py-4 sm:px-8">
-          <Link href="/dashboard" className="font-display text-lg">
-            Vitrina Digital
-          </Link>
-          <nav className="flex items-center gap-1 rounded-md bg-surface-2 p-1 text-sm font-semibold">
-            <Link
-              href="/dashboard"
-              className={`rounded px-3 py-1.5 transition-colors ${
-                pathname === "/dashboard" ? "bg-surface text-ink" : "text-ink-soft hover:text-ink"
-              }`}
-            >
-              Productos
-            </Link>
-            <Link
-              href="/dashboard/pedidos"
-              className={`rounded px-3 py-1.5 transition-colors ${
-                pathname === "/dashboard/pedidos"
-                  ? "bg-surface text-ink"
-                  : "text-ink-soft hover:text-ink"
-              }`}
-            >
-              Pedidos
-            </Link>
-            <Link
-              href="/dashboard/perfil"
-              className={`rounded px-3 py-1.5 transition-colors ${
-                pathname === "/dashboard/perfil"
-                  ? "bg-surface text-ink"
-                  : "text-ink-soft hover:text-ink"
-              }`}
-            >
-              Perfil
-            </Link>
-          </nav>
-          <div className="flex items-center gap-2">
-            <SoporteLink />
-            <ThemeToggle labels={THEME_LABELS} />
-            <Link
-              href="/dashboard/perfil"
-              aria-label="Personalizar colores de la tienda"
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-line-strong text-ink-soft transition-colors hover:bg-ink/5"
-            >
-              <PaletteIcon width={16} height={16} />
-            </Link>
-            <button
-              type="button"
-              onClick={handleLogout}
-              aria-label="Cerrar sesión"
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-line-strong text-ink-faint transition-colors hover:border-danger hover:text-danger"
-            >
-              <LogoutIcon width={16} height={16} />
-            </button>
-          </div>
-        </div>
-      </header>
-      <main className="mx-auto w-full max-w-284 flex-1 px-5 py-6 sm:px-8">{children}</main>
-    </div>
-  );
+  return <DashboardChrome tienda={tienda}>{children}</DashboardChrome>;
 }

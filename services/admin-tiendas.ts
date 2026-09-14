@@ -42,3 +42,18 @@ export async function actualizarEstadoSuscripcionTienda(
   const { error } = await supabase.from("tiendas").update({ estado_suscripcion: estado }).eq("id", id);
   if (error) throw error;
 }
+
+// fecha en formato "YYYY-MM-DD", o null para borrarla (ej. si se marcó por error).
+export async function actualizarFechaPagoTienda(
+  id: string,
+  fecha: string | null,
+): Promise<void> {
+  if (!(await isSuperadmin())) throw new Error("No autorizado");
+
+  const supabase = createServiceClient();
+  const { error } = await supabase
+    .from("tiendas")
+    .update({ fecha_pago_hasta: fecha })
+    .eq("id", id);
+  if (error) throw error;
+}

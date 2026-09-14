@@ -7,6 +7,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { CardIcon, LogoutIcon, StoreIcon } from "@/components/icons";
+import { VitrinaMark } from "@/components/vitrina-mark";
 import { createClient } from "@/lib/supabase/client";
 
 export function AdminNav() {
@@ -24,6 +25,7 @@ export function AdminNav() {
     <header className="border-b border-line bg-surface">
       <div className="mx-auto flex max-w-284 flex-wrap items-center justify-between gap-3 px-5 py-4 sm:px-8">
         <div className="flex items-center gap-2">
+          <VitrinaMark size={26} />
           <span className="font-display text-lg">Vitrina Digital</span>
           <span className="rounded bg-surface-2 px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-ink-faint">
             Admin
