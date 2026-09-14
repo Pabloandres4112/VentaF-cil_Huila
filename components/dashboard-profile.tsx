@@ -8,12 +8,25 @@ import { useState, useTransition, type FormEvent } from "react";
 import { CheckIcon, ColombiaFlagIcon, CopyIcon, DownloadIcon, ResetIcon } from "@/components/icons";
 import { EliminarCuentaModal } from "@/components/eliminar-cuenta-modal";
 import { LogoUpload } from "@/components/logo-upload";
+import { diasHasta } from "@/components/plan-renewal-banner";
 import { eliminarCuenta, exportarDatosCuenta } from "@/services/account";
 import { actualizarTienda } from "@/services/store";
 import { VerCatalogoLink } from "@/components/ver-catalogo-link";
 import { createClient } from "@/lib/supabase/client";
+import { LIMITE_PRODUCTOS_GRATIS } from "@/lib/plan";
 import { pickContrastingInk } from "@/lib/utils";
 import type { Tienda } from "@/types";
+
+const FORMATO_FECHA_LARGA = new Intl.DateTimeFormat("es-CO", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
+
+function formatFechaLarga(fechaISO: string): string {
+  const [year, month, day] = fechaISO.split("-").map(Number);
+  return FORMATO_FECHA_LARGA.format(new Date(year, month - 1, day));
+}
 
 const INPUT_CLASS =
   "rounded-md border bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent";
@@ -183,6 +196,41 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
         <p className="mt-2 text-xs text-ink-faint">
           Este código es fijo y no se puede cambiar — identifica tu tienda de forma única.
         </p>
+      </div>
+
+      <div className="rounded-xl border border-line bg-surface p-5">
+        <div className="flex items-center justify-between">
+          <p className="text-xs font-bold uppercase tracking-wider text-ink-faint">Tu plan</p>
+          <span
+            className={`rounded px-2 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide ${
+              tienda.plan === "pro" ? "bg-accent-soft text-accent" : "bg-surface-2 text-ink-faint"
+            }`}
+          >
+            {tienda.plan === "pro" ? "Pro" : "Gratis"}
+          </span>
+        </div>
+
+        {tienda.plan === "pro" && tienda.fecha_pago_hasta ? (
+          (() => {
+            const dias = diasHasta(tienda.fecha_pago_hasta);
+            const vencido = dias < 0;
+            return (
+              <p className={`mt-2 text-sm ${vencido ? "text-danger" : "text-ink-soft"}`}>
+                {vencido
+                  ? `Venció hace ${Math.abs(dias)} ${Math.abs(dias) === 1 ? "día" : "días"}.`
+                  : `Vence el ${formatFechaLarga(tienda.fecha_pago_hasta)} (en ${dias} ${dias === 1 ? "día" : "días"}).`}
+              </p>
+            );
+          })()
+        ) : tienda.plan === "pro" ? (
+          <p className="mt-2 text-xs text-ink-faint">
+            Sin fecha de vencimiento registrada — escríbenos si tienes dudas.
+          </p>
+        ) : (
+          <p className="mt-2 text-xs text-ink-faint">
+            Hasta {LIMITE_PRODUCTOS_GRATIS} productos. Escríbenos para pasar a Pro.
+          </p>
+        )}
       </div>
 
       <form
