@@ -10,6 +10,7 @@ import type { ReactNode } from "react";
 import { LogoutIcon, PaletteIcon } from "@/components/icons";
 import { SoporteLink } from "@/components/soporte-link";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { VitrinaMark } from "@/components/vitrina-mark";
 import { createClient } from "@/lib/supabase/client";
 
 const THEME_LABELS = { toLight: "Cambiar a tema claro", toDark: "Cambiar a tema oscuro" };
@@ -29,7 +30,8 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
     <div className="flex min-h-full flex-1 flex-col bg-ground">
       <header className="border-b border-line bg-surface">
         <div className="mx-auto flex max-w-284 items-center justify-between gap-4 px-5 py-4 sm:px-8">
-          <Link href="/dashboard" className="font-display text-lg">
+          <Link href="/dashboard" className="flex items-center gap-2 font-display text-lg">
+            <VitrinaMark size={26} />
             Vitrina Digital
           </Link>
           <nav className="flex items-center gap-1 rounded-md bg-surface-2 p-1 text-sm font-semibold">

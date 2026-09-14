@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { CardIcon, CheckIcon, ClockIcon, PinIcon, WhatsappIcon } from "@/components/icons";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { VitrinaMark } from "@/components/vitrina-mark";
 import type { HomeDict, Locale } from "@/lib/i18n";
 import { formatCOP } from "@/lib/utils";
 
@@ -33,11 +34,9 @@ export function HomeContent({ dict, locale }: { dict: HomeDict; locale: Locale }
     <>
       <header className="sticky top-0 z-20 border-b border-transparent bg-ground/90 backdrop-blur-sm">
         <Wrap className="flex items-center justify-between gap-4 py-4">
-          <div className="flex items-baseline gap-2">
+          <div className="flex items-center gap-2.5">
+            <VitrinaMark size={30} />
             <span className="font-display text-xl">Vitrina Digital</span>
-            <span className="text-[0.65rem] font-bold uppercase tracking-wider text-ink-faint">
-              Huila
-            </span>
           </div>
           <nav className="hidden items-center gap-7 text-sm font-semibold lg:flex">
             <a href="#como-funciona" className="text-ink-soft transition-colors hover:text-ink">

@@ -6,6 +6,7 @@ import { useState, type FormEvent } from "react";
 import { CheckIcon, ColombiaFlagIcon } from "@/components/icons";
 import { PasswordInput } from "@/components/password-input";
 import { TerminosModal } from "@/components/terminos-modal";
+import { VitrinaMark } from "@/components/vitrina-mark";
 import { VolverInicioLink } from "@/components/volver-inicio-link";
 import { createClient } from "@/lib/supabase/client";
 import { isValidEmail } from "@/lib/validation";
@@ -122,7 +123,8 @@ export default function RegistroPage() {
     <main className="relative flex flex-1 flex-col items-center justify-center bg-ground p-6">
       <VolverInicioLink />
 
-      <Link href="/" className="font-display mb-8 text-xl">
+      <Link href="/" className="font-display mb-8 flex items-center gap-2 text-xl">
+        <VitrinaMark size={28} />
         Vitrina Digital
       </Link>
 

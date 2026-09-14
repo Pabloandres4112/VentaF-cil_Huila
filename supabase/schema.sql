@@ -345,4 +345,4 @@ CREATE POLICY "Solo el dueño cambia el estado de sus pedidos" ON public.pedidos
     tienda_id IN (SELECT id FROM public.tiendas WHERE user_id = auth.uid())
   );
 
-GRANT SELECT, INSERT, UPDATE ON public.pedidos TO anon, authenticated;
+GRANT SELECT, INSERT, UPDATE ON public.pedidos TO anon, authenticated, service_role;
