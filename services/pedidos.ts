@@ -36,8 +36,36 @@ export async function listarPedidosByTiendaId(tiendaId: string): Promise<Pedido[
   return data ?? [];
 }
 
+// Si se cancela un pedido que no estaba cancelado antes, se devuelve el
+// stock de sus productos: el descuento pasa en el checkout, antes de que
+// comprador y vendedor terminen de ponerse de acuerdo por WhatsApp — si el
+// trato no se cierra, esa venta nunca pasó de verdad y el stock debe
+// volver. Items sin producto_id (pedidos viejos, o el producto ya se
+// borró) simplemente se saltan — no hay a qué producto devolverle el stock.
+// A propósito no pasa lo contrario (si se "descancela" un pedido no se
+// vuelve a descontar) — es una corrección manual del dueño, no algo que
+// deba pasar solo.
 export async function actualizarEstadoPedido(id: string, estado: EstadoPedido): Promise<void> {
   const supabase = await createClient();
+
+  const { data: pedidoActual } = await supabase
+    .from("pedidos")
+    .select("estado, items")
+    .eq("id", id)
+    .single();
+
   const { error } = await supabase.from("pedidos").update({ estado }).eq("id", id);
   if (error) throw error;
+
+  const yaEstabaCancelado = pedidoActual?.estado === "cancelado";
+  if (estado === "cancelado" && pedidoActual && !yaEstabaCancelado) {
+    const items = pedidoActual.items as ItemPedidoGuardado[];
+    for (const item of items) {
+      if (!item.producto_id) continue;
+      await supabase.rpc("incrementar_stock_producto", {
+        p_id: item.producto_id,
+        p_cantidad: item.cantidad,
+      });
+    }
+  }
 }

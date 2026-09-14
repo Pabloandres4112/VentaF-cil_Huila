@@ -97,6 +97,7 @@ export function CheckoutModal({
         cliente_direccion: direccion,
         metodo_pago: metodoPago,
         items: items.map((item) => ({
+          producto_id: item.producto.id,
           nombre: item.producto.nombre,
           cantidad: item.cantidad,
           precio_unitario: item.producto.precio,

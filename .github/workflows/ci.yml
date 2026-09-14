@@ -1,0 +1,87 @@
+name: CI
+
+# Corre en cada push y en cada PR hacia main/develop — Vercel ya despliega
+# solo con el git integration (eso no lo toca este archivo); esto es la
+# parte que faltaba: que nada llegue a main sin pasar typecheck, lint, build
+# y las pruebas E2E reales contra el proyecto de QA (nunca contra
+# producción — ver el job "e2e" abajo).
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  checks:
+    name: Typecheck, lint y build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Typecheck
+        run: pnpm exec tsc --noEmit
+
+      - name: Lint
+        run: pnpm exec eslint .
+
+      - name: Build de producción (lo mismo que corre Vercel)
+        run: pnpm build
+        env:
+          # Next.js necesita estas dos en build time aunque sea solo para
+          # compilar (no se conecta de verdad a Supabase durante el build) —
+          # con cualquier valor no vacío alcanza.
+          NEXT_PUBLIC_SUPABASE_URL: https://placeholder.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: placeholder
+
+  e2e:
+    name: Pruebas end-to-end (contra QA)
+    needs: checks
+    runs-on: ubuntu-latest
+    # Apagado hasta que se configuren los secrets de QA en el repo (Settings
+    # → Secrets and variables → Actions) — así el CI no queda en rojo por
+    # algo que todavía no se configuró. Una vez listos los secrets, activa
+    # esto creando la variable de repo RUN_E2E="true" (Settings → Secrets
+    # and variables → Actions → pestaña "Variables").
+    if: ${{ vars.RUN_E2E == 'true' }}
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.QA_SUPABASE_URL }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.QA_SUPABASE_ANON_KEY }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.QA_SUPABASE_SERVICE_ROLE_KEY }}
+      NEXT_PUBLIC_APP_ENV: qa
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      - name: Instalar navegador de Playwright
+        run: pnpm exec playwright install --with-deps chromium
+
+      - name: Correr pruebas E2E
+        run: pnpm exec playwright test
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: test-results/
+          retention-days: 7

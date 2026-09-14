@@ -346,3 +346,38 @@ CREATE POLICY "Solo el dueño cambia el estado de sus pedidos" ON public.pedidos
   );
 
 GRANT SELECT, INSERT, UPDATE ON public.pedidos TO anon, authenticated, service_role;
+
+-- =============================================================================
+-- MIGRACIÓN — Fecha de pago de la tienda (control manual del superadmin).
+-- El cobro sigue siendo 100% manual (Nequi/Daviplata/transferencia) — esto
+-- no cobra nada solo, es la fecha hasta la que el dueño ya pagó, para que el
+-- superadmin la vea de un vistazo en /admin/tiendas y sepa a quién le toca
+-- cobrar. NULL = nunca se le ha puesto fecha (ej. plan gratis).
+-- =============================================================================
+
+ALTER TABLE public.tiendas ADD COLUMN IF NOT EXISTS fecha_pago_hasta DATE;
+
+-- =============================================================================
+-- MIGRACIÓN — Devolver stock al cancelar un pedido.
+-- El stock se descuenta en el checkout (antes de que comprador y vendedor
+-- terminen de negociar por WhatsApp) — si el trato no se cierra y el dueño
+-- cancela el pedido desde /dashboard/pedidos, ese stock nunca se vendió de
+-- verdad y debe volver. SECURITY INVOKER (no DEFINER) a propósito: quien
+-- cancela ya es el dueño autenticado, así que se apoya en la misma política
+-- RLS de siempre ("solo dueño modifica sus productos") — la función solo
+-- hace el incremento atómico para no perder un cambio de stock concurrente.
+-- =============================================================================
+
+CREATE OR REPLACE FUNCTION public.incrementar_stock_producto(p_id UUID, p_cantidad INT)
+RETURNS TABLE (id UUID, stock INT)
+LANGUAGE sql
+SECURITY INVOKER
+SET search_path = public
+AS $$
+  UPDATE public.productos
+  SET stock = productos.stock + p_cantidad
+  WHERE productos.id = p_id AND p_cantidad > 0
+  RETURNING productos.id, productos.stock;
+$$;
+
+GRANT EXECUTE ON FUNCTION public.incrementar_stock_producto(UUID, INT) TO authenticated;
