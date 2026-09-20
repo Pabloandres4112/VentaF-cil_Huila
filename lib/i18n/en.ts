@@ -192,9 +192,10 @@ export const en: HomeDict = {
     ctaWhatsapp: "Message us on WhatsApp",
   },
   footer: {
-    madeFor: "Built for businesses in Isnos, Pitalito, and the Huila region.",
+    madeFor: "Built for small businesses in Colombia.",
     disclaimer: "Vitrina Digital is not affiliated with WhatsApp Inc. — we use public wa.me links.",
     terms: "Terms and Conditions",
+    guide: "User guide",
   },
   theme: {
     toLight: "Switch to light theme",

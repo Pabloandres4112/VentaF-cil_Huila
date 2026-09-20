@@ -13,7 +13,7 @@
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import type { ReactNode } from "react";
-import { LogoutIcon, PaletteIcon } from "@/components/icons";
+import { HelpIcon, LogoutIcon, PaletteIcon } from "@/components/icons";
 import { SoporteLink } from "@/components/soporte-link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { VitrinaMark } from "@/components/vitrina-mark";
@@ -71,6 +71,16 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </Link>
           </nav>
           <div className="flex items-center gap-2">
+            <Link
+              href="/guia"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Ver la guía de uso"
+              title="Guía de uso"
+              className="flex h-9 w-9 items-center justify-center rounded-md border border-line-strong text-ink-soft transition-colors hover:bg-ink/5"
+            >
+              <HelpIcon width={16} height={16} />
+            </Link>
             <SoporteLink />
             <ThemeToggle labels={THEME_LABELS} />
             <Link
