@@ -114,6 +114,7 @@ export interface HomeDict {
     madeFor: string;
     disclaimer: string;
     terms: string;
+    guide: string;
   };
   theme: {
     toLight: string;

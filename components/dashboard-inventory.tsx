@@ -13,6 +13,7 @@ import {
   TrashIcon,
 } from "@/components/icons";
 import { OnboardingChecklist } from "@/components/onboarding-checklist";
+import { PlanRenewalBanner } from "@/components/plan-renewal-banner";
 import { ProductForm } from "@/components/ProductForm";
 import { ToggleSwitch } from "@/components/toggle-switch";
 import { VerCatalogoLink } from "@/components/ver-catalogo-link";
@@ -163,6 +164,8 @@ export function DashboardInventory({
           <VerCatalogoLink storeCode={tienda.store_code} />
         </div>
       </div>
+
+      <PlanRenewalBanner tienda={tienda} />
 
       {error && <p className="text-sm text-danger">{error}</p>}
 

@@ -395,6 +395,9 @@ export function HomeContent({ dict, locale }: { dict: HomeDict; locale: Locale }
           <Link href="/terminos" className="underline underline-offset-2 hover:text-ink-soft">
             {dict.footer.terms}
           </Link>
+          <Link href="/guia" className="underline underline-offset-2 hover:text-ink-soft">
+            {dict.footer.guide}
+          </Link>
         </Wrap>
       </footer>
     </>

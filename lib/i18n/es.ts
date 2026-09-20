@@ -195,9 +195,10 @@ export const es: HomeDict = {
     ctaWhatsapp: "Escríbenos por WhatsApp",
   },
   footer: {
-    madeFor: "Hecho para negocios de Isnos, Pitalito y el Huila.",
+    madeFor: "Hecho para pequeños negocios en Colombia.",
     disclaimer: "Vitrina Digital no está afiliado a WhatsApp Inc. — usamos enlaces públicos wa.me.",
     terms: "Términos y Condiciones",
+    guide: "Guía de uso",
   },
   theme: {
     toLight: "Cambiar a tema claro",
