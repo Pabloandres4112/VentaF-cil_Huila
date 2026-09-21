@@ -6,6 +6,7 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import { CloseIcon } from "@/components/icons";
 import { ImageUpload } from "@/components/image-upload";
 import { ToggleSwitch } from "@/components/toggle-switch";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import type { NuevoProducto } from "@/services/products";
 import type { Producto } from "@/types";
 
@@ -44,6 +45,7 @@ export function ProductForm({
   );
   const [disponible, setDisponible] = useState(producto?.disponible ?? true);
   const [errors, setErrors] = useState<ProductFormErrors>({});
+  useBodyScrollLock(true);
 
   function validate(): boolean {
     const nextErrors: ProductFormErrors = {};
