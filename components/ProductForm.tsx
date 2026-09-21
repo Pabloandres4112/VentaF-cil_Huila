@@ -124,15 +124,12 @@ export function ProductForm({
             />
           </Field>
 
-          <Field
-            label="Descripción"
-            hint={`${descripcion.length}/${DESCRIPCION_MAX_LARGO} — opcional. Aquí caben detalles largos: medidas, materiales, etc.`}
-          >
+          <Field label="Descripción" hint={`${descripcion.length}/${DESCRIPCION_MAX_LARGO}`}>
             <textarea
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value.slice(0, DESCRIPCION_MAX_LARGO))}
-              placeholder="Ej: Escritorio en madera de pino, 120x60x75cm. Incluye un cajón con guía metálica y espacio para torre de PC."
-              rows={4}
+              placeholder="Opcional"
+              rows={3}
               maxLength={DESCRIPCION_MAX_LARGO}
               className={`${INPUT_CLASS} resize-none border-line-strong`}
             />
@@ -170,9 +167,7 @@ export function ProductForm({
           <ImageUpload tiendaId={tiendaId} value={imagenUrl} onChange={setImagenUrl} />
 
           <div className="flex flex-col gap-3 rounded-md border border-dashed border-line-strong p-3">
-            <p className="text-xs font-semibold text-ink-soft">
-              Fotos adicionales (opcional, hasta 2) — se ven al abrir el detalle del producto.
-            </p>
+            <p className="text-xs font-semibold text-ink-soft">Fotos adicionales (máx. 2)</p>
             <div className="grid grid-cols-2 gap-3">
               <ImageUpload
                 tiendaId={tiendaId}

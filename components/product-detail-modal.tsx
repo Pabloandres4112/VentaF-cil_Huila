@@ -8,6 +8,7 @@
 
 import { useState } from "react";
 import { ArrowLeftIcon, CloseIcon, ImagePlaceholderIcon, PlusIcon } from "@/components/icons";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { formatCOP } from "@/lib/utils";
 import type { Producto } from "@/types";
 
@@ -23,6 +24,7 @@ export function ProductDetailModal({
   onAdd: (producto: Producto) => void;
 }) {
   const [indiceImagen, setIndiceImagen] = useState(0);
+  useBodyScrollLock(Boolean(producto));
 
   if (!producto) return null;
 
