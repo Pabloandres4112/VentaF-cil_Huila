@@ -236,7 +236,7 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
           </p>
         ) : (
           <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-            <p className="text-xs text-ink-faint">Hasta {LIMITE_PRODUCTOS_GRATIS} productos.</p>
+            <p className="text-sm text-ink-soft">Hasta {LIMITE_PRODUCTOS_GRATIS} productos.</p>
             {NUMERO_SOPORTE && (
               <a
                 href={`https://wa.me/${NUMERO_SOPORTE}?text=${encodeURIComponent(
