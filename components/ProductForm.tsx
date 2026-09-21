@@ -12,6 +12,8 @@ import type { Producto } from "@/types";
 const INPUT_CLASS =
   "rounded-md border bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent";
 
+const DESCRIPCION_MAX_LARGO = 600;
+
 interface ProductFormErrors {
   nombre?: string;
   precio?: string;
@@ -34,6 +36,12 @@ export function ProductForm({
   const [precio, setPrecio] = useState(producto ? String(producto.precio) : "");
   const [stock, setStock] = useState(producto ? String(producto.stock) : "");
   const [imagenUrl, setImagenUrl] = useState<string | null>(producto?.imagen_url ?? null);
+  const [imagenAdicional1, setImagenAdicional1] = useState<string | null>(
+    producto?.imagenes_adicionales[0] ?? null,
+  );
+  const [imagenAdicional2, setImagenAdicional2] = useState<string | null>(
+    producto?.imagenes_adicionales[1] ?? null,
+  );
   const [disponible, setDisponible] = useState(producto?.disponible ?? true);
   const [errors, setErrors] = useState<ProductFormErrors>({});
 
@@ -68,6 +76,9 @@ export function ProductForm({
       precio: Number(precio),
       stock: Number(stock),
       imagen_url: imagenUrl,
+      imagenes_adicionales: [imagenAdicional1, imagenAdicional2].filter(
+        (url): url is string => Boolean(url),
+      ),
       disponible,
     });
   }
@@ -113,12 +124,17 @@ export function ProductForm({
             />
           </Field>
 
-          <Field label="Descripción">
-            <input
+          <Field
+            label="Descripción"
+            hint={`${descripcion.length}/${DESCRIPCION_MAX_LARGO} — opcional. Aquí caben detalles largos: medidas, materiales, etc.`}
+          >
+            <textarea
               value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-              placeholder="Una línea simple, opcional"
-              className={`${INPUT_CLASS} border-line-strong`}
+              onChange={(e) => setDescripcion(e.target.value.slice(0, DESCRIPCION_MAX_LARGO))}
+              placeholder="Ej: Escritorio en madera de pino, 120x60x75cm. Incluye un cajón con guía metálica y espacio para torre de PC."
+              rows={4}
+              maxLength={DESCRIPCION_MAX_LARGO}
+              className={`${INPUT_CLASS} resize-none border-line-strong`}
             />
           </Field>
 
@@ -152,6 +168,26 @@ export function ProductForm({
           </div>
 
           <ImageUpload tiendaId={tiendaId} value={imagenUrl} onChange={setImagenUrl} />
+
+          <div className="flex flex-col gap-3 rounded-md border border-dashed border-line-strong p-3">
+            <p className="text-xs font-semibold text-ink-soft">
+              Fotos adicionales (opcional, hasta 2) — se ven al abrir el detalle del producto.
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              <ImageUpload
+                tiendaId={tiendaId}
+                value={imagenAdicional1}
+                onChange={setImagenAdicional1}
+                label="Foto adicional 1"
+              />
+              <ImageUpload
+                tiendaId={tiendaId}
+                value={imagenAdicional2}
+                onChange={setImagenAdicional2}
+                label="Foto adicional 2"
+              />
+            </div>
+          </div>
 
           <label className="flex items-center justify-between rounded-md border border-line-strong px-3.5 py-2.5">
             <span className="text-sm font-semibold text-ink-soft">Visible en el catálogo</span>

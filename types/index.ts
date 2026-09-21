@@ -38,6 +38,9 @@ export interface Producto {
   descripcion: string | null;
   precio: number;
   imagen_url: string | null;
+  // Hasta 2 fotos extra, además de imagen_url (que sigue siendo la
+  // portada/tarjeta). Solo se muestran en el detalle expandido del catálogo.
+  imagenes_adicionales: string[];
   stock: number;
   disponible: boolean;
   created_at: string;

@@ -33,6 +33,9 @@ CREATE TABLE public.productos (
   descripcion TEXT,
   precio NUMERIC(10, 2) NOT NULL,
   imagen_url TEXT,
+  -- Hasta 2 fotos extra (además de imagen_url, que sigue siendo la portada)
+  -- para el detalle expandido del catálogo — ver migración más abajo.
+  imagenes_adicionales TEXT[] NOT NULL DEFAULT '{}' CHECK (array_length(imagenes_adicionales, 1) IS NULL OR array_length(imagenes_adicionales, 1) <= 2),
   stock INT DEFAULT 0,
   disponible BOOLEAN DEFAULT TRUE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -381,3 +384,17 @@ AS $$
 $$;
 
 GRANT EXECUTE ON FUNCTION public.incrementar_stock_producto(UUID, INT) TO authenticated;
+
+-- =============================================================================
+-- MIGRACIÓN — Fotos adicionales y descripción extensa del producto.
+-- El catálogo público mostraba solo una foto y una línea de descripción en la
+-- tarjeta; para productos que necesitan explicar medidas/materiales/etc. (ej.
+-- muebles), se agregan hasta 2 fotos extra y la descripción pasa a texto
+-- largo — ambas se ven en el detalle expandido, no en la tarjeta básica.
+-- =============================================================================
+
+ALTER TABLE public.productos ADD COLUMN IF NOT EXISTS imagenes_adicionales TEXT[] NOT NULL DEFAULT '{}';
+
+ALTER TABLE public.productos DROP CONSTRAINT IF EXISTS productos_imagenes_adicionales_check;
+ALTER TABLE public.productos ADD CONSTRAINT productos_imagenes_adicionales_check
+  CHECK (array_length(imagenes_adicionales, 1) IS NULL OR array_length(imagenes_adicionales, 1) <= 2);

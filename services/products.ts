@@ -15,7 +15,26 @@ function validarImagenUrl(datos: NuevoProducto): NuevoProducto {
   if (datos.imagen_url && !esUrlImagenValida(datos.imagen_url)) {
     throw new Error("URL de imagen inválida");
   }
+  if (datos.imagenes_adicionales.some((url) => !esUrlImagenValida(url))) {
+    throw new Error("URL de imagen inválida");
+  }
   return datos;
+}
+
+// Compara las fotos de la versión anterior contra la nueva y borra de
+// Storage las que ya no se usan (portada + adicionales) — evita que se
+// acumulen archivos huérfanos cada vez que se reemplaza o se quita una foto.
+async function borrarFotosHuerfanas(
+  supabase: Awaited<ReturnType<typeof createClient>>,
+  anteriores: (string | null)[],
+  nuevas: (string | null)[],
+): Promise<void> {
+  const paths = anteriores
+    .filter((url): url is string => Boolean(url) && !nuevas.includes(url))
+    .map(extraerPathStorage)
+    .filter((path): path is string => Boolean(path));
+
+  if (paths.length > 0) await supabase.storage.from(BUCKET).remove(paths);
 }
 
 export async function getProductosByTiendaId(tiendaId: string): Promise<Producto[]> {
@@ -67,7 +86,7 @@ export async function actualizarProducto(id: string, datos: NuevoProducto): Prom
 
   const { data: anterior } = await supabase
     .from("productos")
-    .select("imagen_url")
+    .select("imagen_url, imagenes_adicionales")
     .eq("id", id)
     .single();
 
@@ -80,9 +99,12 @@ export async function actualizarProducto(id: string, datos: NuevoProducto): Prom
 
   if (error) throw error;
 
-  if (anterior?.imagen_url && anterior.imagen_url !== datos.imagen_url) {
-    const path = extraerPathStorage(anterior.imagen_url);
-    if (path) await supabase.storage.from(BUCKET).remove([path]);
+  if (anterior) {
+    await borrarFotosHuerfanas(
+      supabase,
+      [anterior.imagen_url, ...(anterior.imagenes_adicionales ?? [])],
+      [datos.imagen_url, ...datos.imagenes_adicionales],
+    );
   }
 
   return data;
@@ -93,16 +115,19 @@ export async function eliminarProducto(id: string): Promise<void> {
 
   const { data: producto } = await supabase
     .from("productos")
-    .select("imagen_url")
+    .select("imagen_url, imagenes_adicionales")
     .eq("id", id)
     .single();
 
   const { error } = await supabase.from("productos").delete().eq("id", id);
   if (error) throw error;
 
-  if (producto?.imagen_url) {
-    const path = extraerPathStorage(producto.imagen_url);
-    if (path) await supabase.storage.from(BUCKET).remove([path]);
+  if (producto) {
+    await borrarFotosHuerfanas(
+      supabase,
+      [producto.imagen_url, ...(producto.imagenes_adicionales ?? [])],
+      [],
+    );
   }
 }
 

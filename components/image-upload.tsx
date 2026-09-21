@@ -18,10 +18,12 @@ export function ImageUpload({
   tiendaId,
   value,
   onChange,
+  label = "Foto del producto",
 }: {
   tiendaId: string;
   value: string | null;
   onChange: (imagenUrl: string | null) => void;
+  label?: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -73,7 +75,7 @@ export function ImageUpload({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-sm font-semibold text-ink-soft">Foto del producto</span>
+      <span className="text-sm font-semibold text-ink-soft">{label}</span>
 
       {value ? (
         <div className="relative h-32 w-32 overflow-hidden rounded-lg border border-line bg-surface-2">
