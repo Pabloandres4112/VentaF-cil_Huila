@@ -2,7 +2,7 @@
 
 import { ImagePlaceholderIcon, PlusIcon } from "@/components/icons";
 import type { Producto } from "@/types";
-import { formatCOP } from "@/lib/utils";
+import { formatCOP, porcentajeDescuento, precioEfectivo } from "@/lib/utils";
 
 export function ProductCard({
   producto,
@@ -17,6 +17,7 @@ export function ProductCard({
 }) {
   const agotado = producto.stock <= 0;
   const sinMasStock = cantidadEnCarrito >= producto.stock;
+  const enOferta = Boolean(producto.precio_descuento);
 
   return (
     <article className="flex flex-col overflow-hidden rounded-xl border border-line bg-surface">
@@ -39,6 +40,11 @@ export function ProductCard({
               <ImagePlaceholderIcon width={28} height={28} />
             </div>
           )}
+          {enOferta && (
+            <span className="absolute left-2 top-2 flex-none whitespace-nowrap rounded bg-danger px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-danger-ink">
+              -{porcentajeDescuento(producto)}%
+            </span>
+          )}
         </div>
         <div className="flex flex-1 flex-col gap-1 p-3.5 pb-1">
           <div className="flex items-start justify-between gap-2">
@@ -58,7 +64,16 @@ export function ProductCard({
         </div>
       </button>
       <div className="flex items-center justify-between gap-2 p-3.5 pt-1">
-        <span className="font-display text-lg tabular-nums">{formatCOP(producto.precio)}</span>
+        <span className="flex flex-col leading-tight">
+          <span className="font-display text-lg tabular-nums">
+            {formatCOP(precioEfectivo(producto))}
+          </span>
+          {enOferta && (
+            <span className="text-xs tabular-nums text-ink-faint line-through">
+              {formatCOP(producto.precio)}
+            </span>
+          )}
+        </span>
         <button
           type="button"
           onClick={() => onAdd(producto)}

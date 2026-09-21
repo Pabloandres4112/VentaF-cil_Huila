@@ -37,7 +37,7 @@ export function StoreCatalog({ tienda, productos }: { tienda: Tienda; productos:
   return (
     <>
       {productos.length > 0 && (
-        <div className="mb-4 max-w-sm">
+        <div className="mx-auto mb-4 max-w-sm">
           <SearchBox value={busqueda} onChange={setBusqueda} placeholder="Buscar producto..." />
         </div>
       )}

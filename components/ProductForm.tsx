@@ -19,6 +19,7 @@ interface ProductFormErrors {
   nombre?: string;
   precio?: string;
   stock?: string;
+  precioDescuento?: string;
 }
 
 export function ProductForm({
@@ -35,6 +36,9 @@ export function ProductForm({
   const [nombre, setNombre] = useState(producto?.nombre ?? "");
   const [descripcion, setDescripcion] = useState(producto?.descripcion ?? "");
   const [precio, setPrecio] = useState(producto ? String(producto.precio) : "");
+  const [precioDescuento, setPrecioDescuento] = useState(
+    producto?.precio_descuento ? String(producto.precio_descuento) : "",
+  );
   const [stock, setStock] = useState(producto ? String(producto.stock) : "");
   const [imagenUrl, setImagenUrl] = useState<string | null>(producto?.imagen_url ?? null);
   const [imagenAdicional1, setImagenAdicional1] = useState<string | null>(
@@ -64,6 +68,15 @@ export function ProductForm({
       nextErrors.stock = "Ingresa un stock válido (0 o más).";
     }
 
+    if (precioDescuento.trim() !== "") {
+      const precioDescuentoNum = Number(precioDescuento);
+      if (Number.isNaN(precioDescuentoNum) || precioDescuentoNum <= 0) {
+        nextErrors.precioDescuento = "Ingresa un precio mayor a $0.";
+      } else if (!Number.isNaN(precioNum) && precioDescuentoNum >= precioNum) {
+        nextErrors.precioDescuento = "Debe ser menor al precio normal.";
+      }
+    }
+
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   }
@@ -76,6 +89,7 @@ export function ProductForm({
       nombre: nombre.trim(),
       descripcion: descripcion.trim() || null,
       precio: Number(precio),
+      precio_descuento: precioDescuento.trim() === "" ? null : Number(precioDescuento),
       stock: Number(stock),
       imagen_url: imagenUrl,
       imagenes_adicionales: [imagenAdicional1, imagenAdicional2].filter(
@@ -165,6 +179,20 @@ export function ProductForm({
               />
             </Field>
           </div>
+
+          <Field label="Precio con descuento (opcional)" error={errors.precioDescuento}>
+            <input
+              type="number"
+              min={0}
+              step={1}
+              inputMode="numeric"
+              value={precioDescuento}
+              onChange={(e) => setPrecioDescuento(e.target.value)}
+              placeholder="Deja vacío si no hay oferta"
+              aria-invalid={Boolean(errors.precioDescuento)}
+              className={`${INPUT_CLASS} ${errors.precioDescuento ? "border-danger" : "border-line-strong"}`}
+            />
+          </Field>
 
           <ImageUpload tiendaId={tiendaId} value={imagenUrl} onChange={setImagenUrl} />
 

@@ -18,6 +18,12 @@ function validarImagenUrl(datos: NuevoProducto): NuevoProducto {
   if (datos.imagenes_adicionales.some((url) => !esUrlImagenValida(url))) {
     throw new Error("URL de imagen inválida");
   }
+  if (
+    datos.precio_descuento !== null &&
+    (datos.precio_descuento <= 0 || datos.precio_descuento >= datos.precio)
+  ) {
+    throw new Error("Precio de descuento inválido");
+  }
   return datos;
 }
 

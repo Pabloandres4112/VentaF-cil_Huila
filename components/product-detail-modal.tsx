@@ -9,7 +9,7 @@
 import { useState } from "react";
 import { ArrowLeftIcon, CloseIcon, ImagePlaceholderIcon, PlusIcon } from "@/components/icons";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
-import { formatCOP } from "@/lib/utils";
+import { formatCOP, porcentajeDescuento, precioEfectivo } from "@/lib/utils";
 import type { Producto } from "@/types";
 
 export function ProductDetailModal({
@@ -33,6 +33,7 @@ export function ProductDetailModal({
   );
   const agotado = producto.stock <= 0;
   const sinMasStock = cantidadEnCarrito >= producto.stock;
+  const enOferta = Boolean(producto.precio_descuento);
   const imagenActual = imagenes[indiceImagen] ?? null;
 
   function irA(indice: number) {
@@ -75,6 +76,12 @@ export function ProductDetailModal({
               <div className="absolute inset-0 flex items-center justify-center text-ink-faint">
                 <ImagePlaceholderIcon width={40} height={40} />
               </div>
+            )}
+
+            {enOferta && (
+              <span className="absolute left-3 top-3 flex-none whitespace-nowrap rounded bg-danger px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-danger-ink">
+                -{porcentajeDescuento(producto)}%
+              </span>
             )}
 
             {imagenes.length > 1 && (
@@ -129,8 +136,15 @@ export function ProductDetailModal({
             )}
 
             <div className="mt-2 flex items-center justify-between gap-3">
-              <span className="font-display text-xl tabular-nums">
-                {formatCOP(producto.precio)}
+              <span className="flex flex-col leading-tight">
+                <span className="font-display text-xl tabular-nums">
+                  {formatCOP(precioEfectivo(producto))}
+                </span>
+                {enOferta && (
+                  <span className="text-sm tabular-nums text-ink-faint line-through">
+                    {formatCOP(producto.precio)}
+                  </span>
+                )}
               </span>
               <button
                 type="button"
