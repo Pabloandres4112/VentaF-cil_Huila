@@ -6,6 +6,7 @@ import { useState } from "react";
 import { CartDrawer } from "@/components/CartDrawer";
 import { CheckoutModal } from "@/components/checkout-modal";
 import { ProductCard } from "@/components/ProductCard";
+import { ProductDetailModal } from "@/components/product-detail-modal";
 import { SearchBox } from "@/components/search-box";
 import { useCart } from "@/hooks/useCart";
 import { coincideBusqueda } from "@/lib/utils";
@@ -17,6 +18,7 @@ export function StoreCatalog({ tienda, productos }: { tienda: Tienda; productos:
   );
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [busqueda, setBusqueda] = useState("");
+  const [productoDetalle, setProductoDetalle] = useState<Producto | null>(null);
 
   const productosFiltrados = productos.filter((p) =>
     coincideBusqueda(busqueda, p.nombre, p.descripcion),
@@ -35,7 +37,7 @@ export function StoreCatalog({ tienda, productos }: { tienda: Tienda; productos:
   return (
     <>
       {productos.length > 0 && (
-        <div className="mb-4 max-w-sm">
+        <div className="mx-auto mb-4 max-w-sm">
           <SearchBox value={busqueda} onChange={setBusqueda} placeholder="Buscar producto..." />
         </div>
       )}
@@ -56,10 +58,22 @@ export function StoreCatalog({ tienda, productos }: { tienda: Tienda; productos:
               producto={producto}
               cantidadEnCarrito={items.find((i) => i.producto.id === producto.id)?.cantidad ?? 0}
               onAdd={addItem}
+              onVerDetalle={setProductoDetalle}
             />
           ))}
         </div>
       )}
+
+      <ProductDetailModal
+        producto={productoDetalle}
+        cantidadEnCarrito={
+          productoDetalle
+            ? (items.find((i) => i.producto.id === productoDetalle.id)?.cantidad ?? 0)
+            : 0
+        }
+        onClose={() => setProductoDetalle(null)}
+        onAdd={addItem}
+      />
 
       <CartDrawer
         items={items}

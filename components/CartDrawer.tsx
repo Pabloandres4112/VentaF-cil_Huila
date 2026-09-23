@@ -13,7 +13,7 @@ import {
 } from "@/components/icons";
 import type { CartItem } from "@/hooks/useCart";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
-import { formatCOP } from "@/lib/utils";
+import { formatCOP, precioEfectivo } from "@/lib/utils";
 
 export function CartDrawer({
   items,
@@ -97,8 +97,8 @@ export function CartDrawer({
               <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium">{item.producto.nombre}</p>
                 <p className="text-xs text-ink-faint">
-                  {formatCOP(item.producto.precio)} ·{" "}
-                  {formatCOP(item.producto.precio * item.cantidad)}
+                  {formatCOP(precioEfectivo(item.producto))} ·{" "}
+                  {formatCOP(precioEfectivo(item.producto) * item.cantidad)}
                 </p>
                 {item.cantidad >= item.producto.stock && (
                   <p className="text-xs text-ink-faint">Ya tienes todo el stock disponible</p>

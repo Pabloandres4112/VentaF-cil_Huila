@@ -35,15 +35,46 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
     <div className="flex min-h-full flex-1 flex-col bg-ground">
       <header className="border-b border-line bg-surface">
-        <div className="mx-auto flex max-w-284 items-center justify-between gap-4 px-5 py-4 sm:px-8">
-          <Link href="/dashboard" className="flex items-center gap-2 font-display text-lg">
-            <VitrinaMark size={26} />
-            Vitrina Digital
-          </Link>
-          <nav className="flex items-center gap-1 rounded-md bg-surface-2 p-1 text-sm font-semibold">
+        <div className="mx-auto flex max-w-284 flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:px-8">
+          <div className="flex items-center justify-between gap-4 sm:contents">
+            <Link href="/dashboard" className="flex items-center gap-2 font-display text-lg">
+              <VitrinaMark size={26} />
+              Vitrina Digital
+            </Link>
+            <div className="flex flex-wrap items-center justify-end gap-1.5 sm:order-3 sm:gap-2">
+              <Link
+                href="/guia"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Ver la guía de uso"
+                title="Guía de uso"
+                className="flex h-8 w-8 items-center justify-center rounded-md border border-line-strong text-ink-soft transition-colors hover:bg-ink/5 sm:h-9 sm:w-9"
+              >
+                <HelpIcon width={16} height={16} />
+              </Link>
+              <SoporteLink />
+              <ThemeToggle labels={THEME_LABELS} />
+              <Link
+                href="/dashboard/perfil"
+                aria-label="Personalizar colores de la tienda"
+                className="flex h-8 w-8 items-center justify-center rounded-md border border-line-strong text-ink-soft transition-colors hover:bg-ink/5 sm:h-9 sm:w-9"
+              >
+                <PaletteIcon width={16} height={16} />
+              </Link>
+              <button
+                type="button"
+                onClick={handleLogout}
+                aria-label="Cerrar sesión"
+                className="flex h-8 w-8 items-center justify-center rounded-md border border-line-strong text-ink-faint transition-colors hover:border-danger hover:text-danger sm:h-9 sm:w-9"
+              >
+                <LogoutIcon width={16} height={16} />
+              </button>
+            </div>
+          </div>
+          <nav className="flex items-center gap-1 rounded-md bg-surface-2 p-1 text-sm font-semibold sm:order-2">
             <Link
               href="/dashboard"
-              className={`rounded px-3 py-1.5 transition-colors ${
+              className={`flex-1 rounded px-3 py-1.5 text-center transition-colors sm:flex-none ${
                 pathname === "/dashboard" ? "bg-surface text-ink" : "text-ink-soft hover:text-ink"
               }`}
             >
@@ -51,7 +82,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </Link>
             <Link
               href="/dashboard/pedidos"
-              className={`rounded px-3 py-1.5 transition-colors ${
+              className={`flex-1 rounded px-3 py-1.5 text-center transition-colors sm:flex-none ${
                 pathname === "/dashboard/pedidos"
                   ? "bg-surface text-ink"
                   : "text-ink-soft hover:text-ink"
@@ -61,7 +92,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
             </Link>
             <Link
               href="/dashboard/perfil"
-              className={`rounded px-3 py-1.5 transition-colors ${
+              className={`flex-1 rounded px-3 py-1.5 text-center transition-colors sm:flex-none ${
                 pathname === "/dashboard/perfil"
                   ? "bg-surface text-ink"
                   : "text-ink-soft hover:text-ink"
@@ -70,35 +101,6 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
               Perfil
             </Link>
           </nav>
-          <div className="flex items-center gap-2">
-            <Link
-              href="/guia"
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="Ver la guía de uso"
-              title="Guía de uso"
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-line-strong text-ink-soft transition-colors hover:bg-ink/5"
-            >
-              <HelpIcon width={16} height={16} />
-            </Link>
-            <SoporteLink />
-            <ThemeToggle labels={THEME_LABELS} />
-            <Link
-              href="/dashboard/perfil"
-              aria-label="Personalizar colores de la tienda"
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-line-strong text-ink-soft transition-colors hover:bg-ink/5"
-            >
-              <PaletteIcon width={16} height={16} />
-            </Link>
-            <button
-              type="button"
-              onClick={handleLogout}
-              aria-label="Cerrar sesión"
-              className="flex h-9 w-9 items-center justify-center rounded-md border border-line-strong text-ink-faint transition-colors hover:border-danger hover:text-danger"
-            >
-              <LogoutIcon width={16} height={16} />
-            </button>
-          </div>
         </div>
       </header>
       <main className="mx-auto w-full max-w-284 flex-1 px-5 py-6 sm:px-8">{children}</main>

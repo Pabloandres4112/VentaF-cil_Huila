@@ -3,6 +3,7 @@
 // Fase 6 (PLAN_EJECUCION.md): carrito local del cliente (sin cuenta, sin backend).
 
 import { useCallback, useEffect, useState } from "react";
+import { precioEfectivo } from "@/lib/utils";
 import type { Producto } from "@/types";
 
 export interface CartItem {
@@ -72,7 +73,7 @@ export function useCart(tiendaId: string) {
 
   const clearCart = useCallback(() => setItems([]), []);
 
-  const total = items.reduce((sum, i) => sum + i.producto.precio * i.cantidad, 0);
+  const total = items.reduce((sum, i) => sum + precioEfectivo(i.producto) * i.cantidad, 0);
   const cantidadTotal = items.reduce((sum, i) => sum + i.cantidad, 0);
 
   return { items, addItem, removeItem, setCantidad, clearCart, total, cantidadTotal };

@@ -8,6 +8,23 @@ export function formatCOP(value: number): string {
   return COP_FORMATTER.format(value);
 }
 
+interface ProductoConPrecio {
+  precio: number;
+  precio_descuento: number | null;
+}
+
+// El precio que de verdad se cobra: si hay oferta, es ese; si no, el normal.
+// Se usa en todo lugar que calcule totales (carrito, checkout, mensaje de
+// WhatsApp) para no cobrar el precio de lista cuando hay un descuento activo.
+export function precioEfectivo(producto: ProductoConPrecio): number {
+  return producto.precio_descuento ?? producto.precio;
+}
+
+export function porcentajeDescuento(producto: ProductoConPrecio): number {
+  if (!producto.precio_descuento) return 0;
+  return Math.round((1 - producto.precio_descuento / producto.precio) * 100);
+}
+
 // Personalización de marca (PLAN_EJECUCION.md): el dueño elige un color
 // libremente (puede ser amarillo, blanco, lo que sea), así que el texto/ícono
 // que va encima no puede quedar fijo en blanco — con un color claro se vuelve

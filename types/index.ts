@@ -37,7 +37,13 @@ export interface Producto {
   nombre: string;
   descripcion: string | null;
   precio: number;
+  // Precio de oferta opcional: si tiene valor, es el que se cobra de verdad
+  // y `precio` se muestra tachado como referencia. NULL = sin oferta.
+  precio_descuento: number | null;
   imagen_url: string | null;
+  // Hasta 2 fotos extra, además de imagen_url (que sigue siendo la
+  // portada/tarjeta). Solo se muestran en el detalle expandido del catálogo.
+  imagenes_adicionales: string[];
   stock: number;
   disponible: boolean;
   created_at: string;
