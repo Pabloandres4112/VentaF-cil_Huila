@@ -64,7 +64,7 @@ export function ProductDetailModal({
         </button>
 
         <div className="flex flex-col overflow-y-auto">
-          <div className="relative aspect-square flex-none bg-surface-2">
+          <div className="relative aspect-square max-h-[45vh] w-full flex-none bg-surface-2 sm:max-h-none">
             {imagenActual ? (
               // eslint-disable-next-line @next/next/no-img-element -- imagen remota de Supabase Storage, sin dominio configurado aún
               <img
