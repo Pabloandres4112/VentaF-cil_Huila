@@ -23,6 +23,15 @@ const ESTADO_LABELS: Record<EstadoPedido, string> = {
   cancelado: "Cancelado",
 };
 
+type FiltroEstado = EstadoPedido | "todos";
+
+const FILTROS: { valor: FiltroEstado; label: string }[] = [
+  { valor: "todos", label: "Todos" },
+  { valor: "pendiente", label: "Pendiente" },
+  { valor: "completado", label: "Completado" },
+  { valor: "cancelado", label: "Cancelado" },
+];
+
 function formatFecha(iso: string): string {
   return new Intl.DateTimeFormat("es-CO", {
     day: "2-digit",
@@ -35,11 +44,14 @@ function formatFecha(iso: string): string {
 export function PedidosPanel({ pedidosIniciales }: { pedidosIniciales: Pedido[] }) {
   const [pedidos, setPedidos] = useState(pedidosIniciales);
   const [busqueda, setBusqueda] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState<FiltroEstado>("todos");
   const [error, setError] = useState<string | null>(null);
   const [, startTransition] = useTransition();
 
-  const pedidosFiltrados = pedidos.filter((p) =>
-    coincideBusqueda(busqueda, p.cliente_nombre, p.referencia, p.cliente_direccion),
+  const pedidosFiltrados = pedidos.filter(
+    (p) =>
+      (filtroEstado === "todos" || p.estado === filtroEstado) &&
+      coincideBusqueda(busqueda, p.cliente_nombre, p.referencia, p.cliente_direccion),
   );
 
   function handleCambiarEstado(id: string, estado: EstadoPedido) {
@@ -69,11 +81,29 @@ export function PedidosPanel({ pedidosIniciales }: { pedidosIniciales: Pedido[] 
       </div>
 
       {pedidos.length > 0 && (
-        <SearchBox
-          value={busqueda}
-          onChange={setBusqueda}
-          placeholder="Buscar por cliente, referencia o dirección..."
-        />
+        <div className="flex flex-col gap-3">
+          <SearchBox
+            value={busqueda}
+            onChange={setBusqueda}
+            placeholder="Buscar por cliente, referencia o dirección..."
+          />
+          <div className="flex flex-wrap gap-2">
+            {FILTROS.map((filtro) => (
+              <button
+                key={filtro.valor}
+                type="button"
+                onClick={() => setFiltroEstado(filtro.valor)}
+                className={`rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${
+                  filtroEstado === filtro.valor
+                    ? "border-accent bg-accent text-accent-ink"
+                    : "border-line-strong text-ink-soft hover:bg-ink/5"
+                }`}
+              >
+                {filtro.label}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
 
       {error && <p className="text-sm text-danger">{error}</p>}
@@ -84,7 +114,9 @@ export function PedidosPanel({ pedidosIniciales }: { pedidosIniciales: Pedido[] 
         </p>
       ) : pedidosFiltrados.length === 0 ? (
         <p className="rounded-xl border border-dashed border-line-strong py-12 text-center text-sm text-ink-soft">
-          Ningún pedido coincide con &quot;{busqueda}&quot;.
+          {busqueda
+            ? `Ningún pedido coincide con "${busqueda}".`
+            : `No tienes pedidos en estado "${ESTADO_LABELS[filtroEstado as EstadoPedido]}".`}
         </p>
       ) : (
         <div className="flex flex-col gap-3">

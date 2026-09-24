@@ -62,6 +62,10 @@ export async function POST(request: NextRequest) {
     valida: resultado.valida,
     estado: resultado.estado,
     fecha_vencimiento: resultado.fecha_vencimiento,
+    // Va en la respuesta porque la firma lo incluye: sin él, el cliente no
+    // puede recalcular el HMAC cuando el servidor firma un hardware_id que
+    // no es el que el cliente mandó (ej. HARDWARE_NO_COINCIDE o INVALIDA).
+    hardware_id: resultado.hardware_id,
     firma_seguridad,
   });
 }

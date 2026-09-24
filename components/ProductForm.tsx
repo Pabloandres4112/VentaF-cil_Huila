@@ -6,16 +6,20 @@ import { useState, type FormEvent, type ReactNode } from "react";
 import { CloseIcon } from "@/components/icons";
 import { ImageUpload } from "@/components/image-upload";
 import { ToggleSwitch } from "@/components/toggle-switch";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import type { NuevoProducto } from "@/services/products";
 import type { Producto } from "@/types";
 
 const INPUT_CLASS =
   "rounded-md border bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent";
 
+const DESCRIPCION_MAX_LARGO = 600;
+
 interface ProductFormErrors {
   nombre?: string;
   precio?: string;
   stock?: string;
+  precioDescuento?: string;
 }
 
 export function ProductForm({
@@ -32,10 +36,20 @@ export function ProductForm({
   const [nombre, setNombre] = useState(producto?.nombre ?? "");
   const [descripcion, setDescripcion] = useState(producto?.descripcion ?? "");
   const [precio, setPrecio] = useState(producto ? String(producto.precio) : "");
+  const [precioDescuento, setPrecioDescuento] = useState(
+    producto?.precio_descuento ? String(producto.precio_descuento) : "",
+  );
   const [stock, setStock] = useState(producto ? String(producto.stock) : "");
   const [imagenUrl, setImagenUrl] = useState<string | null>(producto?.imagen_url ?? null);
+  const [imagenAdicional1, setImagenAdicional1] = useState<string | null>(
+    producto?.imagenes_adicionales[0] ?? null,
+  );
+  const [imagenAdicional2, setImagenAdicional2] = useState<string | null>(
+    producto?.imagenes_adicionales[1] ?? null,
+  );
   const [disponible, setDisponible] = useState(producto?.disponible ?? true);
   const [errors, setErrors] = useState<ProductFormErrors>({});
+  useBodyScrollLock(true);
 
   function validate(): boolean {
     const nextErrors: ProductFormErrors = {};
@@ -54,6 +68,15 @@ export function ProductForm({
       nextErrors.stock = "Ingresa un stock válido (0 o más).";
     }
 
+    if (precioDescuento.trim() !== "") {
+      const precioDescuentoNum = Number(precioDescuento);
+      if (Number.isNaN(precioDescuentoNum) || precioDescuentoNum <= 0) {
+        nextErrors.precioDescuento = "Ingresa un precio mayor a $0.";
+      } else if (!Number.isNaN(precioNum) && precioDescuentoNum >= precioNum) {
+        nextErrors.precioDescuento = "Debe ser menor al precio normal.";
+      }
+    }
+
     setErrors(nextErrors);
     return Object.keys(nextErrors).length === 0;
   }
@@ -66,8 +89,12 @@ export function ProductForm({
       nombre: nombre.trim(),
       descripcion: descripcion.trim() || null,
       precio: Number(precio),
+      precio_descuento: precioDescuento.trim() === "" ? null : Number(precioDescuento),
       stock: Number(stock),
       imagen_url: imagenUrl,
+      imagenes_adicionales: [imagenAdicional1, imagenAdicional2].filter(
+        (url): url is string => Boolean(url),
+      ),
       disponible,
     });
   }
@@ -113,12 +140,14 @@ export function ProductForm({
             />
           </Field>
 
-          <Field label="Descripción">
-            <input
+          <Field label="Descripción" hint={`${descripcion.length}/${DESCRIPCION_MAX_LARGO}`}>
+            <textarea
               value={descripcion}
-              onChange={(e) => setDescripcion(e.target.value)}
-              placeholder="Una línea simple, opcional"
-              className={`${INPUT_CLASS} border-line-strong`}
+              onChange={(e) => setDescripcion(e.target.value.slice(0, DESCRIPCION_MAX_LARGO))}
+              placeholder="Opcional"
+              rows={3}
+              maxLength={DESCRIPCION_MAX_LARGO}
+              className={`${INPUT_CLASS} resize-none border-line-strong`}
             />
           </Field>
 
@@ -151,7 +180,39 @@ export function ProductForm({
             </Field>
           </div>
 
+          <Field label="Precio con descuento (opcional)" error={errors.precioDescuento}>
+            <input
+              type="number"
+              min={0}
+              step={1}
+              inputMode="numeric"
+              value={precioDescuento}
+              onChange={(e) => setPrecioDescuento(e.target.value)}
+              placeholder="Deja vacío si no hay oferta"
+              aria-invalid={Boolean(errors.precioDescuento)}
+              className={`${INPUT_CLASS} ${errors.precioDescuento ? "border-danger" : "border-line-strong"}`}
+            />
+          </Field>
+
           <ImageUpload tiendaId={tiendaId} value={imagenUrl} onChange={setImagenUrl} />
+
+          <div className="flex flex-col gap-3 rounded-md border border-dashed border-line-strong p-3">
+            <p className="text-xs font-semibold text-ink-soft">Fotos adicionales (máx. 2)</p>
+            <div className="grid grid-cols-2 gap-3">
+              <ImageUpload
+                tiendaId={tiendaId}
+                value={imagenAdicional1}
+                onChange={setImagenAdicional1}
+                label="Foto adicional 1"
+              />
+              <ImageUpload
+                tiendaId={tiendaId}
+                value={imagenAdicional2}
+                onChange={setImagenAdicional2}
+                label="Foto adicional 2"
+              />
+            </div>
+          </div>
 
           <label className="flex items-center justify-between rounded-md border border-line-strong px-3.5 py-2.5">
             <span className="text-sm font-semibold text-ink-soft">Visible en el catálogo</span>

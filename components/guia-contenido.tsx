@@ -1,5 +1,10 @@
 import type { ReactNode } from "react";
 
+const NUMERO_SOPORTE = process.env.NEXT_PUBLIC_SOPORTE_WHATSAPP;
+const MENSAJE_SOPORTE = encodeURIComponent(
+  "Hola, necesito ayuda con mi tienda en Vitrina Digital.",
+);
+
 // Guía de uso para el dueño de una tienda — pensada para que cualquiera
 // pueda resolver solo, sin escribirle a soporte, las dudas de "¿y ahora
 // qué hago?" de los primeros días. Ver app/guia/page.tsx.
@@ -113,10 +118,25 @@ export function GuiaContenido() {
       </Section>
 
       <Section title="¿Necesitas ayuda?">
-        <p>
-          Escríbenos por WhatsApp con el botón de soporte que aparece arriba en tu panel — con
-          gusto te ayudamos.
-        </p>
+        {NUMERO_SOPORTE ? (
+          <p>
+            Escríbenos por WhatsApp —{" "}
+            <a
+              href={`https://wa.me/${NUMERO_SOPORTE}?text=${MENSAJE_SOPORTE}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-accent underline underline-offset-2"
+            >
+              haz clic aquí
+            </a>{" "}
+            — o usa el botón de soporte que aparece arriba en tu panel. Con gusto te ayudamos.
+          </p>
+        ) : (
+          <p>
+            Escríbenos por WhatsApp con el botón de soporte que aparece arriba en tu panel — con
+            gusto te ayudamos.
+          </p>
+        )}
       </Section>
     </div>
   );

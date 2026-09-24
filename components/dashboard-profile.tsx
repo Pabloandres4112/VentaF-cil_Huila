@@ -5,7 +5,14 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useTransition, type FormEvent } from "react";
-import { CheckIcon, ColombiaFlagIcon, CopyIcon, DownloadIcon, ResetIcon } from "@/components/icons";
+import {
+  CheckIcon,
+  ColombiaFlagIcon,
+  CopyIcon,
+  DownloadIcon,
+  ResetIcon,
+  WhatsappIcon,
+} from "@/components/icons";
 import { EliminarCuentaModal } from "@/components/eliminar-cuenta-modal";
 import { LogoUpload } from "@/components/logo-upload";
 import { diasHasta } from "@/components/plan-renewal-banner";
@@ -32,6 +39,7 @@ const INPUT_CLASS =
   "rounded-md border bg-ground px-3.5 py-2.5 text-sm text-ink outline-none focus:border-accent";
 
 const INDICATIVO_COLOMBIA = "57";
+const NUMERO_SOPORTE = process.env.NEXT_PUBLIC_SOPORTE_WHATSAPP;
 
 // Mismos valores que usa el catálogo público cuando la tienda no ha elegido
 // colores propios (--accent/--accent-2/--ground en globals.css) — "volver a
@@ -227,9 +235,22 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
             Sin fecha de vencimiento registrada — escríbenos si tienes dudas.
           </p>
         ) : (
-          <p className="mt-2 text-xs text-ink-faint">
-            Hasta {LIMITE_PRODUCTOS_GRATIS} productos. Escríbenos para pasar a Pro.
-          </p>
+          <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm text-ink-soft">Hasta {LIMITE_PRODUCTOS_GRATIS} productos.</p>
+            {NUMERO_SOPORTE && (
+              <a
+                href={`https://wa.me/${NUMERO_SOPORTE}?text=${encodeURIComponent(
+                  `Hola, quiero pasar a plan Pro en Vitrina Digital. Mi tienda es "${tienda.nombre}" (código ${tienda.store_code}).`,
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 rounded-md bg-wa px-3 py-1.5 text-xs font-bold text-wa-ink transition-colors hover:bg-wa/90"
+              >
+                <WhatsappIcon width={14} height={14} />
+                Pasar a Pro
+              </a>
+            )}
+          </div>
         )}
       </div>
 

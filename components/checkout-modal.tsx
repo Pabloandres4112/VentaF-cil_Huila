@@ -6,7 +6,7 @@ import { useState, type FormEvent } from "react";
 import { CloseIcon, WhatsappIcon } from "@/components/icons";
 import type { CartItem } from "@/hooks/useCart";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
-import { formatCOP } from "@/lib/utils";
+import { formatCOP, precioEfectivo } from "@/lib/utils";
 import { buildWhatsappUrl, generarReferenciaPedido } from "@/lib/whatsapp";
 import { crearPedido } from "@/services/pedidos";
 import { descontarStockPedido } from "@/services/products";
@@ -100,8 +100,8 @@ export function CheckoutModal({
           producto_id: item.producto.id,
           nombre: item.producto.nombre,
           cantidad: item.cantidad,
-          precio_unitario: item.producto.precio,
-          subtotal: item.producto.precio * item.cantidad,
+          precio_unitario: precioEfectivo(item.producto),
+          subtotal: precioEfectivo(item.producto) * item.cantidad,
         })),
         total,
       });
@@ -118,7 +118,7 @@ export function CheckoutModal({
       items: items.map((item) => ({
         nombre: item.producto.nombre,
         cantidad: item.cantidad,
-        subtotal: item.producto.precio * item.cantidad,
+        subtotal: precioEfectivo(item.producto) * item.cantidad,
       })),
       total,
     });

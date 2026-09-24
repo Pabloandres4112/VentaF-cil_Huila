@@ -13,7 +13,7 @@ import {
 } from "@/components/icons";
 import type { CartItem } from "@/hooks/useCart";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
-import { formatCOP } from "@/lib/utils";
+import { formatCOP, precioEfectivo } from "@/lib/utils";
 
 export function CartDrawer({
   items,
@@ -52,7 +52,7 @@ export function CartDrawer({
         role="dialog"
         aria-modal="true"
         aria-label="Carrito"
-        className={`fixed inset-0 z-40 flex h-dvh w-full flex-col overflow-hidden bg-surface transition-transform duration-300 ease-out sm:inset-auto sm:right-6 sm:bottom-6 sm:h-auto sm:max-h-120 sm:w-full sm:max-w-sm sm:rounded-2xl sm:border sm:border-line sm:shadow-[0_24px_48px_-20px_rgba(27,36,48,0.55)] ${
+        className={`fixed inset-0 z-40 flex h-dvh w-full flex-col overflow-hidden bg-surface transition-transform duration-300 ease-out sm:inset-auto sm:right-6 sm:bottom-6 sm:h-auto sm:max-h-144 sm:w-full sm:max-w-md sm:rounded-2xl sm:border sm:border-line sm:shadow-[0_24px_48px_-20px_rgba(27,36,48,0.55)] ${
           open
             ? "translate-y-0"
             : "pointer-events-none translate-y-full sm:translate-y-6 sm:opacity-0"
@@ -62,96 +62,129 @@ export function CartDrawer({
           <span className="h-1 w-10 rounded-full bg-line-strong" />
         </div>
 
-        <div className="flex flex-none items-center justify-between border-b border-line px-5 py-3.5 sm:py-4">
-          <h3 className="font-display text-base">
-            Tu pedido <span className="text-ink-faint">· {cantidadTotal}</span>
-          </h3>
+        <div className="flex flex-none items-center justify-between px-5 pb-3 pt-2 sm:pt-5">
+          <div>
+            <h3 className="font-display text-lg leading-tight">Tu pedido</h3>
+            <p className="text-xs text-ink-faint">
+              {cantidadTotal} {cantidadTotal === 1 ? "producto" : "productos"}
+            </p>
+          </div>
           <button
             type="button"
             onClick={() => setOpen(false)}
             aria-label="Cerrar"
-            className="flex h-7 w-7 items-center justify-center rounded-full text-ink-faint transition-colors hover:bg-ink/5 hover:text-ink"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-surface-2 text-ink-soft transition-colors hover:bg-ink/10 hover:text-ink"
           >
-            <CloseIcon width={16} height={16} />
+            <CloseIcon width={14} height={14} />
           </button>
         </div>
 
-        <ul className="flex flex-1 flex-col divide-y divide-line overflow-y-auto overscroll-contain px-5">
-          {items.map((item) => (
-            <li key={item.producto.id} className="flex items-center gap-3 py-3.5">
-              <div className="relative h-12 w-12 flex-none overflow-hidden rounded-lg bg-surface-2">
-                {item.producto.imagen_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- imagen remota, sin dominio configurado aún
-                  <img
-                    src={item.producto.imagen_url}
-                    alt={item.producto.nombre}
-                    className="absolute inset-0 h-full w-full object-contain p-1"
-                  />
-                ) : (
-                  <div className="absolute inset-0 flex items-center justify-center text-ink-faint">
-                    <ImagePlaceholderIcon width={18} height={18} />
-                  </div>
-                )}
-              </div>
+        <ul className="flex flex-1 flex-col divide-y divide-line overflow-y-auto overscroll-contain border-t border-line px-5">
+          {items.map((item) => {
+            const unitario = precioEfectivo(item.producto);
+            const enOferta = Boolean(item.producto.precio_descuento);
+            const sinMasStock = item.cantidad >= item.producto.stock;
 
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium">{item.producto.nombre}</p>
-                <p className="text-xs text-ink-faint">
-                  {formatCOP(item.producto.precio)} ·{" "}
-                  {formatCOP(item.producto.precio * item.cantidad)}
-                </p>
-                {item.cantidad >= item.producto.stock && (
-                  <p className="text-xs text-ink-faint">Ya tienes todo el stock disponible</p>
-                )}
-              </div>
-
-              <div className="flex flex-none items-center gap-2">
-                <div className="flex items-center gap-1 rounded-full bg-surface-2 p-1">
-                  <button
-                    type="button"
-                    onClick={() => onDecrement(item.producto.id)}
-                    aria-label={`Restar ${item.producto.nombre}`}
-                    className="flex h-6 w-6 items-center justify-center rounded-full bg-surface text-ink-soft transition-colors hover:bg-ink/10"
-                  >
-                    <MinusIcon width={12} height={12} />
-                  </button>
-                  <span className="w-4 text-center text-sm tabular-nums">{item.cantidad}</span>
-                  <button
-                    type="button"
-                    onClick={() => onIncrement(item.producto.id)}
-                    disabled={item.cantidad >= item.producto.stock}
-                    aria-label={`Sumar ${item.producto.nombre}`}
-                    className="flex h-6 w-6 items-center justify-center rounded-full bg-surface text-ink-soft transition-colors hover:bg-ink/10 disabled:cursor-not-allowed disabled:opacity-40"
-                  >
-                    <PlusIcon width={12} height={12} />
-                  </button>
+            return (
+              <li key={item.producto.id} className="flex gap-3.5 py-4">
+                <div className="relative h-16 w-16 flex-none overflow-hidden rounded-xl border border-line bg-surface-2">
+                  {item.producto.imagen_url ? (
+                    // eslint-disable-next-line @next/next/no-img-element -- imagen remota, sin dominio configurado aún
+                    <img
+                      src={item.producto.imagen_url}
+                      alt={item.producto.nombre}
+                      className="absolute inset-0 h-full w-full object-contain p-1.5"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center text-ink-faint">
+                      <ImagePlaceholderIcon width={20} height={20} />
+                    </div>
+                  )}
                 </div>
-                <button
-                  type="button"
-                  onClick={() => onRemove(item.producto.id)}
-                  aria-label={`Eliminar ${item.producto.nombre} del carrito`}
-                  className="flex h-8 w-8 flex-none items-center justify-center rounded-md border border-line-strong text-ink-faint transition-colors hover:border-danger hover:text-danger"
-                >
-                  <TrashIcon width={14} height={14} />
-                </button>
-              </div>
-            </li>
-          ))}
+
+                <div className="flex min-w-0 flex-1 flex-col">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="line-clamp-2 text-sm font-semibold leading-snug">
+                      {item.producto.nombre}
+                    </p>
+                    <p className="flex-none text-sm font-bold tabular-nums">
+                      {formatCOP(unitario * item.cantidad)}
+                    </p>
+                  </div>
+
+                  <p className="mt-0.5 flex items-center gap-1.5 text-xs text-ink-faint">
+                    <span className="tabular-nums">{formatCOP(unitario)} c/u</span>
+                    {enOferta && (
+                      <span className="tabular-nums line-through">
+                        {formatCOP(item.producto.precio)}
+                      </span>
+                    )}
+                  </p>
+
+                  <div className="mt-2.5 flex items-center justify-between gap-2">
+                    <div className="inline-flex items-center rounded-full border border-line-strong">
+                      <button
+                        type="button"
+                        onClick={() => onDecrement(item.producto.id)}
+                        aria-label={`Restar ${item.producto.nombre}`}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-ink/5"
+                      >
+                        <MinusIcon width={12} height={12} />
+                      </button>
+                      <span className="w-7 text-center text-sm font-semibold tabular-nums">
+                        {item.cantidad}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => onIncrement(item.producto.id)}
+                        disabled={sinMasStock}
+                        aria-label={`Sumar ${item.producto.nombre}`}
+                        className="flex h-8 w-8 items-center justify-center rounded-full text-ink-soft transition-colors hover:bg-ink/5 disabled:cursor-not-allowed disabled:opacity-40"
+                      >
+                        <PlusIcon width={12} height={12} />
+                      </button>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => onRemove(item.producto.id)}
+                      aria-label={`Eliminar ${item.producto.nombre} del carrito`}
+                      className="flex items-center gap-1 text-xs font-semibold text-ink-faint transition-colors hover:text-danger"
+                    >
+                      <TrashIcon width={13} height={13} />
+                      Quitar
+                    </button>
+                  </div>
+
+                  {sinMasStock && (
+                    <p className="mt-1.5 text-xs text-ink-faint">Llegaste al stock disponible.</p>
+                  )}
+                </div>
+              </li>
+            );
+          })}
         </ul>
 
-        <div className="flex-none border-t border-line px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-3 sm:pb-5">
+        <div className="flex-none border-t border-line bg-surface-2/60 px-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] pt-4 sm:pb-5">
+          <div className="mb-1 flex items-center justify-between text-sm text-ink-soft">
+            <span>Productos ({cantidadTotal})</span>
+            <span className="tabular-nums">{formatCOP(total)}</span>
+          </div>
           <div className="mb-3 flex items-center justify-between">
-            <span className="text-sm text-ink-soft">Total</span>
-            <span className="font-display text-lg tabular-nums">{formatCOP(total)}</span>
+            <span className="text-sm font-semibold">Total</span>
+            <span className="font-display text-xl tabular-nums">{formatCOP(total)}</span>
           </div>
 
           <button
             type="button"
             onClick={onCheckout}
-            className="w-full rounded-md bg-accent px-4 py-3 text-sm font-bold text-accent-ink transition-colors hover:bg-accent/90"
+            className="w-full rounded-lg bg-accent px-4 py-3.5 text-sm font-bold text-accent-ink transition-colors hover:bg-accent/90"
           >
-            Pedir por WhatsApp
+            Finalizar pedido
           </button>
+          <p className="mt-2.5 text-center text-xs text-ink-faint">
+            El pago y la entrega los acuerdas directamente con la tienda por WhatsApp.
+          </p>
         </div>
       </div>
 
@@ -167,7 +200,8 @@ export function CartDrawer({
               {cantidadTotal}
             </span>
           </span>
-          <span className="tabular-nums">{formatCOP(total)}</span>
+          <span>Ver pedido</span>
+          <span className="tabular-nums opacity-90">{formatCOP(total)}</span>
         </button>
       )}
     </>

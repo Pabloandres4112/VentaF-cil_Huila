@@ -33,6 +33,9 @@ yarn-error.log*
 # env files (can opt-in for committing if needed)
 .env*
 
+# notas personales de apoyo (rutina, pendientes) — no se suben al repo
+.notas.md
+
 # vercel
 .vercel
 

@@ -18,10 +18,12 @@ export function ImageUpload({
   tiendaId,
   value,
   onChange,
+  label = "Foto del producto",
 }: {
   tiendaId: string;
   value: string | null;
   onChange: (imagenUrl: string | null) => void;
+  label?: string;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [dragOver, setDragOver] = useState(false);
@@ -73,20 +75,20 @@ export function ImageUpload({
 
   return (
     <div className="flex flex-col gap-1.5">
-      <span className="text-sm font-semibold text-ink-soft">Foto del producto</span>
+      <span className="text-sm font-semibold text-ink-soft">{label}</span>
 
       {value ? (
         <div className="relative h-32 w-32 overflow-hidden rounded-lg border border-line bg-surface-2">
           {/* eslint-disable-next-line @next/next/no-img-element -- imagen remota de Supabase Storage, sin dominio configurado aún */}
           <img
             src={value}
-            alt="Vista previa del producto"
+            alt={`Vista previa: ${label}`}
             className="absolute inset-0 h-full w-full object-contain p-2"
           />
           <button
             type="button"
             onClick={() => onChange(null)}
-            aria-label="Quitar foto"
+            aria-label={`Quitar: ${label}`}
             className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-ink/70 text-white transition-colors hover:bg-ink"
           >
             <CloseIcon width={12} height={12} />
@@ -104,7 +106,7 @@ export function ImageUpload({
           }}
           onDragLeave={() => setDragOver(false)}
           onDrop={handleDrop}
-          aria-label="Subir foto del producto: arrastra un archivo o haz clic para seleccionar"
+          aria-label={`Subir ${label}: arrastra un archivo o haz clic para seleccionar`}
           className={`flex cursor-pointer flex-col items-center justify-center gap-1.5 rounded-lg border-2 border-dashed px-4 py-7 text-center transition-colors ${
             dragOver ? "border-accent bg-accent-soft" : "border-line-strong hover:border-accent"
           }`}

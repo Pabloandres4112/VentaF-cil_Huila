@@ -18,7 +18,7 @@ import { ProductForm } from "@/components/ProductForm";
 import { ToggleSwitch } from "@/components/toggle-switch";
 import { VerCatalogoLink } from "@/components/ver-catalogo-link";
 import { LIMITE_PRODUCTOS_GRATIS, MENSAJE_LIMITE_PRODUCTOS_GRATIS } from "@/lib/plan";
-import { formatCOP } from "@/lib/utils";
+import { formatCOP, precioEfectivo } from "@/lib/utils";
 import {
   actualizarProducto,
   alternarDisponibleProducto,
@@ -238,8 +238,15 @@ export function DashboardInventory({
                   {producto.nombre}
                 </h3>
                 <div className="flex items-center justify-between text-xs text-ink-faint">
-                  <span className="font-display text-base text-ink">
-                    {formatCOP(producto.precio)}
+                  <span className="flex items-center gap-1.5">
+                    <span className="font-display text-base text-ink">
+                      {formatCOP(precioEfectivo(producto))}
+                    </span>
+                    {producto.precio_descuento && (
+                      <span className="tabular-nums line-through">
+                        {formatCOP(producto.precio)}
+                      </span>
+                    )}
                   </span>
                   <span className={producto.stock <= 0 ? "font-bold text-danger" : ""}>
                     Stock: {producto.stock}
