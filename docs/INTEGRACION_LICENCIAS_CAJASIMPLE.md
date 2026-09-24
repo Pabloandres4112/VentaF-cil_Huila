@@ -76,6 +76,7 @@ puede cambiar si se agrega un dominio propio).
   "valida": true,
   "estado": "ACTIVA",
   "fecha_vencimiento": "2026-12-31T23:59:59+00:00",
+  "hardware_id": "un-identificador-estable-de-este-equipo",
   "firma_seguridad": "a3f1...hex..."
 }
 ```
@@ -85,6 +86,7 @@ puede cambiar si se agrega un dominio propio).
 | `valida` | boolean | `true` solo si la licencia puede usarse ahora mismo. Es el único campo que hace falta mirar para decidir "¿dejo entrar al usuario?". |
 | `estado` | string | Por qué es o no válida (ver tabla abajo). Útil para mostrarle al usuario un mensaje concreto, no solo "licencia inválida". |
 | `fecha_vencimiento` | string ISO 8601 o `null` | Fecha de corte de la licencia, si tiene una. `null` = sin fecha de vencimiento. |
+| `hardware_id` | string o `null` | El equipo al que está atada la licencia según el servidor. Normalmente es el mismo que mandaste; en `HARDWARE_NO_COINCIDE` es el del otro equipo, y en `INVALIDA` viene `null`. Se devuelve porque forma parte de la firma. |
 | `firma_seguridad` | string (hex) | Firma para verificar que la respuesta no fue alterada. Ver sección 4 — **importante si CajaSimple va a cachear la respuesta para uso offline**. |
 
 ### Valores posibles de `estado`

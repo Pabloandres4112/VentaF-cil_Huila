@@ -38,7 +38,8 @@ test.describe("checkout — descuento de stock", () => {
     await tarjetaProducto(page)
       .getByRole("button", { name: `Agregar ${productoNombre} al carrito` })
       .click();
-    await page.getByRole("button", { name: /Pedir por WhatsApp/i }).click();
+    await page.getByRole("button", { name: /Ver pedido/i }).click();
+    await page.getByRole("button", { name: /Finalizar pedido/i }).click();
     await page.fill("#checkout-nombre", "Cliente de prueba");
     await page.fill("#checkout-direccion", "Calle falsa 123");
 

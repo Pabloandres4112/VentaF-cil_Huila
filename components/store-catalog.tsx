@@ -15,6 +15,7 @@ import type { Producto, Tienda } from "@/types";
 export function StoreCatalog({ tienda, productos }: { tienda: Tienda; productos: Producto[] }) {
   const { items, addItem, removeItem, setCantidad, clearCart, total, cantidadTotal } = useCart(
     tienda.id,
+    productos,
   );
   const [checkoutOpen, setCheckoutOpen] = useState(false);
   const [busqueda, setBusqueda] = useState("");
@@ -65,6 +66,7 @@ export function StoreCatalog({ tienda, productos }: { tienda: Tienda; productos:
       )}
 
       <ProductDetailModal
+        key={productoDetalle?.id ?? "cerrado"}
         producto={productoDetalle}
         cantidadEnCarrito={
           productoDetalle

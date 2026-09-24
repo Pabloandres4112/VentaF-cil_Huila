@@ -40,7 +40,7 @@ Comunicación: Generador de enlaces wa.me (Lógica de JavaScript que concatena e
 C. El Flujo del Usuario (UX)
 El Dueño: Se registra -> Crea su tienda -> Sube sus productos -> Copia su link único (ej: ventafacil.com/tienda-pablo).
 
-El Cliente: Entra al link -> Agrega al carrito -> Click en "Pedir por WhatsApp" -> Se abre su WhatsApp con el mensaje listo.
+El Cliente: Entra al link -> Agrega al carrito -> Abre el carrito y pulsa "Finalizar pedido" -> Se abre su WhatsApp con el mensaje listo.
 
 
 
