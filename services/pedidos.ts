@@ -7,7 +7,9 @@
 // listar/actualizar sí quedan detrás de RLS ("solo el dueño ve/cambia sus
 // pedidos", ver supabase/schema.sql).
 
+import { puedeContinuar } from "@/lib/rate-limit";
 import { createClient } from "@/lib/supabase/server";
+import { precioEfectivo } from "@/lib/utils";
 import type { EstadoPedido, ItemPedidoGuardado, Pedido } from "@/types";
 
 export interface NuevoPedido {
@@ -19,9 +21,74 @@ export interface NuevoPedido {
   total: number;
 }
 
+function texto(valor: unknown, maximo: number): string {
+  return typeof valor === "string" ? valor.trim().slice(0, maximo) : "";
+}
+
+// Lo que llega del navegador no es de fiar: un comprador podía mandar precios
+// o un total inventados y quedaban guardados tal cual. Aquí se toma del
+// cliente solo QUÉ productos y CUÁNTOS, y el nombre, el precio (con oferta si
+// la hay), el subtotal y el total se recalculan desde la base de datos.
 export async function crearPedido(tiendaId: string, datos: NuevoPedido): Promise<void> {
+  if (!(await puedeContinuar("pedido", 15, 600))) throw new Error("Demasiados intentos");
+
+  const nombre = texto(datos.cliente_nombre, 120);
+  const direccion = texto(datos.cliente_direccion, 300);
+  const metodoPago = texto(datos.metodo_pago, 40);
+  const referencia = texto(datos.referencia, 20);
+  if (nombre.length < 2 || direccion.length < 5 || !metodoPago || !referencia) {
+    throw new Error("Pedido inválido");
+  }
+
+  const solicitados = Array.isArray(datos.items) ? datos.items : [];
+  if (
+    solicitados.length === 0 ||
+    solicitados.length > 50 ||
+    solicitados.some(
+      (i) =>
+        typeof i.producto_id !== "string" ||
+        !Number.isInteger(i.cantidad) ||
+        i.cantidad < 1 ||
+        i.cantidad > 999,
+    )
+  ) {
+    throw new Error("Pedido inválido");
+  }
+
   const supabase = await createClient();
-  const { error } = await supabase.from("pedidos").insert({ ...datos, tienda_id: tiendaId });
+  const ids = [...new Set(solicitados.map((i) => i.producto_id as string))];
+  const { data: productos, error: errorProductos } = await supabase
+    .from("productos")
+    .select("id, tienda_id, nombre, precio, precio_descuento")
+    .in("id", ids);
+  if (errorProductos) throw errorProductos;
+
+  const items: ItemPedidoGuardado[] = solicitados.map((solicitado) => {
+    const producto = productos?.find((p) => p.id === solicitado.producto_id);
+    if (!producto || producto.tienda_id !== tiendaId) throw new Error("Pedido inválido");
+    const precioUnitario = precioEfectivo({
+      precio: Number(producto.precio),
+      precio_descuento: producto.precio_descuento === null ? null : Number(producto.precio_descuento),
+    });
+    return {
+      producto_id: producto.id,
+      nombre: producto.nombre,
+      cantidad: solicitado.cantidad,
+      precio_unitario: precioUnitario,
+      subtotal: precioUnitario * solicitado.cantidad,
+    };
+  });
+  const total = items.reduce((suma, item) => suma + item.subtotal, 0);
+
+  const { error } = await supabase.from("pedidos").insert({
+    tienda_id: tiendaId,
+    referencia,
+    cliente_nombre: nombre,
+    cliente_direccion: direccion,
+    metodo_pago: metodoPago,
+    items,
+    total,
+  });
   if (error) throw error;
 }
 
