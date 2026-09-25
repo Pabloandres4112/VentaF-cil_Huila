@@ -12,6 +12,7 @@ import { useEffect, useRef, useState } from "react";
 import { CloseIcon } from "@/components/icons";
 import { TerminosContenido } from "@/components/terminos-contenido";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
+import { useModalA11y } from "@/hooks/useModalA11y";
 
 const UMBRAL_FINAL_PX = 24;
 
@@ -23,6 +24,8 @@ export function TerminosModal({
   onAccept: () => void;
 }) {
   useBodyScrollLock(true);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useModalA11y(dialogRef, true, onClose);
   const contentRef = useRef<HTMLDivElement>(null);
   const [leidoCompleto, setLeidoCompleto] = useState(false);
   const [marcado, setMarcado] = useState(false);
@@ -52,6 +55,7 @@ export function TerminosModal({
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label="Términos y Condiciones"
@@ -60,6 +64,7 @@ export function TerminosModal({
       <button
         type="button"
         aria-label="Cerrar"
+        tabIndex={-1}
         onClick={onClose}
         className="absolute inset-0 h-full w-full cursor-default"
       />

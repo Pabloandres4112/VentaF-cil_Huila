@@ -1,4 +1,6 @@
+import Link from "next/link";
 import type { ReactNode } from "react";
+import { LEGAL } from "@/lib/legal";
 
 // Contenido de los Términos y Condiciones, compartido entre la página
 // completa (/terminos) y el modal del registro — para no mantener el mismo
@@ -6,14 +8,14 @@ import type { ReactNode } from "react";
 export function TerminosContenido() {
   return (
     <>
-      <p className="mb-6 text-sm text-ink-faint">Última actualización: 17 de agosto de 2026</p>
+      <p className="mb-6 text-sm text-ink-faint">Última actualización: {LEGAL.actualizado}</p>
 
       <div className="mb-6 rounded-xl border border-line-strong bg-surface-2 p-4 text-sm text-ink-soft">
         <strong className="text-ink">Aviso: </strong>
         este documento es un borrador base pensado para acompañar el lanzamiento inicial de
         Vitrina Digital. Antes de considerarlo legalmente vinculante, se recomienda que sea
         revisado por un abogado, en particular en lo relacionado con protección de datos
-        personales (Ley 1581 de 2012) y protección al consumidor (Ley 1480 de 2012) en Colombia.
+        personales (Ley 1581 de 2012) y protección al consumidor (Ley 1480 de 2011) en Colombia.
       </div>
 
       <div className="flex flex-col gap-6 text-sm leading-relaxed text-ink-soft">
@@ -25,6 +27,13 @@ export function TerminosContenido() {
             no vende directamente los productos publicados: es una herramienta de catálogo y
             comunicación entre el Comercio y sus clientes.
           </p>
+          <p className="mt-2">
+            El servicio es operado por {LEGAL.titular}, en {LEGAL.ubicacion}. Contacto:{" "}
+            <a href={`mailto:${LEGAL.email}`} className="font-semibold text-accent underline">
+              {LEGAL.email}
+            </a>
+            .
+          </p>
         </Section>
 
         <Section title="2. Registro y responsabilidad de la cuenta">
@@ -35,6 +44,11 @@ export function TerminosContenido() {
             identificada con un código único (<em>store code</em>) que no puede cambiarse una
             vez creado.
           </p>
+          <p className="mt-2">
+            Debes ser mayor de 18 años y tener capacidad legal para contratar. No está permitido
+            usar el servicio para vender productos ilegales, falsificados o que infrinjan derechos
+            de terceros.
+          </p>
         </Section>
 
         <Section title="3. Contenido publicado por el Comercio">
@@ -43,6 +57,16 @@ export function TerminosContenido() {
             fotos y disponibilidad que publiques en tu catálogo. Vitrina Digital no revisa ni
             garantiza la exactitud de esta información — la relación comercial (venta, entrega,
             garantía) ocurre directamente entre el Comercio y su cliente final.
+          </p>
+          <p className="mt-2">
+            Declaras que tienes derecho a usar las fotos, textos y marcas que publiques (o que
+            cuentas con permiso de sus titulares) y nos autorizas a mostrarlas en tu catálogo. Si
+            alguien reclama que un contenido infringe sus derechos, podemos retirarlo mientras se
+            aclara. Los reclamos se envían a{" "}
+            <a href={`mailto:${LEGAL.email}`} className="font-semibold text-accent underline">
+              {LEGAL.email}
+            </a>
+            .
           </p>
         </Section>
 
@@ -53,6 +77,13 @@ export function TerminosContenido() {
             manual, por los medios que se indiquen al momento de la contratación (ej. Nequi,
             Daviplata, transferencia, Bre-B). Vitrina Digital no almacena ni procesa datos de tarjetas
             ni información financiera sensible.
+          </p>
+          <p className="mt-2">
+            Puedes cancelar tu plan de pago y pedir la devolución de lo pagado según la{" "}
+            <Link href="/reembolsos" className="font-semibold text-accent underline">
+              Política de reembolsos
+            </Link>
+            .
           </p>
         </Section>
 
@@ -74,12 +105,20 @@ export function TerminosContenido() {
 
         <Section title="7. Datos personales">
           <p>
-            Al usar el catálogo público, el cliente final puede compartir su nombre, dirección y
-            otros datos como parte del mensaje de pedido enviado por WhatsApp — esa información
-            viaja directamente al WhatsApp del Comercio y no queda almacenada en los servidores
-            de Vitrina Digital. Los datos de la cuenta del Comercio (correo, nombre de tienda, número
-            de WhatsApp) se almacenan de forma segura únicamente para el funcionamiento del
-            servicio.
+            Cuando un cliente final hace un pedido en tu catálogo, sus datos (nombre, dirección,
+            método de pago elegido y los productos pedidos) llegan a tu WhatsApp y además{" "}
+            <strong className="text-ink">se guardan en Vitrina Digital</strong> para que puedas
+            ver el historial de tus pedidos en tu panel. Tú, como Comercio, decides para qué usas
+            esos datos y eres responsable de tratarlos conforme a la ley (Ley 1581 de 2012):
+            úsalos solo para atender el pedido.
+          </p>
+          <p className="mt-2">
+            Los datos de tu cuenta (correo, nombre de tienda, número de WhatsApp) se almacenan
+            para el funcionamiento del servicio. Todo el detalle está en nuestra{" "}
+            <Link href="/privacidad" className="font-semibold text-accent underline">
+              Política de privacidad
+            </Link>
+            .
           </p>
         </Section>
 
@@ -88,14 +127,17 @@ export function TerminosContenido() {
             Vitrina Digital usa únicamente cookies estrictamente necesarias para el funcionamiento
             del servicio — específicamente, la cookie de sesión que te mantiene conectado a tu
             cuenta después de iniciar sesión. No usamos cookies de publicidad, rastreo entre
-            sitios ni analítica de terceros.
+            sitios ni analítica de terceros. Guardamos además en tu navegador el carrito y tus preferencias; ver la{" "}
+            <Link href="/cookies" className="font-semibold text-accent underline">
+              Política de cookies
+            </Link>
+            .
           </p>
         </Section>
 
         <Section title="9. Propiedad intelectual">
           <p>
-            El nombre &quot;Vitrina Digital&quot;, su diseño y su código son propiedad de Vitrina Digital
-            Huila. El contenido que subas a tu catálogo (fotos, descripciones, nombre de tu
+            El nombre &quot;Vitrina Digital&quot;, su diseño y su código son propiedad de {LEGAL.titular}. El contenido que subas a tu catálogo (fotos, descripciones, nombre de tu
             negocio) sigue siendo de tu propiedad.
           </p>
         </Section>
@@ -121,8 +163,11 @@ export function TerminosContenido() {
 
         <Section title="13. Contacto">
           <p>
-            Para preguntas sobre estos términos, escríbenos por el WhatsApp de contacto
-            disponible en la página principal.
+            Para preguntas sobre estos términos escríbenos a{" "}
+            <a href={`mailto:${LEGAL.email}`} className="font-semibold text-accent underline">
+              {LEGAL.email}
+            </a>
+            .
           </p>
         </Section>
       </div>

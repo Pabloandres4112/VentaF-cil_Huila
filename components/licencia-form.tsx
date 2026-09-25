@@ -2,9 +2,10 @@
 
 // Sistema de Licencias (multi-producto): formulario para generar una nueva licencia.
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { CloseIcon } from "@/components/icons";
-import { DateField } from "@/components/date-field";
+import { DuracionLicencia, vencimientoPrueba } from "@/components/duracion-licencia";
+import { useModalA11y } from "@/hooks/useModalA11y";
 import type { NuevaLicencia } from "@/services/licencias";
 
 const INPUT_CLASS =
@@ -23,8 +24,14 @@ export function LicenciaForm({
 }) {
   const [producto, setProducto] = useState("cajasimple");
   const [clienteNombre, setClienteNombre] = useState("");
-  const [fechaVencimiento, setFechaVencimiento] = useState("");
+  // Arranca con la prueba de 1 mes contada desde hoy; el formulario solo se
+  // monta al abrirlo (en el cliente), así que `new Date()` no desajusta la
+  // hidratación.
+  const [hoy] = useState(() => new Date());
+  const [fechaVencimiento, setFechaVencimiento] = useState(() => vencimientoPrueba());
   const [errors, setErrors] = useState<LicenciaFormErrors>({});
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useModalA11y(dialogRef, true, onClose);
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -50,6 +57,7 @@ export function LicenciaForm({
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label="Generar licencia"
@@ -58,6 +66,7 @@ export function LicenciaForm({
       <button
         type="button"
         aria-label="Cerrar"
+        tabIndex={-1}
         onClick={onClose}
         className="absolute inset-0 h-full w-full cursor-default"
       />
@@ -109,12 +118,15 @@ export function LicenciaForm({
             <label htmlFor="lic-vencimiento" className="text-sm font-semibold text-ink-soft">
               Fecha de vencimiento
             </label>
-            <DateField
+            <DuracionLicencia
               id="lic-vencimiento"
               value={fechaVencimiento}
               onChange={setFechaVencimiento}
+              desde={hoy}
+              atajoInicial="1m"
+              esPrueba
+              permitirSinVencimiento
             />
-            <p className="text-xs text-ink-faint">Opcional — déjalo vacío si no tiene vencimiento.</p>
           </div>
 
           <div className="mt-2 flex gap-3">

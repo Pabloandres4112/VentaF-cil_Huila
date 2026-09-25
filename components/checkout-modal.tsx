@@ -2,10 +2,12 @@
 
 // Fase 6/7 (PLAN_EJECUCION.md): modal de checkout que arma el mensaje y abre wa.me.
 
-import { useState, type FormEvent } from "react";
+import Link from "next/link";
+import { useRef, useState, type FormEvent } from "react";
 import { CloseIcon, WhatsappIcon } from "@/components/icons";
 import type { CartItem } from "@/hooks/useCart";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
+import { useModalA11y } from "@/hooks/useModalA11y";
 import { formatCOP, precioEfectivo } from "@/lib/utils";
 import { buildWhatsappUrl, generarReferenciaPedido } from "@/lib/whatsapp";
 import { crearPedido } from "@/services/pedidos";
@@ -16,6 +18,7 @@ const METODOS_PAGO = ["Nequi", "Daviplata", "Efectivo"] as const;
 interface CheckoutErrors {
   nombre?: string;
   direccion?: string;
+  autorizacion?: string;
   general?: string;
 }
 
@@ -41,9 +44,12 @@ export function CheckoutModal({
   const [nombre, setNombre] = useState("");
   const [direccion, setDireccion] = useState("");
   const [metodoPago, setMetodoPago] = useState<string>(METODOS_PAGO[0]);
+  const [autoriza, setAutoriza] = useState(false);
   const [errors, setErrors] = useState<CheckoutErrors>({});
   const [enviando, setEnviando] = useState(false);
   useBodyScrollLock(open);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useModalA11y(dialogRef, open, onClose);
 
   if (!open) return null;
 
@@ -53,6 +59,7 @@ export function CheckoutModal({
     const nextErrors: CheckoutErrors = {};
     if (nombre.trim().length < 2) nextErrors.nombre = "Ingresa tu nombre completo.";
     if (direccion.trim().length < 5) nextErrors.direccion = "Ingresa una dirección válida.";
+    if (!autoriza) nextErrors.autorizacion = "Debes autorizar el uso de tus datos para enviar el pedido.";
     setErrors(nextErrors);
     if (Object.keys(nextErrors).length > 0) return;
 
@@ -129,6 +136,7 @@ export function CheckoutModal({
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label="Finalizar pedido"
@@ -137,6 +145,7 @@ export function CheckoutModal({
       <button
         type="button"
         aria-label="Cerrar"
+        tabIndex={-1}
         onClick={onClose}
         className="absolute inset-0 h-full w-full cursor-default"
       />
@@ -202,6 +211,32 @@ export function CheckoutModal({
                 </button>
               ))}
             </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="flex items-start gap-2.5 text-xs leading-relaxed text-ink-soft">
+              <input
+                type="checkbox"
+                checked={autoriza}
+                onChange={(e) => setAutoriza(e.target.checked)}
+                aria-invalid={Boolean(errors.autorizacion)}
+                className="mt-0.5 h-4 w-4 flex-none accent-accent"
+              />
+              <span>
+                Autorizo que {tiendaNombre} reciba mi nombre y dirección para atender este pedido,
+                y que se guarden en Vitrina Digital para su historial. Más información en la{" "}
+                <Link
+                  href="/privacidad"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-semibold underline underline-offset-2 hover:text-ink"
+                >
+                  Política de privacidad
+                </Link>
+                .
+              </span>
+            </label>
+            {errors.autorizacion && <p className="text-xs text-danger">{errors.autorizacion}</p>}
           </div>
 
           <div className="flex items-center justify-between border-t border-line pt-3 text-sm">

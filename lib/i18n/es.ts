@@ -23,16 +23,16 @@ export const es: HomeDict = {
     proof: [
       "Listo en menos de 5 minutos",
       "Sin tarjeta de crédito",
-      "Hecho para Isnos y Pitalito",
+      "Pedidos directos a tu WhatsApp",
     ],
     ticketShop: "Donde Marleny",
-    ticketLabel: "Catálogo",
+    ticketLabel: "Catálogo de ejemplo",
     ticket: [
       { name: "Arroz Diana 500g", price: 2500 },
       { name: "Café Huila 500g", price: 14000 },
       { name: "Aceite Gourmet 1L", price: 9800, tag: "Sin stock" },
     ],
-    waCaption: "Así llega a tu WhatsApp",
+    waCaption: "Así llega a tu WhatsApp (ejemplo)",
     waHeader: "Nuevo pedido — Vitrina Digital",
     waClientLabel: "Cliente:",
     waClientValue: "María Fernanda",
@@ -87,7 +87,7 @@ export const es: HomeDict = {
       {
         title: "Comparte tu link",
         description:
-          "ventafacil.com/store/tu-código — pégalo en tu estado de WhatsApp o Instagram.",
+          "Tu link propio, como vitrina-digital-prod.vercel.app/store/tu-código — pégalo en tu estado de WhatsApp o Instagram.",
       },
     ],
     clientSteps: [
@@ -157,7 +157,7 @@ export const es: HomeDict = {
   examples: {
     eyebrow: "Para negocios como el tuyo",
     title: "De la ferretería a la tienda de ropa.",
-    body: "Vitrina Digital no está pensado para un solo tipo de negocio. Así se vería tu catálogo según a qué te dediques.",
+    body: "Vitrina Digital no está pensado para un solo tipo de negocio. Así se vería tu catálogo según a qué te dediques. Los negocios y precios de abajo son ejemplos ilustrativos, no clientes reales.",
     shops: [
       {
         name: "Ferretería El Tornillo",
@@ -198,6 +198,9 @@ export const es: HomeDict = {
     madeFor: "Hecho para pequeños negocios en Colombia.",
     disclaimer: "Vitrina Digital no está afiliado a WhatsApp Inc. — usamos enlaces públicos wa.me.",
     terms: "Términos y Condiciones",
+    privacy: "Política de privacidad",
+    cookies: "Política de cookies",
+    refunds: "Reembolsos",
     guide: "Guía de uso",
   },
   theme: {

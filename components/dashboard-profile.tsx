@@ -19,6 +19,7 @@ import { diasHasta } from "@/components/plan-renewal-banner";
 import { eliminarCuenta, exportarDatosCuenta } from "@/services/account";
 import { actualizarTienda } from "@/services/store";
 import { VerCatalogoLink } from "@/components/ver-catalogo-link";
+import { useHost } from "@/hooks/useHost";
 import { createClient } from "@/lib/supabase/client";
 import { LIMITE_PRODUCTOS_GRATIS } from "@/lib/plan";
 import { pickContrastingInk } from "@/lib/utils";
@@ -89,6 +90,7 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
   const [errorExportar, setErrorExportar] = useState(false);
 
   const storeUrl = `/store/${tienda.store_code}`;
+  const host = useHost();
 
   async function handleExportar() {
     setExportando(true);
@@ -186,7 +188,10 @@ export function DashboardProfile({ tienda: tiendaInicial }: { tienda: Tienda }) 
         </div>
         <p className="font-display mb-1 text-lg">{tienda.store_code}</p>
         <div className="flex items-center justify-between gap-2">
-          <p className="truncate text-sm text-ink-soft">ventafacil.com{storeUrl}</p>
+          <p className="truncate text-sm text-ink-soft">
+            {host}
+            {storeUrl}
+          </p>
           <button
             type="button"
             onClick={handleCopy}

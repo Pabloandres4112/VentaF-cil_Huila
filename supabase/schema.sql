@@ -110,6 +110,15 @@ CREATE TABLE public.licencias (
   tienda_id UUID REFERENCES public.tiendas(id) ON DELETE SET NULL,
   estado TEXT NOT NULL DEFAULT 'ACTIVA' CHECK (estado IN ('ACTIVA', 'DESHABILITADA')),
   fecha_vencimiento TIMESTAMP WITH TIME ZONE,
+  -- Datos opcionales que manda la app al activar (ver migración más abajo).
+  negocio TEXT,
+  responsable TEXT,
+  telefono TEXT,
+  terminos_version TEXT,
+  terminos_aceptados_en TIMESTAMP WITH TIME ZONE,
+  datos_recibidos_en TIMESTAMP WITH TIME ZONE,
+  revision_pendiente BOOLEAN NOT NULL DEFAULT FALSE,
+  revision_motivo TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
@@ -415,3 +424,35 @@ ALTER TABLE public.productos ADD COLUMN IF NOT EXISTS precio_descuento NUMERIC(1
 ALTER TABLE public.productos DROP CONSTRAINT IF EXISTS productos_precio_descuento_check;
 ALTER TABLE public.productos ADD CONSTRAINT productos_precio_descuento_check
   CHECK (precio_descuento IS NULL OR (precio_descuento > 0 AND precio_descuento < precio));
+
+-- =============================================================================
+-- MIGRACIÓN — Datos del cliente en las licencias.
+-- CajaSimple manda (opcional) negocio/responsable/teléfono y la aceptación de
+-- términos al validar; se guardan aquí para verlos en /admin/licencias. Son
+-- datos personales: la tabla sigue bloqueada por RLS (solo service role) y
+-- ninguna respuesta de la API los devuelve. `revision_pendiente` se enciende
+-- solo cuando negocio o teléfono cambian respecto a lo ya guardado (no
+-- bloquea nada; es un aviso para que el operador escriba al cliente).
+-- =============================================================================
+
+ALTER TABLE public.licencias ADD COLUMN IF NOT EXISTS negocio TEXT;
+ALTER TABLE public.licencias ADD COLUMN IF NOT EXISTS responsable TEXT;
+ALTER TABLE public.licencias ADD COLUMN IF NOT EXISTS telefono TEXT;
+ALTER TABLE public.licencias ADD COLUMN IF NOT EXISTS terminos_version TEXT;
+ALTER TABLE public.licencias ADD COLUMN IF NOT EXISTS terminos_aceptados_en TIMESTAMP WITH TIME ZONE;
+ALTER TABLE public.licencias ADD COLUMN IF NOT EXISTS datos_recibidos_en TIMESTAMP WITH TIME ZONE;
+ALTER TABLE public.licencias ADD COLUMN IF NOT EXISTS revision_pendiente BOOLEAN NOT NULL DEFAULT FALSE;
+ALTER TABLE public.licencias ADD COLUMN IF NOT EXISTS revision_motivo TEXT;
+
+-- =============================================================================
+-- MIGRACIÓN — Bucket público `cajasimple` (descargas de la app de escritorio).
+-- Guarda el instalador de CajaSimple, su firma y latest.json, para que subir
+-- una versión nueva no exija redesplegar Vitrina Digital. Público solo de
+-- LECTURA: no se crea ninguna política de escritura, así que solo quien tenga
+-- la service_role (scripts/subir-cajasimple.mjs) puede subir archivos. El
+-- script también crea el bucket si no existe; este bloque es la forma manual.
+-- =============================================================================
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('cajasimple', 'cajasimple', true)
+ON CONFLICT (id) DO NOTHING;

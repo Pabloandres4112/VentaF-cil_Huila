@@ -108,6 +108,17 @@ export interface Licencia {
   tienda_id: string | null;
   estado: EstadoLicenciaAdmin;
   fecha_vencimiento: string | null;
+  // Datos opcionales que manda la app al activar (no entran en la firma).
+  negocio: string | null;
+  responsable: string | null;
+  telefono: string | null;
+  terminos_version: string | null;
+  terminos_aceptados_en: string | null;
+  datos_recibidos_en: string | null;
+  // Se enciende solo si negocio/teléfono cambian respecto a lo ya guardado;
+  // no bloquea nada, es un aviso para que el operador contacte al cliente.
+  revision_pendiente: boolean;
+  revision_motivo: string | null;
   created_at: string;
   updated_at: string;
 }

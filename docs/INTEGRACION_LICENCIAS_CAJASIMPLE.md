@@ -69,6 +69,30 @@ puede cambiar si se agrega un dominio propio).
   algo propio del sistema operativo (ID de máquina, disco, MAC address) y
   guardarlo una vez en el almacenamiento local de la app.
 
+### Campos opcionales: datos del cliente y términos
+
+Además de `licencia_key` y `hardware_id`, el body puede incluir estos dos
+objetos. Ambos son **opcionales** (las versiones que no los mandan siguen
+funcionando igual) y **no entran en la firma ni cambian la respuesta**:
+
+```json
+{
+  "licencia_key": "CAJA-7F3A9C1B2D",
+  "hardware_id": "un-identificador-estable-de-este-equipo",
+  "cliente": { "negocio": "Tienda X", "responsable": "Ana", "telefono": "3001234567" },
+  "terminos": { "version": "1.0", "aceptados_en": "2026-09-24T15:00:00Z" }
+}
+```
+
+- Se guardan junto a la licencia para que el operador los vea en el panel, y
+  se actualizan en cada validación si cambian. Cualquier campo vacío,
+  inválido o desconocido simplemente se ignora (no da error).
+- `aceptados_en` debe ser una fecha ISO 8601 en UTC.
+- Si `negocio` o `telefono` cambian respecto a lo ya guardado, la licencia
+  queda **marcada para revisión** en el panel. Es solo un aviso para el
+  operador: **no bloquea** la validación.
+- Los datos personales nunca se devuelven en la respuesta.
+
 ### Respuesta (200 OK)
 
 ```json

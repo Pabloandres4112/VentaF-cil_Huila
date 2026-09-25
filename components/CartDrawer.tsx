@@ -2,7 +2,7 @@
 
 // Fase 6 (PLAN_EJECUCION.md): carrito — bottom sheet en mobile, panel flotante en desktop.
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import {
   CartIcon,
   CloseIcon,
@@ -13,6 +13,7 @@ import {
 } from "@/components/icons";
 import type { CartItem } from "@/hooks/useCart";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
+import { useModalA11y } from "@/hooks/useModalA11y";
 import { formatCOP, precioEfectivo } from "@/lib/utils";
 
 export function CartDrawer({
@@ -34,6 +35,8 @@ export function CartDrawer({
 }) {
   const [open, setOpen] = useState(false);
   useBodyScrollLock(open);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useModalA11y(dialogRef, open, () => setOpen(false));
 
   if (cantidadTotal === 0) return null;
 
@@ -42,6 +45,7 @@ export function CartDrawer({
       <button
         type="button"
         aria-label="Cerrar carrito"
+        tabIndex={-1}
         onClick={() => setOpen(false)}
         className={`fixed inset-0 z-30 bg-ink/50 transition-opacity duration-200 ${
           open ? "opacity-100" : "pointer-events-none opacity-0"
@@ -49,6 +53,8 @@ export function CartDrawer({
       />
 
       <div
+        ref={dialogRef}
+        inert={!open}
         role="dialog"
         aria-modal="true"
         aria-label="Carrito"

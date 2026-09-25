@@ -8,6 +8,23 @@ export function formatCOP(value: number): string {
   return COP_FORMATTER.format(value);
 }
 
+// "YYYY-MM-DD" en hora local (el formato que usa DateField).
+export function aFechaISO(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+// Suma meses de calendario sin desbordar: 31 de enero + 1 mes = 28/29 de
+// febrero, no el 3 de marzo (que es lo que da Date.setMonth a secas).
+export function sumarMeses(base: Date, meses: number): Date {
+  const destino = new Date(base.getFullYear(), base.getMonth() + meses, 1);
+  const ultimoDia = new Date(destino.getFullYear(), destino.getMonth() + 1, 0).getDate();
+  destino.setDate(Math.min(base.getDate(), ultimoDia));
+  return destino;
+}
+
 interface ProductoConPrecio {
   precio: number;
   precio_descuento: number | null;

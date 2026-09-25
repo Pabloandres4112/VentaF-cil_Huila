@@ -6,9 +6,10 @@
 // mueble). Muestra la portada + hasta 2 fotos adicionales y la descripción
 // completa, sin truncar.
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { ArrowLeftIcon, CloseIcon, ImagePlaceholderIcon, PlusIcon } from "@/components/icons";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
+import { useModalA11y } from "@/hooks/useModalA11y";
 import { formatCOP, porcentajeDescuento, precioEfectivo } from "@/lib/utils";
 import type { Producto } from "@/types";
 
@@ -25,6 +26,8 @@ export function ProductDetailModal({
 }) {
   const [indiceImagen, setIndiceImagen] = useState(0);
   useBodyScrollLock(Boolean(producto));
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useModalA11y(dialogRef, Boolean(producto), onClose);
 
   if (!producto) return null;
 
@@ -42,6 +45,7 @@ export function ProductDetailModal({
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={`Detalle de ${producto.nombre}`}
@@ -50,6 +54,7 @@ export function ProductDetailModal({
       <button
         type="button"
         aria-label="Cerrar"
+        tabIndex={-1}
         onClick={onClose}
         className="absolute inset-0 h-full w-full cursor-default"
       />

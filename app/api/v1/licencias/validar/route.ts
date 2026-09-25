@@ -1,6 +1,10 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { firmarLicencia } from "@/lib/licencias/signature";
-import { puedeIntentarValidarLicencia, validarLicencia } from "@/services/licencias";
+import {
+  extraerDatosActivacion,
+  puedeIntentarValidarLicencia,
+  validarLicencia,
+} from "@/lib/licencias/validacion";
 
 // Sistema de Licencias (multi-producto) — endpoint público consumido por
 // CajaSimple (app de escritorio externa, no forma parte de este repo). Ver
@@ -49,7 +53,9 @@ export async function POST(request: NextRequest) {
   const hardwareId: string | null =
     typeof body?.hardware_id === "string" ? body.hardware_id : null;
 
-  const resultado = await validarLicencia(licenciaKey, hardwareId);
+  // `cliente` y `terminos` son opcionales y NO entran en la firma ni en la
+  // respuesta — solo se guardan para el panel de licencias.
+  const resultado = await validarLicencia(licenciaKey, hardwareId, extraerDatosActivacion(body));
 
   const firma_seguridad = firmarLicencia({
     licencia_key: licenciaKey.toUpperCase(),
