@@ -11,7 +11,7 @@
   color-scheme: light dark;
   --ink: #1b2430;
   --ink-soft: #58626f;
-  --ink-faint: #8991a0;
+  --ink-faint: #616b7a;
   --ground: #f6f7f9;
   --surface: #ffffff;
   --surface-2: #eef0f3;
@@ -22,7 +22,7 @@
   --accent-soft: #e5eaf1;
   --accent-2: #58626f;
   --accent-2-ink: #ffffff;
-  --wa: #239458;
+  --wa: #1c7a47;
   --wa-deep: #186b3f;
   --wa-ink: #ffffff;
   --wa-tint: #e4f3ea;
@@ -34,7 +34,7 @@
   :root:not([data-theme="light"]) {
     --ink: #e9ecf1;
     --ink-soft: #acb5c2;
-    --ink-faint: #78818f;
+    --ink-faint: #8b94a2;
     --ground: #10131a;
     --surface: #171c25;
     --surface-2: #1e2430;
@@ -45,7 +45,7 @@
     --accent-soft: #1d2a3a;
     --accent-2: #acb5c2;
     --accent-2-ink: #10131a;
-    --wa: #2fa766;
+    --wa: #1d8250;
     --wa-deep: #7fe0a6;
     --wa-ink: #ffffff;
     --wa-tint: #14291d;
@@ -57,7 +57,7 @@
 :root[data-theme="dark"] {
   --ink: #e9ecf1;
   --ink-soft: #acb5c2;
-  --ink-faint: #78818f;
+  --ink-faint: #8b94a2;
   --ground: #10131a;
   --surface: #171c25;
   --surface-2: #1e2430;
@@ -68,7 +68,7 @@
   --accent-soft: #1d2a3a;
   --accent-2: #acb5c2;
   --accent-2-ink: #10131a;
-  --wa: #2fa766;
+  --wa: #1d8250;
   --wa-deep: #7fe0a6;
   --wa-ink: #ffffff;
   --wa-tint: #14291d;

@@ -3,10 +3,11 @@
 // Fase 6/7 (PLAN_EJECUCION.md): modal de checkout que arma el mensaje y abre wa.me.
 
 import Link from "next/link";
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { CloseIcon, WhatsappIcon } from "@/components/icons";
 import type { CartItem } from "@/hooks/useCart";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
+import { useModalA11y } from "@/hooks/useModalA11y";
 import { formatCOP, precioEfectivo } from "@/lib/utils";
 import { buildWhatsappUrl, generarReferenciaPedido } from "@/lib/whatsapp";
 import { crearPedido } from "@/services/pedidos";
@@ -47,6 +48,8 @@ export function CheckoutModal({
   const [errors, setErrors] = useState<CheckoutErrors>({});
   const [enviando, setEnviando] = useState(false);
   useBodyScrollLock(open);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useModalA11y(dialogRef, open, onClose);
 
   if (!open) return null;
 
@@ -133,6 +136,7 @@ export function CheckoutModal({
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label="Finalizar pedido"
@@ -141,6 +145,7 @@ export function CheckoutModal({
       <button
         type="button"
         aria-label="Cerrar"
+        tabIndex={-1}
         onClick={onClose}
         className="absolute inset-0 h-full w-full cursor-default"
       />

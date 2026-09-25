@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { HomeContent } from "@/components/home-content";
+import { SetHtmlLang } from "@/components/set-html-lang";
 import { dictionaries } from "@/lib/i18n";
 
 export const metadata: Metadata = {
@@ -8,5 +9,10 @@ export const metadata: Metadata = {
 };
 
 export default function LandingPageEn() {
-  return <HomeContent dict={dictionaries.en} locale="en" />;
+  return (
+    <>
+      <SetHtmlLang lang="en" />
+      <HomeContent dict={dictionaries.en} locale="en" />
+    </>
+  );
 }
