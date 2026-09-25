@@ -6,11 +6,15 @@
 
 import { useState, useTransition } from "react";
 import { CheckIcon, CopyIcon, PlusIcon, TrashIcon } from "@/components/icons";
+import { DateField } from "@/components/date-field";
 import { LicenciaForm } from "@/components/licencia-form";
 import {
   actualizarEstadoLicencia,
   crearLicencia,
   eliminarLicencia,
+  extenderVencimientoLicencia,
+  liberarEquipoLicencia,
+  marcarLicenciaRevisada,
   type NuevaLicencia,
 } from "@/services/licencias";
 import type { EstadoLicenciaAdmin, Licencia } from "@/types";
@@ -29,10 +33,16 @@ function formatFecha(fecha: string | null): string {
   });
 }
 
+const BOTON_SECUNDARIO =
+  "rounded-md border border-line-strong px-2.5 py-1.5 text-xs font-bold text-ink-soft transition-colors hover:bg-ink/5 disabled:opacity-50";
+
 export function LicenciasPanel({ licenciasIniciales }: { licenciasIniciales: Licencia[] }) {
   const [licencias, setLicencias] = useState<Licencia[]>(licenciasIniciales);
   const [formOpen, setFormOpen] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+  const [confirmLiberarId, setConfirmLiberarId] = useState<string | null>(null);
+  const [extendiendoId, setExtendiendoId] = useState<string | null>(null);
+  const [fechaNueva, setFechaNueva] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
@@ -56,18 +66,72 @@ export function LicenciasPanel({ licenciasIniciales }: { licenciasIniciales: Lic
     });
   }
 
-  function handleCambiarEstado(id: string, estado: EstadoLicenciaAdmin) {
+  // Aplica un cambio local de inmediato y lo revierte si el servidor falla,
+  // igual que el resto de paneles (TiendasPanel, PedidosPanel).
+  function actualizar(
+    id: string,
+    cambios: Partial<Licencia>,
+    accion: () => Promise<void>,
+    mensajeError: string,
+  ) {
     const anterior = licencias;
-    setLicencias((prev) => prev.map((l) => (l.id === id ? { ...l, estado } : l)));
+    setLicencias((prev) => prev.map((l) => (l.id === id ? { ...l, ...cambios } : l)));
     startTransition(async () => {
       try {
-        await actualizarEstadoLicencia(id, estado);
+        await accion();
         setError(null);
       } catch {
         setLicencias(anterior);
-        setError("No se pudo actualizar el estado. Intenta de nuevo.");
+        setError(mensajeError);
       }
     });
+  }
+
+  function handleCambiarEstado(id: string, estado: EstadoLicenciaAdmin) {
+    actualizar(
+      id,
+      { estado },
+      () => actualizarEstadoLicencia(id, estado),
+      "No se pudo actualizar el estado. Intenta de nuevo.",
+    );
+  }
+
+  function abrirExtender(licencia: Licencia) {
+    setExtendiendoId(licencia.id);
+    setFechaNueva("");
+    setConfirmLiberarId(null);
+  }
+
+  function handleExtender(id: string) {
+    if (!fechaNueva) return;
+    // El selector da solo la fecha (YYYY-MM-DD); la licencia vence al final de ese día.
+    const fechaISO = new Date(`${fechaNueva}T23:59:59`).toISOString();
+    setExtendiendoId(null);
+    actualizar(
+      id,
+      { fecha_vencimiento: fechaISO },
+      () => extenderVencimientoLicencia(id, fechaISO),
+      "No se pudo extender el vencimiento. Intenta de nuevo.",
+    );
+  }
+
+  function handleLiberar(id: string) {
+    setConfirmLiberarId(null);
+    actualizar(
+      id,
+      { hardware_id: null },
+      () => liberarEquipoLicencia(id),
+      "No se pudo liberar el equipo. Intenta de nuevo.",
+    );
+  }
+
+  function handleRevisada(id: string) {
+    actualizar(
+      id,
+      { revision_pendiente: false, revision_motivo: null },
+      () => marcarLicenciaRevisada(id),
+      "No se pudo marcar como revisada. Intenta de nuevo.",
+    );
   }
 
   function handleEliminar(id: string) {
@@ -116,75 +180,196 @@ export function LicenciasPanel({ licenciasIniciales }: { licenciasIniciales: Lic
           {licencias.map((licencia) => (
             <div
               key={licencia.id}
-              className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-4 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-3 rounded-xl border border-line bg-surface p-4"
             >
-              <div className="min-w-0">
-                <div className="mb-1 flex flex-wrap items-center gap-2">
-                  <span className="font-display text-sm tabular-nums">{licencia.licencia_key}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleCopy(licencia.id, licencia.licencia_key)}
-                    aria-label={`Copiar código ${licencia.licencia_key}`}
-                    className="flex h-6 w-6 items-center justify-center rounded text-ink-faint transition-colors hover:bg-ink/5 hover:text-ink"
-                  >
-                    {copiedId === licencia.id ? (
-                      <CheckIcon width={13} height={13} className="text-wa-deep" />
-                    ) : (
-                      <CopyIcon width={13} height={13} />
-                    )}
-                  </button>
-                  <span className="rounded bg-surface-2 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-ink-faint">
-                    {licencia.producto}
-                  </span>
-                </div>
-                <p className="text-sm font-medium">{licencia.cliente_nombre}</p>
-                <p className="text-xs text-ink-faint">
-                  Vence: {formatFecha(licencia.fecha_vencimiento)} ·{" "}
-                  {licencia.hardware_id ? "Activada en un equipo" : "Sin activar"}
-                </p>
-              </div>
-
-              <div className="flex flex-none items-center gap-2">
-                <select
-                  value={licencia.estado}
-                  onChange={(e) =>
-                    handleCambiarEstado(licencia.id, e.target.value as EstadoLicenciaAdmin)
-                  }
-                  disabled={isPending}
-                  aria-label={`Estado de la licencia de ${licencia.cliente_nombre}`}
-                  className={`rounded-md border-0 px-2.5 py-1.5 text-xs font-bold uppercase tracking-wide outline-none ${ESTADO_STYLES[licencia.estado]}`}
-                >
-                  <option value="ACTIVA">Activa</option>
-                  <option value="DESHABILITADA">Deshabilitada</option>
-                </select>
-
-                {confirmDeleteId === licencia.id ? (
-                  <div className="flex items-center gap-1.5">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <div className="mb-1 flex flex-wrap items-center gap-2">
+                    <span className="font-display text-sm tabular-nums">{licencia.licencia_key}</span>
                     <button
                       type="button"
-                      onClick={() => setConfirmDeleteId(null)}
-                      className="rounded-md border border-line-strong px-2.5 py-1.5 text-xs font-bold text-ink-soft transition-colors hover:bg-ink/5"
+                      onClick={() => handleCopy(licencia.id, licencia.licencia_key)}
+                      aria-label={`Copiar código ${licencia.licencia_key}`}
+                      className="flex h-6 w-6 items-center justify-center rounded text-ink-faint transition-colors hover:bg-ink/5 hover:text-ink"
+                    >
+                      {copiedId === licencia.id ? (
+                        <CheckIcon width={13} height={13} className="text-wa-deep" />
+                      ) : (
+                        <CopyIcon width={13} height={13} />
+                      )}
+                    </button>
+                    <span className="rounded bg-surface-2 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-wide text-ink-faint">
+                      {licencia.producto}
+                    </span>
+                  </div>
+                  <p className="text-sm font-medium">{licencia.cliente_nombre}</p>
+                  <p className="text-xs text-ink-faint">
+                    Vence: {formatFecha(licencia.fecha_vencimiento)} ·{" "}
+                    {licencia.hardware_id ? "Activada en un equipo" : "Sin activar"}
+                  </p>
+                </div>
+
+                <div className="flex flex-none items-center gap-2">
+                  <select
+                    value={licencia.estado}
+                    onChange={(e) =>
+                      handleCambiarEstado(licencia.id, e.target.value as EstadoLicenciaAdmin)
+                    }
+                    disabled={isPending}
+                    aria-label={`Estado de la licencia de ${licencia.cliente_nombre}`}
+                    className={`rounded-md border-0 px-2.5 py-1.5 text-xs font-bold uppercase tracking-wide outline-none ${ESTADO_STYLES[licencia.estado]}`}
+                  >
+                    <option value="ACTIVA">Activa</option>
+                    <option value="DESHABILITADA">Deshabilitada</option>
+                  </select>
+
+                  {confirmDeleteId === licencia.id ? (
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        type="button"
+                        onClick={() => setConfirmDeleteId(null)}
+                        className={BOTON_SECUNDARIO}
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleEliminar(licencia.id)}
+                        className="rounded-md bg-danger px-2.5 py-1.5 text-xs font-bold text-danger-ink transition-colors hover:bg-danger/90"
+                      >
+                        Confirmar
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => setConfirmDeleteId(licencia.id)}
+                      aria-label={`Eliminar licencia de ${licencia.cliente_nombre}`}
+                      className="flex h-8 w-8 flex-none items-center justify-center rounded-md border border-line-strong text-ink-faint transition-colors hover:border-danger hover:text-danger"
+                    >
+                      <TrashIcon width={14} height={14} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {licencia.revision_pendiente && (
+                <div className="flex flex-col gap-2 rounded-lg bg-danger/10 px-3 py-2.5 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="min-w-0 text-xs text-danger">
+                    <p className="font-bold">Revisar: cambiaron los datos del cliente</p>
+                    {licencia.revision_motivo && (
+                      <p className="wrap-break-word">{licencia.revision_motivo}</p>
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleRevisada(licencia.id)}
+                    disabled={isPending}
+                    className={`${BOTON_SECUNDARIO} flex-none bg-surface`}
+                  >
+                    Marcar revisada
+                  </button>
+                </div>
+              )}
+
+              {(licencia.negocio ||
+                licencia.responsable ||
+                licencia.telefono ||
+                licencia.terminos_version) && (
+                <dl className="grid grid-cols-1 gap-x-4 gap-y-1 border-t border-line pt-3 text-xs sm:grid-cols-2">
+                  {licencia.negocio && <Dato etiqueta="Negocio" valor={licencia.negocio} />}
+                  {licencia.responsable && (
+                    <Dato etiqueta="Responsable" valor={licencia.responsable} />
+                  )}
+                  {licencia.telefono && <Dato etiqueta="Teléfono" valor={licencia.telefono} />}
+                  {licencia.terminos_version && (
+                    <Dato
+                      etiqueta="Términos"
+                      valor={`v${licencia.terminos_version}${
+                        licencia.terminos_aceptados_en
+                          ? ` · aceptados ${formatFecha(licencia.terminos_aceptados_en)}`
+                          : ""
+                      }`}
+                    />
+                  )}
+                  {licencia.datos_recibidos_en && (
+                    <Dato
+                      etiqueta="Última conexión"
+                      valor={formatFecha(licencia.datos_recibidos_en)}
+                    />
+                  )}
+                </dl>
+              )}
+
+              <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
+                {extendiendoId === licencia.id ? (
+                  <>
+                    <div className="w-44">
+                      <DateField
+                        value={fechaNueva}
+                        onChange={setFechaNueva}
+                        placeholder="Nuevo vencimiento"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => handleExtender(licencia.id)}
+                      disabled={!fechaNueva || isPending}
+                      className="rounded-md bg-accent px-2.5 py-1.5 text-xs font-bold text-accent-ink transition-colors hover:bg-accent/90 disabled:opacity-50"
+                    >
+                      Guardar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setExtendiendoId(null)}
+                      className={BOTON_SECUNDARIO}
                     >
                       Cancelar
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => handleEliminar(licencia.id)}
-                      className="rounded-md bg-danger px-2.5 py-1.5 text-xs font-bold text-danger-ink transition-colors hover:bg-danger/90"
-                    >
-                      Confirmar
-                    </button>
-                  </div>
+                  </>
                 ) : (
                   <button
                     type="button"
-                    onClick={() => setConfirmDeleteId(licencia.id)}
-                    aria-label={`Eliminar licencia de ${licencia.cliente_nombre}`}
-                    className="flex h-8 w-8 flex-none items-center justify-center rounded-md border border-line-strong text-ink-faint transition-colors hover:border-danger hover:text-danger"
+                    onClick={() => abrirExtender(licencia)}
+                    className={BOTON_SECUNDARIO}
                   >
-                    <TrashIcon width={14} height={14} />
+                    Extender vencimiento
                   </button>
                 )}
+
+                {licencia.hardware_id &&
+                  (confirmLiberarId === licencia.id ? (
+                    <>
+                      <span className="text-xs text-ink-soft">
+                        ¿Liberar el equipo? La próxima validación activará el equipo nuevo.
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setConfirmLiberarId(null)}
+                        className={BOTON_SECUNDARIO}
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleLiberar(licencia.id)}
+                        className="rounded-md bg-danger px-2.5 py-1.5 text-xs font-bold text-danger-ink transition-colors hover:bg-danger/90"
+                      >
+                        Liberar
+                      </button>
+                    </>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setConfirmLiberarId(licencia.id);
+                        setExtendiendoId(null);
+                      }}
+                      className={BOTON_SECUNDARIO}
+                    >
+                      Liberar equipo
+                    </button>
+                  ))}
               </div>
             </div>
           ))}
@@ -192,6 +377,15 @@ export function LicenciasPanel({ licenciasIniciales }: { licenciasIniciales: Lic
       )}
 
       {formOpen && <LicenciaForm onClose={() => setFormOpen(false)} onSubmit={handleCrear} />}
+    </div>
+  );
+}
+
+function Dato({ etiqueta, valor }: { etiqueta: string; valor: string }) {
+  return (
+    <div className="flex gap-1.5">
+      <dt className="flex-none text-ink-faint">{etiqueta}:</dt>
+      <dd className="min-w-0 wrap-break-word font-medium text-ink">{valor}</dd>
     </div>
   );
 }
