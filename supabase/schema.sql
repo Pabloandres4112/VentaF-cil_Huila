@@ -443,3 +443,16 @@ ALTER TABLE public.licencias ADD COLUMN IF NOT EXISTS terminos_aceptados_en TIME
 ALTER TABLE public.licencias ADD COLUMN IF NOT EXISTS datos_recibidos_en TIMESTAMP WITH TIME ZONE;
 ALTER TABLE public.licencias ADD COLUMN IF NOT EXISTS revision_pendiente BOOLEAN NOT NULL DEFAULT FALSE;
 ALTER TABLE public.licencias ADD COLUMN IF NOT EXISTS revision_motivo TEXT;
+
+-- =============================================================================
+-- MIGRACIÓN — Bucket público `cajasimple` (descargas de la app de escritorio).
+-- Guarda el instalador de CajaSimple, su firma y latest.json, para que subir
+-- una versión nueva no exija redesplegar Vitrina Digital. Público solo de
+-- LECTURA: no se crea ninguna política de escritura, así que solo quien tenga
+-- la service_role (scripts/subir-cajasimple.mjs) puede subir archivos. El
+-- script también crea el bucket si no existe; este bloque es la forma manual.
+-- =============================================================================
+
+INSERT INTO storage.buckets (id, name, public)
+VALUES ('cajasimple', 'cajasimple', true)
+ON CONFLICT (id) DO NOTHING;
