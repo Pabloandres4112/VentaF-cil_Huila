@@ -3,6 +3,7 @@
 // Fase 3 (PLAN_EJECUCION.md): Server Actions de productos (CRUD).
 
 import { LIMITE_PRODUCTOS_GRATIS, MENSAJE_LIMITE_PRODUCTOS_GRATIS } from "@/lib/plan";
+import { puedeContinuar } from "@/lib/rate-limit";
 import { esUrlImagenValida, extraerPathStorage } from "@/lib/storage-validation";
 import { createClient } from "@/lib/supabase/server";
 import type { Producto } from "@/types";
@@ -161,6 +162,19 @@ export interface ItemPedidoStock {
 export async function descontarStockPedido(
   items: ItemPedidoStock[],
 ): Promise<{ ok: boolean; agotados: string[] }> {
+  // Máx. 10 checkouts cada 10 minutos por IP: de sobra para un comprador real
+  // y suficiente para frenar a quien quiera vaciar el stock de una tienda.
+  if (!(await puedeContinuar("checkout", 10, 600))) {
+    throw new Error("Demasiados intentos");
+  }
+  if (
+    items.length === 0 ||
+    items.length > 50 ||
+    items.some((i) => !Number.isInteger(i.cantidad) || i.cantidad < 1 || i.cantidad > 999)
+  ) {
+    throw new Error("Pedido inválido");
+  }
+
   const supabase = await createClient();
   const agotados: string[] = [];
 
