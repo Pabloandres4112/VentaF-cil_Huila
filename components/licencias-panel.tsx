@@ -6,7 +6,7 @@
 
 import { useState, useTransition } from "react";
 import { CheckIcon, CopyIcon, PlusIcon, TrashIcon } from "@/components/icons";
-import { DateField } from "@/components/date-field";
+import { DuracionLicencia } from "@/components/duracion-licencia";
 import { LicenciaForm } from "@/components/licencia-form";
 import {
   actualizarEstadoLicencia,
@@ -31,6 +31,15 @@ function formatFecha(fecha: string | null): string {
     month: "short",
     year: "numeric",
   });
+}
+
+// Al renovar, si la licencia todavía no vence se cuenta desde su vencimiento
+// actual (no se pierden los días que le quedaban); si ya venció, desde hoy.
+function puntoDePartida(licencia: Licencia): { desde: Date; etiquetaDesde: string } {
+  const hoy = new Date();
+  const vence = licencia.fecha_vencimiento ? new Date(licencia.fecha_vencimiento) : null;
+  if (vence && vence > hoy) return { desde: vence, etiquetaDesde: "Desde su vencimiento actual" };
+  return { desde: hoy, etiquetaDesde: "Desde hoy" };
 }
 
 const BOTON_SECUNDARIO =
@@ -303,30 +312,30 @@ export function LicenciasPanel({ licenciasIniciales }: { licenciasIniciales: Lic
 
               <div className="flex flex-wrap items-center gap-2 border-t border-line pt-3">
                 {extendiendoId === licencia.id ? (
-                  <>
-                    <div className="w-44">
-                      <DateField
-                        value={fechaNueva}
-                        onChange={setFechaNueva}
-                        placeholder="Nuevo vencimiento"
-                      />
+                  <div className="flex w-full flex-col gap-3">
+                    <DuracionLicencia
+                      value={fechaNueva}
+                      onChange={setFechaNueva}
+                      {...puntoDePartida(licencia)}
+                    />
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleExtender(licencia.id)}
+                        disabled={!fechaNueva || isPending}
+                        className="rounded-md bg-accent px-2.5 py-1.5 text-xs font-bold text-accent-ink transition-colors hover:bg-accent/90 disabled:opacity-50"
+                      >
+                        Guardar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setExtendiendoId(null)}
+                        className={BOTON_SECUNDARIO}
+                      >
+                        Cancelar
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => handleExtender(licencia.id)}
-                      disabled={!fechaNueva || isPending}
-                      className="rounded-md bg-accent px-2.5 py-1.5 text-xs font-bold text-accent-ink transition-colors hover:bg-accent/90 disabled:opacity-50"
-                    >
-                      Guardar
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setExtendiendoId(null)}
-                      className={BOTON_SECUNDARIO}
-                    >
-                      Cancelar
-                    </button>
-                  </>
+                  </div>
                 ) : (
                   <button
                     type="button"
