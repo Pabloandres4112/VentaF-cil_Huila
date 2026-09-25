@@ -18,6 +18,7 @@ import { ProductForm } from "@/components/ProductForm";
 import { ToggleSwitch } from "@/components/toggle-switch";
 import { VerCatalogoLink } from "@/components/ver-catalogo-link";
 import { LIMITE_PRODUCTOS_GRATIS, MENSAJE_LIMITE_PRODUCTOS_GRATIS } from "@/lib/plan";
+import { useHost } from "@/hooks/useHost";
 import { formatCOP, precioEfectivo } from "@/lib/utils";
 import {
   actualizarProducto,
@@ -48,6 +49,7 @@ export function DashboardInventory({
   const cercaDelLimite = enPlanGratis && productos.length >= LIMITE_PRODUCTOS_GRATIS - 2;
 
   const storeUrl = `/store/${tienda.store_code}`;
+  const host = useHost();
 
   function openCreate() {
     setEditing(undefined);
@@ -145,7 +147,8 @@ export function DashboardInventory({
             Tu catálogo público
           </p>
           <p className="truncate text-sm font-medium">
-            ventafacil.com{storeUrl}
+            {host}
+            {storeUrl}
           </p>
         </div>
         <div className="flex flex-none gap-2">

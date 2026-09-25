@@ -22,16 +22,16 @@ export const en: HomeDict = {
     proof: [
       "Ready in under 5 minutes",
       "No credit card required",
-      "Built for Isnos and Pitalito",
+      "Orders straight to your WhatsApp",
     ],
     ticketShop: "Donde Marleny",
-    ticketLabel: "Catalog",
+    ticketLabel: "Sample catalog",
     ticket: [
       { name: "Diana Rice 500g", price: 2500 },
       { name: "Huila Coffee 500g", price: 14000 },
       { name: "Gourmet Oil 1L", price: 9800, tag: "Out of stock" },
     ],
-    waCaption: "This is what lands on WhatsApp",
+    waCaption: "This is what lands on WhatsApp (example)",
     waHeader: "New order — Vitrina Digital",
     waClientLabel: "Customer:",
     waClientValue: "María Fernanda",
@@ -84,7 +84,7 @@ export const en: HomeDict = {
       },
       {
         title: "Share your link",
-        description: "ventafacil.com/store/your-code — post it in your WhatsApp status or Instagram bio.",
+        description: "Your own link, like vitrina-digital-prod.vercel.app/store/your-code — post it in your WhatsApp status or Instagram bio.",
       },
     ],
     clientSteps: [
@@ -154,7 +154,7 @@ export const en: HomeDict = {
   examples: {
     eyebrow: "For businesses like yours",
     title: "From the hardware store to the clothing shop.",
-    body: "Vitrina Digital isn't built for just one kind of business. Here's what your catalog could look like depending on what you sell.",
+    body: "Vitrina Digital isn't built for just one kind of business. Here's what your catalog could look like depending on what you sell. The businesses and prices below are illustrative examples, not real customers.",
     shops: [
       {
         name: "Ferretería El Tornillo",
