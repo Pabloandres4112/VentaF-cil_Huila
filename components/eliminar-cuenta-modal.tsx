@@ -5,9 +5,10 @@
 // irreversible: borra el usuario de Auth, la tienda, sus productos y sus
 // fotos/logo en Storage.
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { CloseIcon } from "@/components/icons";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
+import { useModalA11y } from "@/hooks/useModalA11y";
 
 export function EliminarCuentaModal({
   storeCode,
@@ -19,6 +20,8 @@ export function EliminarCuentaModal({
   onConfirmar: () => Promise<void>;
 }) {
   useBodyScrollLock(true);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useModalA11y(dialogRef, true, onClose);
   const [texto, setTexto] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,6 +44,7 @@ export function EliminarCuentaModal({
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label="Eliminar cuenta"
@@ -49,6 +53,7 @@ export function EliminarCuentaModal({
       <button
         type="button"
         aria-label="Cerrar"
+        tabIndex={-1}
         onClick={onClose}
         disabled={loading}
         className="absolute inset-0 h-full w-full cursor-default"

@@ -2,11 +2,12 @@
 
 // Fase 4 (PLAN_EJECUCION.md): formulario de creación/edición de producto (panel admin).
 
-import { useState, type FormEvent, type ReactNode } from "react";
+import { useRef, useState, type FormEvent, type ReactNode } from "react";
 import { CloseIcon } from "@/components/icons";
 import { ImageUpload } from "@/components/image-upload";
 import { ToggleSwitch } from "@/components/toggle-switch";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
+import { useModalA11y } from "@/hooks/useModalA11y";
 import type { NuevoProducto } from "@/services/products";
 import type { Producto } from "@/types";
 
@@ -50,6 +51,8 @@ export function ProductForm({
   const [disponible, setDisponible] = useState(producto?.disponible ?? true);
   const [errors, setErrors] = useState<ProductFormErrors>({});
   useBodyScrollLock(true);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useModalA11y(dialogRef, true, onClose);
 
   function validate(): boolean {
     const nextErrors: ProductFormErrors = {};
@@ -101,6 +104,7 @@ export function ProductForm({
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label={producto ? "Editar producto" : "Nuevo producto"}
@@ -109,6 +113,7 @@ export function ProductForm({
       <button
         type="button"
         aria-label="Cerrar"
+        tabIndex={-1}
         onClick={onClose}
         className="absolute inset-0 h-full w-full cursor-default"
       />
@@ -256,7 +261,7 @@ function Field({
   children: ReactNode;
 }) {
   return (
-    <div className="flex flex-col gap-1.5">
+    <label className="flex flex-col gap-1.5">
       <span className="text-sm font-semibold text-ink-soft">{label}</span>
       {children}
       {error ? (
@@ -264,6 +269,6 @@ function Field({
       ) : (
         hint && <span className="text-xs text-ink-faint">{hint}</span>
       )}
-    </div>
+    </label>
   );
 }

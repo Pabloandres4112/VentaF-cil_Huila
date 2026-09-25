@@ -2,9 +2,10 @@
 
 // Sistema de Licencias (multi-producto): formulario para generar una nueva licencia.
 
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { CloseIcon } from "@/components/icons";
 import { DuracionLicencia, vencimientoPrueba } from "@/components/duracion-licencia";
+import { useModalA11y } from "@/hooks/useModalA11y";
 import type { NuevaLicencia } from "@/services/licencias";
 
 const INPUT_CLASS =
@@ -29,6 +30,8 @@ export function LicenciaForm({
   const [hoy] = useState(() => new Date());
   const [fechaVencimiento, setFechaVencimiento] = useState(() => vencimientoPrueba());
   const [errors, setErrors] = useState<LicenciaFormErrors>({});
+  const dialogRef = useRef<HTMLDivElement>(null);
+  useModalA11y(dialogRef, true, onClose);
 
   function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -54,6 +57,7 @@ export function LicenciaForm({
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-label="Generar licencia"
@@ -62,6 +66,7 @@ export function LicenciaForm({
       <button
         type="button"
         aria-label="Cerrar"
+        tabIndex={-1}
         onClick={onClose}
         className="absolute inset-0 h-full w-full cursor-default"
       />
