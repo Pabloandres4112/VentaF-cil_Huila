@@ -114,6 +114,9 @@ export interface HomeDict {
     madeFor: string;
     disclaimer: string;
     terms: string;
+    privacy: string;
+    cookies: string;
+    refunds: string;
     guide: string;
   };
   theme: {

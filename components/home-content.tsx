@@ -392,12 +392,23 @@ export function HomeContent({ dict, locale }: { dict: HomeDict; locale: Locale }
           <span className="font-display text-base text-ink">Vitrina Digital</span>
           <span>{dict.footer.madeFor}</span>
           <span>{dict.footer.disclaimer}</span>
-          <Link href="/terminos" className="underline underline-offset-2 hover:text-ink-soft">
-            {dict.footer.terms}
-          </Link>
-          <Link href="/guia" className="underline underline-offset-2 hover:text-ink-soft">
-            {dict.footer.guide}
-          </Link>
+          <nav aria-label="Legal" className="flex flex-wrap gap-x-4 gap-y-1">
+            <Link href="/terminos" className="underline underline-offset-2 hover:text-ink-soft">
+              {dict.footer.terms}
+            </Link>
+            <Link href="/privacidad" className="underline underline-offset-2 hover:text-ink-soft">
+              {dict.footer.privacy}
+            </Link>
+            <Link href="/cookies" className="underline underline-offset-2 hover:text-ink-soft">
+              {dict.footer.cookies}
+            </Link>
+            <Link href="/reembolsos" className="underline underline-offset-2 hover:text-ink-soft">
+              {dict.footer.refunds}
+            </Link>
+            <Link href="/guia" className="underline underline-offset-2 hover:text-ink-soft">
+              {dict.footer.guide}
+            </Link>
+          </nav>
         </Wrap>
       </footer>
     </>

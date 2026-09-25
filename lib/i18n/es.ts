@@ -198,6 +198,9 @@ export const es: HomeDict = {
     madeFor: "Hecho para pequeños negocios en Colombia.",
     disclaimer: "Vitrina Digital no está afiliado a WhatsApp Inc. — usamos enlaces públicos wa.me.",
     terms: "Términos y Condiciones",
+    privacy: "Política de privacidad",
+    cookies: "Política de cookies",
+    refunds: "Reembolsos",
     guide: "Guía de uso",
   },
   theme: {
