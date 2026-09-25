@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
 import { DownloadIcon, WhatsappIcon } from "@/components/icons";
@@ -41,7 +42,23 @@ const PASOS = [
     detalle:
       "Haz doble clic en el archivo descargado. Si Windows muestra una pantalla azul que dice «Windows protegió su PC», es normal: el instalador todavía no tiene certificado de firma de Microsoft.",
     aviso:
-      "Pulsa «Más información» y luego «Ejecutar de todos modos». Hazlo solo si descargaste el archivo desde esta página.",
+      "Pulsa «Más información» y luego «Ejecutar de todas formas». Hazlo solo si descargaste el archivo desde esta página.",
+    imagenes: [
+      {
+        src: "/cajasimple/paso-2a-mas-informacion.png",
+        ancho: 564,
+        alto: 535,
+        titulo: "Primero: pulsa «Más información»",
+        alt: "Pantalla azul «Windows protegió su PC». Debajo del texto hay un enlace «Más información» y abajo a la derecha un botón «No ejecutar».",
+      },
+      {
+        src: "/cajasimple/paso-2b-ejecutar-de-todas-formas.png",
+        ancho: 551,
+        alto: 509,
+        titulo: "Después: pulsa «Ejecutar de todas formas»",
+        alt: "La misma pantalla azul ahora muestra la aplicación CajaSimple_0.1.0_x64-setup.exe y dos botones abajo: «Ejecutar de todas formas» a la izquierda y «No ejecutar» a la derecha.",
+      },
+    ],
   },
   {
     titulo: "Sigue el asistente",
@@ -144,6 +161,22 @@ export default async function CajaSimplePage() {
                     <p className="mt-2 rounded-lg bg-accent-soft px-3 py-2 font-semibold text-accent">
                       {paso.aviso}
                     </p>
+                  )}
+                  {paso.imagenes && (
+                    <div className="mt-4 flex flex-col gap-5">
+                      {paso.imagenes.map((imagen) => (
+                        <figure key={imagen.src} className="flex flex-col gap-2">
+                          <figcaption className="font-semibold text-ink">{imagen.titulo}</figcaption>
+                          <Image
+                            src={imagen.src}
+                            alt={imagen.alt}
+                            width={imagen.ancho}
+                            height={imagen.alto}
+                            className="h-auto w-full max-w-md rounded-lg border border-line"
+                          />
+                        </figure>
+                      ))}
+                    </div>
                   )}
                 </div>
               </li>
