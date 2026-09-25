@@ -163,6 +163,25 @@ export default async function StorePage({
       <div className="mx-auto max-w-284 px-5 py-6 sm:px-8">
         <StoreCatalog tienda={tienda} productos={productos} />
       </div>
+      <footer className="mx-auto max-w-284 border-t border-line px-5 py-6 text-xs leading-relaxed text-ink-soft sm:px-8">
+        <p>
+          Este catálogo pertenece a <strong className="text-ink">{tienda.nombre}</strong>. La tienda es
+          la vendedora y responsable de los productos, los precios, el pago y la entrega; puedes
+          escribirle por WhatsApp. Vitrina Digital solo aloja el catálogo: no vende, no cobra ni
+          entrega.
+        </p>
+        <nav aria-label="Legal" className="mt-3 flex flex-wrap gap-x-4 gap-y-1">
+          <Link href="/terminos" className="underline underline-offset-2 hover:text-ink">
+            Términos
+          </Link>
+          <Link href="/privacidad" className="underline underline-offset-2 hover:text-ink">
+            Privacidad
+          </Link>
+          <Link href="/cookies" className="underline underline-offset-2 hover:text-ink">
+            Cookies
+          </Link>
+        </nav>
+      </footer>
     </main>
   );
 }

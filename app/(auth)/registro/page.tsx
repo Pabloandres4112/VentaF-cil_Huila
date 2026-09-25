@@ -237,8 +237,26 @@ export default function RegistroPage() {
               </p>
             )}
             {errors.terminos && <p className="text-xs text-danger">{errors.terminos}</p>}
-            <p className="text-xs text-ink-faint">
-              Incluye el uso de cookies necesarias para mantener tu sesión iniciada.
+            <p className="text-xs text-ink-soft">
+              Al crear tu cuenta autorizas el tratamiento de tus datos personales según nuestra{" "}
+              <Link
+                href="/privacidad"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold underline underline-offset-2 hover:text-ink"
+              >
+                Política de privacidad
+              </Link>
+              . Solo usamos cookies necesarias para mantener tu sesión (
+              <Link
+                href="/cookies"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold underline underline-offset-2 hover:text-ink"
+              >
+                ver política de cookies
+              </Link>
+              ).
             </p>
           </div>
 
