@@ -14,7 +14,11 @@ import {
 } from "@/components/cajasimple/secciones";
 import { WhatsappIcon } from "@/components/icons";
 import { VitrinaMark } from "@/components/vitrina-mark";
-import { obtenerDescargaCajaSimple } from "@/lib/cajasimple";
+import {
+  formatearFechaPublicacion,
+  obtenerDescargaCajaSimple,
+  parsearNovedades,
+} from "@/lib/cajasimple";
 
 // Página de descarga y presentación de CajaSimple para los usuarios piloto.
 // No se enlaza desde la portada y va con noindex mientras dure el piloto.
@@ -33,14 +37,6 @@ const NUMERO_SOPORTE = process.env.NEXT_PUBLIC_SOPORTE_WHATSAPP;
 function whatsappHref(mensaje: string): string | null {
   if (!NUMERO_SOPORTE) return null;
   return `https://wa.me/${NUMERO_SOPORTE}?text=${encodeURIComponent(mensaje)}`;
-}
-
-function formatearFecha(iso: string): string {
-  return new Intl.DateTimeFormat("es-CO", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(iso));
 }
 
 const DATOS_RAPIDOS = [
@@ -113,7 +109,7 @@ export default async function CajaSimplePage() {
             <>
               <p className="mb-4 text-sm text-ink-soft">
                 Versión <strong className="text-ink">{descarga.version}</strong>
-                {descarga.fecha && <> · publicada el {formatearFecha(descarga.fecha)}</>} · tamaño
+                {descarga.fecha && <> · publicada el {formatearFechaPublicacion(descarga.fecha)}</>} · tamaño
                 aproximado: 3 MB
               </p>
               <a
@@ -132,7 +128,19 @@ export default async function CajaSimplePage() {
               {descarga.notas && (
                 <div className="mt-5 border-t border-line pt-4">
                   <p className="mb-1 text-sm font-semibold text-ink">Novedades de esta versión</p>
-                  <p className="whitespace-pre-line text-sm text-ink-soft">{descarga.notas}</p>
+                  <div className="flex flex-col gap-2 text-sm text-ink-soft">
+                    {parsearNovedades(descarga.notas).map((bloque, i) =>
+                      bloque.tipo === "lista" ? (
+                        <ul key={i} className="flex flex-col gap-1.5 pl-5" style={{ listStyleType: "disc" }}>
+                          {bloque.items.map((item, j) => (
+                            <li key={j}>{item}</li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p key={i}>{bloque.texto}</p>
+                      ),
+                    )}
+                  </div>
                 </div>
               )}
             </>
