@@ -60,12 +60,37 @@ const PALETA = {
   "--accent-soft": "#E4E9E3",
 } as const;
 
+// Animación de entrada, solo para el encabezado (sección 2 del documento: "la
+// sección más importante de la web") — el propio documento pide evitar
+// "animaciones de entrada en todos los elementos" (sección 10) y que sean
+// "breves y opcionales cuando corresponda" (sección 12). Respeta
+// prefers-reduced-motion: quien prefiere menos movimiento ve todo quieto y
+// visible de una vez, sin que nada quede a medio aparecer.
+const ESTILOS_ANIMACION = `
+  @keyframes csp-fade-up {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .csp-fade-up {
+    opacity: 0;
+    animation: csp-fade-up 0.6s ease-out both;
+  }
+  .csp-delay-1 { animation-delay: 0.08s; }
+  .csp-delay-2 { animation-delay: 0.16s; }
+  .csp-delay-3 { animation-delay: 0.24s; }
+  .csp-delay-4 { animation-delay: 0.32s; }
+  @media (prefers-reduced-motion: reduce) {
+    .csp-fade-up { animation: none; opacity: 1; transform: none; }
+  }
+`;
+
 export function TemaPremium({ children }: { children: ReactNode }) {
   return (
     <div
       className={`${manrope.variable} ${inter.variable} bg-ground text-ink`}
       style={{ ...PALETA, fontFamily: "var(--font-inter)" } as React.CSSProperties}
     >
+      <style>{ESTILOS_ANIMACION}</style>
       {children}
     </div>
   );
@@ -206,23 +231,23 @@ export function HeroPremium({
     <section className="mx-auto max-w-300 px-5 py-14 sm:px-8 sm:py-20">
       <div className="grid items-center gap-10 lg:grid-cols-2 lg:gap-16">
         <div>
-          <span className="mb-5 inline-flex items-center rounded-full border border-line-strong bg-surface px-3 py-1 text-xs font-bold uppercase tracking-wide text-ink-soft">
+          <span className="csp-fade-up mb-5 inline-flex items-center rounded-full border border-line-strong bg-surface px-3 py-1 text-xs font-bold uppercase tracking-wide text-ink-soft">
             Software de caja para Windows
           </span>
 
           <Titulo
             as="h1"
-            className="mb-5 text-4xl leading-[1.08] text-ink sm:text-5xl md:text-[3.4rem]"
+            className="csp-fade-up csp-delay-1 mb-5 text-4xl leading-[1.08] text-ink sm:text-5xl md:text-[3.4rem]"
           >
             Tu negocio bajo control. Sin depender de internet.
           </Titulo>
 
-          <p className="mb-8 max-w-md text-lg text-ink-soft">
+          <p className="csp-fade-up csp-delay-2 mb-8 max-w-md text-lg text-ink-soft">
             Vende, controla tu inventario y revisa el cierre del día desde un solo programa,
             instalado en tu computador.
           </p>
 
-          <div className="flex flex-col gap-3 sm:flex-row">
+          <div className="csp-fade-up csp-delay-3 flex flex-col gap-3 sm:flex-row">
             {descargaUrl && (
               <a
                 href={descargaUrl}
@@ -243,7 +268,9 @@ export function HeroPremium({
           </div>
         </div>
 
-        <MarcoCaptura src={CAPTURAS[0].src} alt={CAPTURAS[0].alt} />
+        <div className="csp-fade-up csp-delay-4">
+          <MarcoCaptura src={CAPTURAS[0].src} alt={CAPTURAS[0].alt} />
+        </div>
       </div>
     </section>
   );
