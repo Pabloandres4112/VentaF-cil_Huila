@@ -9,7 +9,8 @@
 // experimento visual, fácil de borrar si no gusta. El CONTENIDO (textos de
 // funciones, capturas, preguntas) se reutiliza tal cual de secciones.tsx —
 // este archivo solo cambia la presentación (paleta, tipografía, estructura
-// de secciones), no inventa funciones, cifras ni compatibilidades nuevas.
+// de secciones, animaciones), no inventa funciones, cifras ni compatibilidades
+// nuevas.
 //
 // Paleta y tipografía quedan aplicadas SOLO dentro de <TemaPremium>, vía
 // variables CSS en el elemento raíz — no tocan los tokens globales
@@ -31,7 +32,13 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRef, useState, type ReactNode } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type ElementType,
+  type ReactNode,
+} from "react";
 import { WhatsappIcon } from "@/components/icons";
 import { VitrinaMark } from "@/components/vitrina-mark";
 import {
@@ -60,12 +67,13 @@ const PALETA = {
   "--accent-soft": "#E4E9E3",
 } as const;
 
-// Animación de entrada, solo para el encabezado (sección 2 del documento: "la
-// sección más importante de la web") — el propio documento pide evitar
-// "animaciones de entrada en todos los elementos" (sección 10) y que sean
-// "breves y opcionales cuando corresponda" (sección 12). Respeta
-// prefers-reduced-motion: quien prefiere menos movimiento ve todo quieto y
-// visible de una vez, sin que nada quede a medio aparecer.
+// Dos familias de animación:
+// 1) .csp-fade-up — animación fija al cargar, solo para el encabezado
+//    (ver HeroPremium).
+// 2) .csp-reveal / Reveal — animación al hacer scroll, para el resto de la
+//    página (Pablo pidió más vida visual porque la sentía estática). Las dos
+//    respetan prefers-reduced-motion: quien prefiere menos movimiento ve todo
+//    quieto y visible de una vez, sin que nada quede a medio aparecer.
 const ESTILOS_ANIMACION = `
   @keyframes csp-fade-up {
     from { opacity: 0; transform: translateY(14px); }
@@ -79,8 +87,26 @@ const ESTILOS_ANIMACION = `
   .csp-delay-2 { animation-delay: 0.16s; }
   .csp-delay-3 { animation-delay: 0.24s; }
   .csp-delay-4 { animation-delay: 0.32s; }
+
+  .csp-reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+  }
+  .csp-reveal-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
   @media (prefers-reduced-motion: reduce) {
-    .csp-fade-up { animation: none; opacity: 1; transform: none; }
+    .csp-fade-up,
+    .csp-reveal,
+    .csp-reveal-visible {
+      animation: none !important;
+      transition: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
   }
 `;
 
@@ -114,6 +140,52 @@ function Titulo({
   );
 }
 
+// Revela su contenido con un desvanecimiento hacia arriba cuando entra en
+// pantalla al hacer scroll (una sola vez; no se vuelve a ocultar al salir de
+// pantalla, para no marear con el movimiento). `delayMs` sirve para que una
+// fila de tarjetas aparezca en cascada en vez de todas a la vez.
+function Reveal({
+  as = "div",
+  delayMs = 0,
+  className = "",
+  children,
+}: {
+  as?: ElementType;
+  delayMs?: number;
+  className?: string;
+  children: ReactNode;
+}) {
+  const ref = useRef<HTMLElement>(null);
+  const [visible, setVisible] = useState(false);
+  const Tag = as;
+
+  useEffect(() => {
+    const nodo = ref.current;
+    if (!nodo) return;
+    const observador = new IntersectionObserver(
+      ([entrada]) => {
+        if (entrada.isIntersecting) {
+          setVisible(true);
+          observador.disconnect();
+        }
+      },
+      { threshold: 0.15, rootMargin: "0px 0px -40px 0px" },
+    );
+    observador.observe(nodo);
+    return () => observador.disconnect();
+  }, []);
+
+  return (
+    <Tag
+      ref={ref}
+      className={`csp-reveal ${visible ? "csp-reveal-visible" : ""} ${className}`}
+      style={{ transitionDelay: visible ? `${delayMs}ms` : "0ms" }}
+    >
+      {children}
+    </Tag>
+  );
+}
+
 // ------------------------------------------------------------------- Navbar
 
 const ENLACES_NAV = [
@@ -124,9 +196,22 @@ const ENLACES_NAV = [
 
 export function NavbarPremium({ descargaUrl }: { descargaUrl: string | null }) {
   const [abierto, setAbierto] = useState(false);
+  const [conSombra, setConSombra] = useState(false);
+
+  useEffect(() => {
+    function alScroll() {
+      setConSombra(window.scrollY > 8);
+    }
+    window.addEventListener("scroll", alScroll, { passive: true });
+    return () => window.removeEventListener("scroll", alScroll);
+  }, []);
 
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-surface">
+    <header
+      className={`sticky top-0 z-30 border-b border-line bg-surface transition-shadow duration-300 ${
+        conSombra ? "shadow-sm" : ""
+      }`}
+    >
       <div className="mx-auto flex max-w-300 items-center justify-between gap-4 px-5 py-4 sm:px-8">
         <Link href="/" className="flex flex-none items-center gap-2">
           <VitrinaMark size={24} />
@@ -153,7 +238,7 @@ export function NavbarPremium({ descargaUrl }: { descargaUrl: string | null }) {
               href={descargaUrl}
               download
               rel="noopener"
-              className="hidden items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-bold text-accent-ink transition-opacity hover:opacity-90 sm:inline-flex"
+              className="hidden items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-bold text-accent-ink transition-all hover:-translate-y-0.5 hover:opacity-90 sm:inline-flex"
             >
               <Download aria-hidden="true" className="h-4 w-4" />
               Descargar
@@ -204,14 +289,21 @@ function MarcoCaptura({
   onAmpliar?: () => void;
 }) {
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-line bg-surface">
-      <Image src={src} alt={alt} width={1600} height={1000} className="h-auto w-full" priority />
+    <div className="group relative overflow-hidden rounded-2xl border border-line bg-surface">
+      <Image
+        src={src}
+        alt={alt}
+        width={1600}
+        height={1000}
+        className="h-auto w-full transition-transform duration-500 group-hover:scale-[1.02]"
+        priority
+      />
       {onAmpliar && (
         <button
           type="button"
           onClick={onAmpliar}
           aria-label="Ampliar imagen"
-          className="absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-surface/90 text-ink shadow-sm transition-colors hover:bg-surface"
+          className="absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-surface/90 text-ink shadow-sm transition-all hover:scale-110 hover:bg-surface"
         >
           <ZoomIn aria-hidden="true" className="h-4 w-4" />
         </button>
@@ -253,7 +345,7 @@ export function HeroPremium({
                 href={descargaUrl}
                 download
                 rel="noopener"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-6 py-4 text-base font-bold text-accent-ink transition-opacity hover:opacity-90"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-6 py-4 text-base font-bold text-accent-ink transition-all hover:-translate-y-0.5 hover:opacity-90 hover:shadow-lg active:translate-y-0"
               >
                 <Download aria-hidden="true" className="h-5 w-5" />
                 Descargar para Windows{version ? ` (v${version})` : ""}
@@ -261,7 +353,7 @@ export function HeroPremium({
             )}
             <a
               href="#capturas"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-line-strong px-6 py-4 text-base font-bold text-ink transition-colors hover:bg-surface-2"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-line-strong px-6 py-4 text-base font-bold text-ink transition-all hover:-translate-y-0.5 hover:bg-surface-2"
             >
               Ver cómo funciona
             </a>
@@ -300,8 +392,13 @@ export function BeneficiosPrincipales() {
   return (
     <section aria-labelledby="beneficios-titulo" className="mx-auto max-w-300 px-5 py-14 sm:px-8">
       <ul className="grid gap-5 sm:grid-cols-3">
-        {BENEFICIOS.map(({ icono: Icono, titulo, texto }) => (
-          <li key={titulo} className="rounded-2xl border border-line bg-surface p-6">
+        {BENEFICIOS.map(({ icono: Icono, titulo, texto }, i) => (
+          <Reveal
+            key={titulo}
+            as="li"
+            delayMs={i * 100}
+            className="rounded-2xl border border-line bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+          >
             <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent-soft text-accent">
               <Icono aria-hidden="true" className="h-5 w-5" />
             </span>
@@ -309,7 +406,7 @@ export function BeneficiosPrincipales() {
               {titulo}
             </Titulo>
             <p className="text-sm text-ink-soft">{texto}</p>
-          </li>
+          </Reveal>
         ))}
       </ul>
     </section>
@@ -368,12 +465,14 @@ export function ProductoEnAccion() {
   return (
     <section id="capturas" aria-labelledby="capturas-titulo" className="scroll-mt-20 bg-surface-2 py-16">
       <div className="mx-auto max-w-300 px-5 sm:px-8">
-        <Titulo as="h2" id="capturas-titulo" className="mb-2 text-center text-2xl sm:text-3xl">
-          El producto en acción
-        </Titulo>
-        <p className="mx-auto mb-8 max-w-lg text-center text-sm text-ink-soft">
-          Capturas reales del programa, no ilustraciones genéricas.
-        </p>
+        <Reveal as="div" className="text-center">
+          <Titulo as="h2" id="capturas-titulo" className="mb-2 text-2xl sm:text-3xl">
+            El producto en acción
+          </Titulo>
+          <p className="mx-auto mb-8 max-w-lg text-sm text-ink-soft">
+            Capturas reales del programa, no ilustraciones genéricas.
+          </p>
+        </Reveal>
 
         <div
           role="tablist"
@@ -389,7 +488,7 @@ export function ProductoEnAccion() {
               aria-selected={activa === i}
               aria-controls={`panel-${i}`}
               onClick={() => setActiva(i)}
-              className={`rounded-lg px-4 py-2 text-sm font-bold transition-colors ${
+              className={`rounded-lg px-4 py-2 text-sm font-bold transition-all hover:-translate-y-0.5 ${
                 activa === i ? "bg-accent text-accent-ink" : "bg-surface text-ink-soft hover:bg-ink/5"
               }`}
             >
@@ -398,10 +497,12 @@ export function ProductoEnAccion() {
           ))}
         </div>
 
-        <div role="tabpanel" id={`panel-${activa}`} aria-labelledby={`tab-${activa}`} className="mx-auto max-w-3xl">
-          <MarcoCaptura src={actual.src} alt={actual.alt} onAmpliar={() => setAmpliada(true)} />
-          <p className="mt-4 text-center text-sm text-ink-soft">{descripcion}</p>
-        </div>
+        <Reveal as="div" className="mx-auto max-w-3xl">
+          <div role="tabpanel" id={`panel-${activa}`} aria-labelledby={`tab-${activa}`}>
+            <MarcoCaptura src={actual.src} alt={actual.alt} onAmpliar={() => setAmpliada(true)} />
+            <p className="mt-4 text-center text-sm text-ink-soft">{descripcion}</p>
+          </div>
+        </Reveal>
       </div>
 
       {ampliada && <Lightbox captura={actual} onClose={() => setAmpliada(false)} />}
@@ -437,8 +538,12 @@ export function FuncionesPorCategoria() {
         Qué hace CajaSimple
       </Titulo>
       <div className="grid gap-6 sm:grid-cols-2">
-        {CATEGORIAS.map((categoria) => (
-          <div key={categoria.titulo} className="rounded-2xl border border-line bg-surface p-6">
+        {CATEGORIAS.map((categoria, i) => (
+          <Reveal
+            key={categoria.titulo}
+            delayMs={i * 100}
+            className="rounded-2xl border border-line bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+          >
             <Titulo as="h3" className="mb-4 text-lg text-ink">
               {categoria.titulo}
             </Titulo>
@@ -455,7 +560,7 @@ export function FuncionesPorCategoria() {
                 </li>
               ))}
             </ul>
-          </div>
+          </Reveal>
         ))}
       </div>
     </section>
@@ -477,11 +582,11 @@ export function ComoEmpezar() {
         </Titulo>
 
         <ol className="mb-6 flex flex-col gap-5">
-          <PasoEmpezar numero={1} titulo="Descargar">
+          <PasoEmpezar numero={1} titulo="Descargar" delayMs={0}>
             Pulsa «Descargar para Windows». Se guarda un archivo que termina en «-setup.exe».
           </PasoEmpezar>
 
-          <PasoEmpezar numero={2} titulo="Instalar">
+          <PasoEmpezar numero={2} titulo="Instalar" delayMs={100}>
             Abre el archivo descargado y sigue el asistente, que sale en español: «Siguiente»,
             «Instalar» y «Finalizar».
             <details className="group mt-3 rounded-xl border border-line bg-surface">
@@ -520,7 +625,7 @@ export function ComoEmpezar() {
             </details>
           </PasoEmpezar>
 
-          <PasoEmpezar numero={3} titulo="Configurar">
+          <PasoEmpezar numero={3} titulo="Configurar" delayMs={200}>
             Abre CajaSimple desde el menú Inicio, acepta los términos y activa el programa con la
             clave que te enviamos. Luego crea tus productos, imprime etiquetas si las necesitas, y ya
             puedes vender y cerrar la caja al final del día.
@@ -531,9 +636,23 @@ export function ComoEmpezar() {
   );
 }
 
-function PasoEmpezar({ numero, titulo, children }: { numero: number; titulo: string; children: ReactNode }) {
+function PasoEmpezar({
+  numero,
+  titulo,
+  delayMs = 0,
+  children,
+}: {
+  numero: number;
+  titulo: string;
+  delayMs?: number;
+  children: ReactNode;
+}) {
   return (
-    <li className="flex gap-4 rounded-2xl border border-line bg-surface p-5">
+    <Reveal
+      as="li"
+      delayMs={delayMs}
+      className="flex gap-4 rounded-2xl border border-line bg-surface p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+    >
       <span
         aria-hidden="true"
         className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-accent text-sm font-bold text-accent-ink"
@@ -546,7 +665,7 @@ function PasoEmpezar({ numero, titulo, children }: { numero: number; titulo: str
         </Titulo>
         <div className="mt-1">{children}</div>
       </div>
-    </li>
+    </Reveal>
   );
 }
 
@@ -562,7 +681,7 @@ export function SeguridadYCompatibilidad() {
         Seguridad y compatibilidad
       </Titulo>
       <div className="grid gap-6 sm:grid-cols-2">
-        <div className="rounded-2xl border border-line bg-surface p-6">
+        <Reveal className="rounded-2xl border border-line bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
           <Titulo as="h3" className="mb-3 text-base text-ink">
             Requisitos
           </Titulo>
@@ -576,9 +695,12 @@ export function SeguridadYCompatibilidad() {
             En algunos Windows 10 antiguos, el instalador descarga un componente de Microsoft
             (WebView2); ahí sí hace falta internet durante la instalación.
           </p>
-        </div>
+        </Reveal>
 
-        <div className="rounded-2xl border border-line bg-surface p-6">
+        <Reveal
+          delayMs={100}
+          className="rounded-2xl border border-line bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+        >
           <div className="mb-3 flex items-center gap-2">
             <ShieldCheck aria-hidden="true" className="h-5 w-5 text-accent" />
             <Titulo as="h3" className="text-base text-ink">
@@ -597,7 +719,7 @@ export function SeguridadYCompatibilidad() {
             Tus datos se guardan en tu computador. Puedes exportarlos a Excel (CSV) o JSON, y hacer
             una copia de seguridad en una USB o en la nube cuando quieras.
           </p>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
@@ -651,17 +773,22 @@ export function FaqPremium() {
         Preguntas frecuentes
       </Titulo>
       <div className="flex flex-col gap-3">
-        {TODAS_LAS_PREGUNTAS.map(({ pregunta, respuesta }) => (
-          <details key={pregunta} name="faq-cajasimple-premium" className="group rounded-2xl border border-line bg-surface">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-5 py-4 text-sm font-semibold text-ink [&::-webkit-details-marker]:hidden">
-              {pregunta}
-              <ChevronDown
-                aria-hidden="true"
-                className="h-4 w-4 flex-none text-ink-soft transition-transform group-open:rotate-180"
-              />
-            </summary>
-            <p className="px-5 pb-4 text-sm text-ink-soft">{respuesta}</p>
-          </details>
+        {TODAS_LAS_PREGUNTAS.map(({ pregunta, respuesta }, i) => (
+          <Reveal key={pregunta} delayMs={Math.min(i * 40, 240)}>
+            <details
+              name="faq-cajasimple-premium"
+              className="group rounded-2xl border border-line bg-surface transition-shadow duration-300 hover:shadow-md"
+            >
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-5 py-4 text-sm font-semibold text-ink [&::-webkit-details-marker]:hidden">
+                {pregunta}
+                <ChevronDown
+                  aria-hidden="true"
+                  className="h-4 w-4 flex-none text-ink-soft transition-transform group-open:rotate-180"
+                />
+              </summary>
+              <p className="px-5 pb-4 text-sm text-ink-soft">{respuesta}</p>
+            </details>
+          </Reveal>
         ))}
       </div>
     </section>
@@ -683,7 +810,7 @@ export function CtaFinal({
 }) {
   return (
     <section className="bg-accent py-16">
-      <div className="mx-auto max-w-2xl px-5 text-center sm:px-8">
+      <Reveal as="div" className="mx-auto max-w-2xl px-5 text-center sm:px-8">
         <Titulo as="h2" className="mb-3 text-2xl text-accent-ink sm:text-3xl">
           Organiza las operaciones de tu negocio con CajaSimple.
         </Titulo>
@@ -692,7 +819,7 @@ export function CtaFinal({
             href={descargaUrl}
             download
             rel="noopener"
-            className="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-surface px-6 py-4 text-base font-bold text-accent transition-opacity hover:opacity-90"
+            className="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-surface px-6 py-4 text-base font-bold text-accent transition-all hover:-translate-y-0.5 hover:opacity-90 hover:shadow-lg active:translate-y-0"
           >
             <Download aria-hidden="true" className="h-5 w-5" />
             Descargar CajaSimple para Windows
@@ -724,7 +851,7 @@ export function CtaFinal({
             </div>
           </div>
         )}
-      </div>
+      </Reveal>
     </section>
   );
 }
@@ -774,7 +901,7 @@ export function BotonWhatsapp({ href, texto }: { href: string; texto: string }) 
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center justify-center gap-2 rounded-lg bg-wa px-5 py-3 text-sm font-bold text-wa-ink transition-colors hover:bg-wa/90"
+      className="inline-flex items-center justify-center gap-2 rounded-lg bg-wa px-5 py-3 text-sm font-bold text-wa-ink transition-all hover:-translate-y-0.5 hover:bg-wa/90"
     >
       <WhatsappIcon width={18} height={18} />
       {texto}
