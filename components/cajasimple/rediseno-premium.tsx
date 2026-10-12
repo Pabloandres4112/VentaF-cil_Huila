@@ -110,6 +110,12 @@ const ESTILOS_ANIMACION = `
   }
 `;
 
+
+interface WindowMockupProps {
+  children: ReactNode;
+  title?: string;
+}
+
 export function TemaPremium({ children }: { children: ReactNode }) {
   return (
     <div
@@ -289,25 +295,35 @@ function MarcoCaptura({
   onAmpliar?: () => void;
 }) {
   return (
-    <div className="group relative overflow-hidden rounded-2xl border border-line bg-surface">
-      <Image
-        src={src}
-        alt={alt}
-        width={1600}
-        height={1000}
-        className="h-auto w-full"
-        priority
-      />
-      {onAmpliar && (
-        <button
-          type="button"
-          onClick={onAmpliar}
-          aria-label="Ampliar imagen"
-          className="absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-surface/90 text-ink shadow-sm transition-colors hover:bg-surface"
-        >
-          <ZoomIn aria-hidden="true" className="h-4 w-4" />
-        </button>
-      )}
+    <div className="group relative w-full max-w-5xl overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-2xl">
+      {/* icons de ventana estilo macOS */}
+      <div className="flex select-none items-end justify-end gap-3 border-b border-slate-200 bg-slate-100/95 px-4 py-2">
+        <div aria-hidden="true" className="flex items-center gap-1">
+          <span className="h-2 w-2 rounded-full bg-[#ff5f57] shadow-sm" />
+          <span className="h-2 w-2 rounded-full bg-[#febc2e] shadow-sm" />
+          <span className="h-2 w-2 rounded-full bg-[#28c840] shadow-sm" />
+        </div>
+      </div>
+      <div className="relative overflow-hidden bg-white p-2 sm:p-4">
+        <Image
+          src={src}
+          alt={alt}
+          width={1600}
+          height={1000}
+          className="h-auto w-full rounded-md"
+          priority
+        />
+        {onAmpliar && (
+          <button
+            type="button"
+            onClick={onAmpliar}
+            aria-label="Ampliar imagen"
+            className="absolute bottom-5 right-5 flex h-9 w-9 items-center justify-center rounded-full bg-surface/90 text-ink shadow-sm transition-colors hover:bg-surface"
+          >
+            <ZoomIn aria-hidden="true" className="h-4 w-4" />
+          </button>
+        )}
+      </div>
     </div>
   );
 }
