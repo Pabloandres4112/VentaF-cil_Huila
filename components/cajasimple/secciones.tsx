@@ -35,7 +35,7 @@ export function Seccion({
 
 // ---------------------------------------------------------------- Qué hace
 
-const FUNCIONES = [
+export const FUNCIONES = [
   {
     icono: ShoppingCart,
     titulo: "Vende rápido",
@@ -92,7 +92,7 @@ export function QueHace() {
 
 // ----------------------------------------------------------------- Galería
 
-const CAPTURAS = [
+export const CAPTURAS = [
   {
     src: "/cajasimple/app-vender.webp",
     titulo: "Vender",
@@ -144,7 +144,7 @@ export function Galeria() {
 
 // -------------------------------------------------------------- Requisitos
 
-function Lista({ items }: { items: ReactNode[] }) {
+export function Lista({ items }: { items: ReactNode[] }) {
   return (
     <ul className="flex flex-col gap-2 pl-5 text-sm text-ink-soft" style={{ listStyleType: "disc" }}>
       {items.map((item, i) => (
@@ -220,7 +220,7 @@ function Aviso({ children }: { children: ReactNode }) {
   );
 }
 
-const IMAGENES_PANTALLA_AZUL = [
+export const IMAGENES_PANTALLA_AZUL = [
   {
     src: "/cajasimple/paso-2a-mas-informacion.png",
     ancho: 564,
@@ -384,7 +384,7 @@ export function Licencia() {
 
 // ------------------------------------------------------------------ Preguntas
 
-const PREGUNTAS = [
+export const PREGUNTAS = [
   {
     pregunta: "¿Necesito internet para usarlo?",
     respuesta:
