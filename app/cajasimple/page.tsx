@@ -1,27 +1,31 @@
-import Link from "next/link";
 import type { Metadata } from "next";
 import { AvisoWindows } from "@/components/cajasimple/aviso-windows";
 import {
-  CaracteristicasBento,
-  CasosDeUso,
-  GaleriaTabs,
-  HeroRediseno,
-  InstalacionRediseno,
-  LicenciaDestacada,
-  NavbarRediseno,
-} from "@/components/cajasimple/rediseno";
-import { PreguntasFrecuentes, PrimerDia, Requisitos, Seccion } from "@/components/cajasimple/secciones";
-import { WhatsappIcon } from "@/components/icons";
+  BeneficiosPrincipales,
+  ComoEmpezar,
+  CtaFinal,
+  FaqPremium,
+  FooterPremium,
+  FuncionesPorCategoria,
+  HeroPremium,
+  NavbarPremium,
+  ProductoEnAccion,
+  SeguridadYCompatibilidad,
+  SinDescarga,
+  TemaPremium,
+} from "@/components/cajasimple/rediseno-premium";
 import {
   formatearFechaPublicacion,
   obtenerDescargaCajaSimple,
   parsearNovedades,
 } from "@/lib/cajasimple";
 
-// REDISEÑO DE PRUEBA (rediseño_CajaSimple.md) — ver components/cajasimple/rediseno.tsx.
-// Si Pablo no lo aprueba, se revierte a la versión anterior con:
-//   git checkout fix/cajasimple-fecha-y-novedades -- app/cajasimple/page.tsx
-//   rm components/cajasimple/rediseno.tsx
+// SEGUNDO intento de rediseño de prueba (rediseño_CajaSimple.md, versión
+// "premium y minimalista") — ver components/cajasimple/rediseno-premium.tsx.
+// El primer intento (estilo SaaS) sigue en components/cajasimple/rediseno.tsx,
+// por si Pablo prefiere volver a él:
+//   git show fix/cajasimple-fecha-y-novedades:app/cajasimple/page.tsx > ...  (versión original, sin rediseño)
+//   o usar components/cajasimple/rediseno.tsx en vez de rediseno-premium.tsx
 //
 // No cambia: lógica/validaciones de descarga (lib/cajasimple.ts), noindex,
 // endpoint de licencias ni sus variables. Sin precios, planes, claves de
@@ -44,103 +48,39 @@ function whatsappHref(mensaje: string): string | null {
 
 export default async function CajaSimplePage() {
   const descarga = await obtenerDescargaCajaSimple();
-  const probar = whatsappHref("Hola, quiero probar CajaSimple.");
   const ayuda = whatsappHref("Hola, necesito ayuda con CajaSimple.");
   const sinDescarga = whatsappHref("Hola, no me aparece la descarga de CajaSimple.");
   const novedades = descarga?.notas ? parsearNovedades(descarga.notas) : [];
+  const fechaFormateada = descarga?.fecha ? formatearFechaPublicacion(descarga.fecha) : null;
 
   return (
-    <main className="flex-1 bg-ground">
-      <NavbarRediseno descargaUrl={descarga?.url ?? null} />
+    <TemaPremium>
+      <main>
+        <NavbarPremium descargaUrl={descarga?.url ?? null} />
 
-      <div className="mx-auto max-w-5xl px-5 pt-5 sm:px-8">
-        <AvisoWindows />
-      </div>
-
-      <HeroRediseno
-        version={descarga?.version ?? null}
-        fechaFormateada={descarga?.fecha ? formatearFechaPublicacion(descarga.fecha) : null}
-        novedades={novedades}
-        descargaUrl={descarga?.url ?? null}
-        whatsappProbar={probar}
-      />
-
-      {!descarga && (
-        <div className="mx-auto max-w-3xl px-5 pb-8 sm:px-8">
-          <div className="rounded-xl border border-line bg-surface p-6">
-            <p className="mb-4 text-sm text-ink-soft">
-              La descarga no está disponible en este momento. Escríbenos por WhatsApp y te la
-              enviamos.
-            </p>
-            {sinDescarga && <BotonWhatsapp href={sinDescarga} texto="Escríbenos por WhatsApp" />}
-          </div>
-        </div>
-      )}
-
-      {descarga && (
-        <div className="mx-auto max-w-3xl px-5 pb-4 sm:px-8">
-          <p className="text-center text-sm text-ink-soft">
-            Incluye una versión de prueba con límites. Para usarlo sin límites necesitas una
-            licencia. Tamaño aproximado: 3 MB.
-          </p>
-        </div>
-      )}
-
-      <CasosDeUso />
-      <GaleriaTabs />
-      <CaracteristicasBento />
-
-      <div className="mx-auto max-w-5xl px-5 sm:px-8">
-        <Requisitos />
-      </div>
-
-      <InstalacionRediseno />
-
-      <div className="mx-auto max-w-5xl px-5 sm:px-8">
-        <PrimerDia />
-      </div>
-
-      <LicenciaDestacada />
-
-      <div className="mx-auto max-w-5xl px-5 sm:px-8">
-        <div id="faq">
-          <PreguntasFrecuentes />
+        <div className="mx-auto max-w-300 px-5 pt-5 sm:px-8">
+          <AvisoWindows />
         </div>
 
-        <Seccion id="contacto" titulo="¿Necesitas ayuda?">
-          <p className="mb-4 text-sm text-ink-soft">
-            Si tienes cualquier duda, o algo no funciona en la instalación, escríbenos por WhatsApp y
-            con gusto te ayudamos.
-          </p>
-          {ayuda && <BotonWhatsapp href={ayuda} texto="Escríbenos por WhatsApp" />}
-        </Seccion>
+        <HeroPremium version={descarga?.version ?? null} descargaUrl={descarga?.url ?? null} />
 
-        <nav
-          aria-label="Legal"
-          className="flex flex-wrap gap-x-5 gap-y-2 border-t border-line pb-10 pt-6 text-sm text-ink-soft"
-        >
-          <Link href="/terminos" className="underline underline-offset-2 hover:text-ink">
-            Términos y Condiciones
-          </Link>
-          <Link href="/privacidad" className="underline underline-offset-2 hover:text-ink">
-            Política de privacidad
-          </Link>
-        </nav>
-      </div>
-    </main>
-  );
-}
+        {!descarga && <SinDescarga whatsappHref={sinDescarga} />}
 
-function BotonWhatsapp({ href, texto }: { href: string; texto: string }) {
-  return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="inline-flex items-center justify-center gap-2 rounded-md bg-wa px-5 py-3 text-sm font-bold text-wa-ink transition-colors hover:bg-wa/90"
-    >
-      <WhatsappIcon width={18} height={18} />
-      {texto}
-    </a>
+        <BeneficiosPrincipales />
+        <ProductoEnAccion />
+        <FuncionesPorCategoria />
+        <ComoEmpezar />
+        <SeguridadYCompatibilidad />
+        <FaqPremium />
+        <CtaFinal
+          version={descarga?.version ?? null}
+          fechaFormateada={fechaFormateada}
+          novedades={novedades}
+          descargaUrl={descarga?.url ?? null}
+        />
+
+        <FooterPremium whatsappAyuda={ayuda} />
+      </main>
+    </TemaPremium>
   );
 }
