@@ -238,7 +238,7 @@ export function NavbarPremium({ descargaUrl }: { descargaUrl: string | null }) {
               href={descargaUrl}
               download
               rel="noopener"
-              className="hidden items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-bold text-accent-ink transition-all hover:-translate-y-0.5 hover:opacity-90 sm:inline-flex"
+              className="hidden items-center gap-1.5 rounded-lg bg-accent px-4 py-2 text-sm font-bold text-accent-ink transition-colors hover:opacity-90 sm:inline-flex"
             >
               <Download aria-hidden="true" className="h-4 w-4" />
               Descargar
@@ -295,7 +295,7 @@ function MarcoCaptura({
         alt={alt}
         width={1600}
         height={1000}
-        className="h-auto w-full transition-transform duration-500 group-hover:scale-[1.02]"
+        className="h-auto w-full"
         priority
       />
       {onAmpliar && (
@@ -303,7 +303,7 @@ function MarcoCaptura({
           type="button"
           onClick={onAmpliar}
           aria-label="Ampliar imagen"
-          className="absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-surface/90 text-ink shadow-sm transition-all hover:scale-110 hover:bg-surface"
+          className="absolute bottom-3 right-3 flex h-9 w-9 items-center justify-center rounded-full bg-surface/90 text-ink shadow-sm transition-colors hover:bg-surface"
         >
           <ZoomIn aria-hidden="true" className="h-4 w-4" />
         </button>
@@ -345,7 +345,7 @@ export function HeroPremium({
                 href={descargaUrl}
                 download
                 rel="noopener"
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-6 py-4 text-base font-bold text-accent-ink transition-all hover:-translate-y-0.5 hover:opacity-90 hover:shadow-lg active:translate-y-0"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-accent px-6 py-4 text-base font-bold text-accent-ink transition-colors hover:opacity-90"
               >
                 <Download aria-hidden="true" className="h-5 w-5" />
                 Descargar para Windows{version ? ` (v${version})` : ""}
@@ -353,7 +353,7 @@ export function HeroPremium({
             )}
             <a
               href="#capturas"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border border-line-strong px-6 py-4 text-base font-bold text-ink transition-all hover:-translate-y-0.5 hover:bg-surface-2"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-line-strong px-6 py-4 text-base font-bold text-ink transition-colors hover:bg-surface-2"
             >
               Ver cómo funciona
             </a>
@@ -397,7 +397,7 @@ export function BeneficiosPrincipales() {
             key={titulo}
             as="li"
             delayMs={i * 100}
-            className="rounded-2xl border border-line bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+            className="rounded-2xl border border-line bg-surface p-6"
           >
             <span className="mb-4 flex h-11 w-11 items-center justify-center rounded-xl bg-accent-soft text-accent">
               <Icono aria-hidden="true" className="h-5 w-5" />
@@ -488,7 +488,7 @@ export function ProductoEnAccion() {
               aria-selected={activa === i}
               aria-controls={`panel-${i}`}
               onClick={() => setActiva(i)}
-              className={`rounded-lg px-4 py-2 text-sm font-bold transition-all hover:-translate-y-0.5 ${
+              className={`rounded-lg px-4 py-2 text-sm font-bold transition-colors ${
                 activa === i ? "bg-accent text-accent-ink" : "bg-surface text-ink-soft hover:bg-ink/5"
               }`}
             >
@@ -542,7 +542,7 @@ export function FuncionesPorCategoria() {
           <Reveal
             key={categoria.titulo}
             delayMs={i * 100}
-            className="rounded-2xl border border-line bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+            className="rounded-2xl border border-line bg-surface p-6"
           >
             <Titulo as="h3" className="mb-4 text-lg text-ink">
               {categoria.titulo}
@@ -651,7 +651,7 @@ function PasoEmpezar({
     <Reveal
       as="li"
       delayMs={delayMs}
-      className="flex gap-4 rounded-2xl border border-line bg-surface p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+      className="flex gap-4 rounded-2xl border border-line bg-surface p-5"
     >
       <span
         aria-hidden="true"
@@ -681,7 +681,7 @@ export function SeguridadYCompatibilidad() {
         Seguridad y compatibilidad
       </Titulo>
       <div className="grid gap-6 sm:grid-cols-2">
-        <Reveal className="rounded-2xl border border-line bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+        <Reveal className="rounded-2xl border border-line bg-surface p-6">
           <Titulo as="h3" className="mb-3 text-base text-ink">
             Requisitos
           </Titulo>
@@ -699,7 +699,7 @@ export function SeguridadYCompatibilidad() {
 
         <Reveal
           delayMs={100}
-          className="rounded-2xl border border-line bg-surface p-6 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+          className="rounded-2xl border border-line bg-surface p-6"
         >
           <div className="mb-3 flex items-center gap-2">
             <ShieldCheck aria-hidden="true" className="h-5 w-5 text-accent" />
@@ -777,7 +777,7 @@ export function FaqPremium() {
           <Reveal key={pregunta} delayMs={Math.min(i * 40, 240)}>
             <details
               name="faq-cajasimple-premium"
-              className="group rounded-2xl border border-line bg-surface transition-shadow duration-300 hover:shadow-md"
+              className="group rounded-2xl border border-line bg-surface"
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-2xl px-5 py-4 text-sm font-semibold text-ink [&::-webkit-details-marker]:hidden">
                 {pregunta}
@@ -819,7 +819,7 @@ export function CtaFinal({
             href={descargaUrl}
             download
             rel="noopener"
-            className="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-surface px-6 py-4 text-base font-bold text-accent transition-all hover:-translate-y-0.5 hover:opacity-90 hover:shadow-lg active:translate-y-0"
+            className="mt-4 inline-flex items-center justify-center gap-2 rounded-lg bg-surface px-6 py-4 text-base font-bold text-accent transition-colors hover:opacity-90"
           >
             <Download aria-hidden="true" className="h-5 w-5" />
             Descargar CajaSimple para Windows
@@ -901,7 +901,7 @@ export function BotonWhatsapp({ href, texto }: { href: string; texto: string }) 
       href={href}
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-flex items-center justify-center gap-2 rounded-lg bg-wa px-5 py-3 text-sm font-bold text-wa-ink transition-all hover:-translate-y-0.5 hover:bg-wa/90"
+      className="inline-flex items-center justify-center gap-2 rounded-lg bg-wa px-5 py-3 text-sm font-bold text-wa-ink transition-colors hover:bg-wa/90"
     >
       <WhatsappIcon width={18} height={18} />
       {texto}
