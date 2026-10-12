@@ -25,7 +25,9 @@ import {
   Download,
   HardDrive,
   Menu,
+  Minus,
   ShieldCheck,
+  Square,
   WifiOff,
   X,
   ZoomIn,
@@ -109,12 +111,6 @@ const ESTILOS_ANIMACION = `
     }
   }
 `;
-
-
-interface WindowMockupProps {
-  children: ReactNode;
-  title?: string;
-}
 
 export function TemaPremium({ children }: { children: ReactNode }) {
   return (
@@ -295,16 +291,24 @@ function MarcoCaptura({
   onAmpliar?: () => void;
 }) {
   return (
-    <div className="group relative w-full max-w-5xl overflow-hidden rounded-xl border border-slate-200/80 bg-white shadow-2xl">
-      {/* icons de ventana estilo macOS */}
-      <div className="flex select-none items-end justify-end gap-3 border-b border-slate-200 bg-slate-100/95 px-4 py-2">
-        <div aria-hidden="true" className="flex items-center gap-1">
-          <span className="h-2 w-2 rounded-full bg-[#ff5f57] shadow-sm" />
-          <span className="h-2 w-2 rounded-full bg-[#febc2e] shadow-sm" />
-          <span className="h-2 w-2 rounded-full bg-[#28c840] shadow-sm" />
-        </div>
+    <div className="relative w-full overflow-hidden rounded-xl border border-line bg-surface shadow-2xl">
+      {/* Barra de título estilo Windows: minimizar, maximizar y cerrar — no
+          es un mockup genérico, CajaSimple solo existe en Windows. */}
+      <div
+        aria-hidden="true"
+        className="flex select-none items-center justify-end gap-1 border-b border-line bg-surface-2 px-2 py-1.5"
+      >
+        <span className="flex h-6 w-8 items-center justify-center text-ink-faint">
+          <Minus className="h-3.5 w-3.5" />
+        </span>
+        <span className="flex h-6 w-8 items-center justify-center text-ink-faint">
+          <Square className="h-3 w-3" />
+        </span>
+        <span className="flex h-6 w-8 items-center justify-center text-ink-faint">
+          <X className="h-3.5 w-3.5" />
+        </span>
       </div>
-      <div className="relative overflow-hidden bg-white p-2 sm:p-4">
+      <div className="relative overflow-hidden bg-surface p-2 sm:p-4">
         <Image
           src={src}
           alt={alt}
@@ -526,59 +530,34 @@ export function ProductoEnAccion() {
   );
 }
 
-// ------------------------------------------------------ Funciones por categoría
+// ---------------------------------------------------------- Características
 
-const CATEGORIAS = [
-  {
-    titulo: "Ventas y cobros",
-    items: [FUNCIONES[0]], // Vende rápido
-  },
-  {
-    titulo: "Productos e inventario",
-    items: [FUNCIONES[1], FUNCIONES[3]], // Controla tu inventario, Etiquetas
-  },
-  {
-    titulo: "Caja e informes",
-    items: [FUNCIONES[2]], // Cierra la caja
-  },
-  {
-    titulo: "Seguridad y configuración",
-    items: [FUNCIONES[4], FUNCIONES[5]], // Copias de seguridad, Ayuda
-  },
-];
-
+// Cuadrícula simple de 3 columnas (una tarjeta por función), en vez de
+// agruparlas en categorías — así lo pide la última corrección de diseño.
 export function FuncionesPorCategoria() {
   return (
     <section id="producto" aria-labelledby="producto-titulo" className="scroll-mt-20 mx-auto max-w-300 px-5 py-16 sm:px-8">
       <Titulo as="h2" id="producto-titulo" className="mb-10 text-center text-2xl sm:text-3xl">
         Qué hace CajaSimple
       </Titulo>
-      <div className="grid gap-6 sm:grid-cols-2">
-        {CATEGORIAS.map((categoria, i) => (
+      <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {FUNCIONES.map(({ icono: Icono, titulo, texto }, i) => (
           <Reveal
-            key={categoria.titulo}
-            delayMs={i * 100}
+            key={titulo}
+            as="li"
+            delayMs={(i % 3) * 100}
             className="rounded-2xl border border-line bg-surface p-6"
           >
-            <Titulo as="h3" className="mb-4 text-lg text-ink">
-              {categoria.titulo}
+            <span className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-accent-soft text-accent">
+              <Icono aria-hidden="true" className="h-5 w-5" />
+            </span>
+            <Titulo as="h3" className="mb-1 text-base text-ink">
+              {titulo}
             </Titulo>
-            <ul className="flex flex-col gap-4">
-              {categoria.items.map(({ icono: Icono, titulo, texto }) => (
-                <li key={titulo} className="flex gap-3">
-                  <span className="flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-accent-soft text-accent">
-                    <Icono aria-hidden="true" className="h-4 w-4" />
-                  </span>
-                  <div>
-                    <p className="text-sm font-bold text-ink">{titulo}</p>
-                    <p className="text-sm text-ink-soft">{texto}</p>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            <p className="text-sm text-ink-soft">{texto}</p>
           </Reveal>
         ))}
-      </div>
+      </ul>
     </section>
   );
 }
@@ -594,17 +573,17 @@ export function ComoEmpezar() {
     >
       <div className="mx-auto max-w-3xl px-5 sm:px-8">
         <Titulo as="h2" id="instalacion-titulo" className="mb-10 text-center text-2xl sm:text-3xl">
-          Cómo empezar
+          Instalación en 4 pasos
         </Titulo>
 
         <ol className="mb-6 flex flex-col gap-5">
-          <PasoEmpezar numero={1} titulo="Descargar" delayMs={0}>
+          <PasoEmpezar numero={1} titulo="Descarga el instalador" delayMs={0}>
             Pulsa «Descargar para Windows». Se guarda un archivo que termina en «-setup.exe».
           </PasoEmpezar>
 
-          <PasoEmpezar numero={2} titulo="Instalar" delayMs={100}>
-            Abre el archivo descargado y sigue el asistente, que sale en español: «Siguiente»,
-            «Instalar» y «Finalizar».
+          <PasoEmpezar numero={2} titulo="Ábrelo" delayMs={80}>
+            Haz doble clic en el archivo descargado. Si Windows muestra una pantalla azul, es normal:
+            el instalador todavía no tiene certificado de firma de Microsoft.
             <details className="group mt-3 rounded-xl border border-line bg-surface">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-ink [&::-webkit-details-marker]:hidden">
                 ¿Qué hago si Windows muestra una advertencia?
@@ -615,10 +594,8 @@ export function ComoEmpezar() {
               </summary>
               <div className="flex flex-col gap-4 px-4 pb-4 text-sm text-ink-soft">
                 <p>
-                  El instalador todavía no tiene certificado de firma de Microsoft, así que Windows
-                  puede mostrar una pantalla azul («Windows protegió su PC»). Haz esto solo si
-                  descargaste el archivo desde esta página: pulsa «Más información» y luego «Ejecutar
-                  de todas formas».
+                  Haz esto solo si descargaste el archivo desde esta página: pulsa «Más información» y
+                  luego «Ejecutar de todas formas».
                 </p>
                 {IMAGENES_PANTALLA_AZUL.map((imagen) => (
                   <figure key={imagen.src} className="flex flex-col gap-2">
@@ -641,10 +618,13 @@ export function ComoEmpezar() {
             </details>
           </PasoEmpezar>
 
-          <PasoEmpezar numero={3} titulo="Configurar" delayMs={200}>
-            Abre CajaSimple desde el menú Inicio, acepta los términos y activa el programa con la
-            clave que te enviamos. Luego crea tus productos, imprime etiquetas si las necesitas, y ya
-            puedes vender y cerrar la caja al final del día.
+          <PasoEmpezar numero={3} titulo="Sigue el asistente" delayMs={160}>
+            El asistente sale en español: pulsa «Siguiente», «Instalar» y, al terminar, «Finalizar».
+          </PasoEmpezar>
+
+          <PasoEmpezar numero={4} titulo="Abre CajaSimple" delayMs={240}>
+            Búscalo en el menú Inicio y ábrelo. Acepta los términos, sigue la bienvenida y activa el
+            programa con la clave que te enviamos.
           </PasoEmpezar>
         </ol>
       </div>
