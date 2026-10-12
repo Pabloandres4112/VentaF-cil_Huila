@@ -78,3 +78,43 @@ export async function obtenerDescargaCajaSimple(): Promise<DescargaCajaSimple | 
     return null;
   }
 }
+
+// La fecha de publicación llega en UTC (ej. 2026-09-27T01:54:05Z, que en
+// Colombia todavía es el 26): se muestra siempre en hora de Bogotá, tanto si
+// la formatea el servidor como el navegador, para que no se corra un día.
+export function formatearFechaPublicacion(iso: string): string {
+  return new Intl.DateTimeFormat("es-CO", {
+    timeZone: "America/Bogota",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  }).format(new Date(iso));
+}
+
+export type BloqueNovedades =
+  | { tipo: "lista"; items: string[] }
+  | { tipo: "parrafo"; texto: string };
+
+// Las novedades llegan como texto plano, normalmente con un guion por línea
+// ("- Algo nuevo"). Aquí solo se separan en bloques (viñetas o párrafos); no
+// se interpreta HTML ni Markdown: el texto se muestra tal cual, escapado por React.
+export function parsearNovedades(notas: string): BloqueNovedades[] {
+  const bloques: BloqueNovedades[] = [];
+  const lineas = notas.split("\n");
+
+  for (const lineaCruda of lineas) {
+    const limpia = lineaCruda.replace(/\r$/, "").trim();
+    if (!limpia) continue;
+
+    const viñeta = limpia.match(/^[-–•*]\s+(.*)$/);
+    if (viñeta) {
+      const ultimo = bloques[bloques.length - 1];
+      if (ultimo?.tipo === "lista") ultimo.items.push(viñeta[1]);
+      else bloques.push({ tipo: "lista", items: [viñeta[1]] });
+    } else {
+      bloques.push({ tipo: "parrafo", texto: limpia });
+    }
+  }
+
+  return bloques;
+}
