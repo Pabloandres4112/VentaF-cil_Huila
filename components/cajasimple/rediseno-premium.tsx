@@ -25,9 +25,7 @@ import {
   Download,
   HardDrive,
   Menu,
-  Minus,
   ShieldCheck,
-  Square,
   WifiOff,
   X,
   ZoomIn,
@@ -292,21 +290,15 @@ function MarcoCaptura({
 }) {
   return (
     <div className="relative w-full overflow-hidden rounded-xl border border-line bg-surface shadow-2xl">
-      {/* Barra de título estilo Windows: minimizar, maximizar y cerrar — no
-          es un mockup genérico, CajaSimple solo existe en Windows. */}
+      {/* Barra de título del mockup, con los tres puntos de color que pidió
+          Pablo (se ve mejor así, aunque no sea el estilo real de Windows). */}
       <div
         aria-hidden="true"
-        className="flex select-none items-center justify-end gap-1 border-b border-line bg-surface-2 px-2 py-1.5"
+        className="flex select-none items-center gap-1.5 border-b border-line bg-surface-2 px-4 py-2.5"
       >
-        <span className="flex h-6 w-8 items-center justify-center text-ink-faint">
-          <Minus className="h-3.5 w-3.5" />
-        </span>
-        <span className="flex h-6 w-8 items-center justify-center text-ink-faint">
-          <Square className="h-3 w-3" />
-        </span>
-        <span className="flex h-6 w-8 items-center justify-center text-ink-faint">
-          <X className="h-3.5 w-3.5" />
-        </span>
+        <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f57]" />
+        <span className="h-2.5 w-2.5 rounded-full bg-[#febc2e]" />
+        <span className="h-2.5 w-2.5 rounded-full bg-[#28c840]" />
       </div>
       <div className="relative overflow-hidden bg-surface p-2 sm:p-4">
         <Image
